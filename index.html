@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Alva · Onboarding</title>
+<meta name="theme-color" content="#49a3a6">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="desk">
+  <div class="phone" id="phone">
+    <div class="phone-buttons">
+      <span class="pb pb-action"></span>
+      <span class="pb pb-volup"></span>
+      <span class="pb pb-voldown"></span>
+      <span class="pb pb-power"></span>
+    </div>
+    <div class="phone-screen">
+      <div class="app" id="app">
+
+        <!-- ═══════════ 01 · Welcome ═══════════ -->
+        <section class="screen" data-screen="welcome">
+          <div class="welcome-main">
+            <div class="welcome-hero">
+              <img class="hero-texture" src="assets/ascii-texture.webp" alt="">
+              <div class="miniphone-wrap">
+                <div class="miniphone">
+                  <div class="mini-island"></div>
+                  <div class="mini-statusbar">
+                    <span class="mini-time">9:41</span>
+                    <span class="mini-sb-icons">
+                      <img src="assets/status-signal.svg" alt=""><img src="assets/status-wifi.svg" alt="">
+                      <span class="mini-batt"><img src="assets/battery-outline.svg" class="b-out" alt=""><img src="assets/battery-fill.svg" class="b-fill" alt=""><img src="assets/battery-end.svg" class="b-end" alt=""></span>
+                    </span>
+                  </div>
+                  <div class="mini-topbar">
+                    <img src="assets/icon-menu.svg" class="mini-menu" alt="">
+                    <span class="mini-title">Alva</span>
+                    <span class="mini-cp">Connect Portfolio</span>
+                    <img src="assets/icon-settings.svg" class="mini-gear" alt="">
+                  </div>
+                  <div class="mini-tabs">
+                    <span class="on">Chat</span><span>Tasks</span><span>Alerts</span><span>Memory</span><span>Files</span>
+                  </div>
+                  <div class="mini-chat">
+                    <div class="mini-user">
+                      <div class="mini-bubble">
+                        <span class="mini-quote"><img src="assets/quote-image.png" alt="">Smart Screener</span>
+                        <p>Screen AI infrastructure stocks with FCF growth&gt;30% YoY, net cash on balance sheet, and with positive 7-day performance.<br>Re-run this every day and message me the matches.</p>
+                      </div>
+                    </div>
+                    <div class="mini-answer">
+                      <div class="mini-agent"><span class="mini-logo"><img src="assets/logo-portrait.svg" alt=""></span>Alva</div>
+                      <p class="mini-md">I'm using Alva's automation workflow to lock the screening rules and delivery schedule before dispatching the build.</p>
+                    </div>
+                    <div class="mini-answer">
+                      <div class="mini-agent"><span class="mini-logo"><img src="assets/logo-portrait.svg" alt=""></span>Alva</div>
+                      <p class="mini-md">Screener built · running daily at 6:30 AM.<br>July 7 · 4 matches</p>
+                      <table class="mini-table">
+                        <tr><th>#</th><th>Ticker</th><th>Segment</th><th>FCF YoY</th><th>Net cash</th><th>7-day</th><th>Last-close</th></tr>
+                        <tr><td>1</td><td>CRDO</td><td>Connectivity silicon</td><td>+1,302%</td><td>+$1.42B</td><td>+8.1%</td><td>$265.55</td></tr>
+                        <tr><td>2</td><td>ANET</td><td>Datacenter networking</td><td>+39%</td><td>+$12.4B</td><td>+5.6%</td><td>$173.28</td></tr>
+                        <tr><td>3</td><td>AMD</td><td>GPU / accelerators</td><td>+211%</td><td>+$8.49B</td><td>+2.3%</td><td>$552.05</td></tr>
+                        <tr><td>4</td><td>NVDA</td><td>GPU / accelerators</td><td>+65%</td><td>+$67.8B</td><td>+0.3%</td><td>$195.55</td></tr>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="hero-fade"></div>
+            </div>
+            <div class="welcome-brand">
+              <div class="wordmark">
+                <img src="assets/wordmark-symbol.svg" class="wm-symbol" alt="">
+                <img src="assets/wordmark-text.svg" class="wm-text" alt="Alva">
+              </div>
+              <h1>Your AI investing agent</h1>
+              <p>Watchlists, backtests, and a daily market digest.<br>Set up in about a minute.</p>
+            </div>
+          </div>
+          <div class="welcome-actions">
+            <button class="btn-primary" data-nav="tasks">Get started</button>
+            <button class="btn-ghost">Already have an account?&nbsp; Log in</button>
+          </div>
+          <div class="home-indicator"><span></span></div>
+          <div class="statusbar">
+            <div class="sb-left"><span class="sb-time">9:41</span></div>
+            <div class="sb-island"></div>
+            <div class="sb-right">
+              <img src="assets/status-signal.svg" alt=""><img src="assets/status-wifi.svg" alt="">
+              <span class="sb-batt"><img src="assets/battery-outline.svg" class="b-out" alt=""><img src="assets/battery-fill.svg" class="b-fill" alt=""><img src="assets/battery-end.svg" class="b-end" alt=""></span>
+            </div>
+          </div>
+        </section>
+
+        <!-- ═══════════ 02 · Choose a task ═══════════ -->
+        <section class="screen" data-screen="tasks">
+          <div class="statusbar sb-static">
+            <div class="sb-left"><span class="sb-time">9:41</span></div>
+            <div class="sb-island"></div>
+            <div class="sb-right">
+              <img src="assets/status-signal.svg" alt=""><img src="assets/status-wifi.svg" alt="">
+              <span class="sb-batt"><img src="assets/battery-outline.svg" class="b-out" alt=""><img src="assets/battery-fill.svg" class="b-fill" alt=""><img src="assets/battery-end.svg" class="b-end" alt=""></span>
+            </div>
+          </div>
+          <div class="topbar">
+            <button class="tb-back" data-back><span class="arrow-back"><img src="assets/icon-arrow-back.svg" alt="Back"></span></button>
+            <span class="tb-title"></span>
+            <button class="tb-skip" data-nav="sources">Skip</button>
+          </div>
+          <div class="title-block">
+            <h2>What should I handle?</h2>
+            <p>Choose one to start. I&rsquo;ll turn your input into focused monitoring, research, or automation.</p>
+          </div>
+          <div class="task-area">
+            <div class="task-card">
+              <button class="task-row" data-nav="sources">
+                <span class="task-emoji">💼</span>
+                <span class="task-copy">
+                  <span class="task-title">Watch your portfolio 24/7</span>
+                  <span class="task-desc">Important portfolio moves — without the noise.</span>
+                  <span class="task-action">Add my portfolio<span class="arrow-right"><img src="assets/icon-arrow-right.svg" alt=""></span></span>
+                </span>
+              </button>
+              <button class="task-row" data-nav="sources">
+                <span class="task-emoji">📣</span>
+                <span class="task-copy">
+                  <span class="task-title">Track FinTwit, news &amp; technicals</span>
+                  <span class="task-desc">Signals where FinTwit, news, and charts line up.</span>
+                  <span class="task-action">Choose sources<span class="arrow-right"><img src="assets/icon-arrow-right.svg" alt=""></span></span>
+                </span>
+              </button>
+              <button class="task-row" data-nav="sources">
+                <span class="task-emoji">📊</span>
+                <span class="task-copy">
+                  <span class="task-title">Get a quick read on any ticker</span>
+                  <span class="task-desc">A short, sourced read — no buy/sell calls.</span>
+                  <span class="task-action">Enter a ticker<span class="arrow-right"><img src="assets/icon-arrow-right.svg" alt=""></span></span>
+                </span>
+              </button>
+              <button class="task-row" data-nav="sources">
+                <span class="task-emoji">🔍</span>
+                <span class="task-copy">
+                  <span class="task-title">Screen the market on your rules</span>
+                  <span class="task-desc">New names only when they match your rules.</span>
+                  <span class="task-action">Set screening rules<span class="arrow-right"><img src="assets/icon-arrow-right.svg" alt=""></span></span>
+                </span>
+              </button>
+              <button class="task-row" data-nav="sources">
+                <span class="task-emoji">⚙️</span>
+                <span class="task-copy">
+                  <span class="task-title">Build your own automations</span>
+                  <span class="task-desc">A reliable automation on your terms.</span>
+                  <span class="task-action">Describe what to automate<span class="arrow-right"><img src="assets/icon-arrow-right.svg" alt=""></span></span>
+                </span>
+              </button>
+            </div>
+          </div>
+          <div class="home-indicator"><span></span></div>
+        </section>
+
+        <!-- ═══════════ 03 · Choose sources ═══════════ -->
+        <section class="screen" data-screen="sources">
+          <div class="statusbar sb-static">
+            <div class="sb-left"><span class="sb-time">9:41</span></div>
+            <div class="sb-island"></div>
+            <div class="sb-right">
+              <img src="assets/status-signal.svg" alt=""><img src="assets/status-wifi.svg" alt="">
+              <span class="sb-batt"><img src="assets/battery-outline.svg" class="b-out" alt=""><img src="assets/battery-fill.svg" class="b-fill" alt=""><img src="assets/battery-end.svg" class="b-end" alt=""></span>
+            </div>
+          </div>
+          <div class="topbar">
+            <button class="tb-back" data-back><span class="arrow-back"><img src="assets/icon-arrow-back.svg" alt="Back"></span></button>
+            <span class="tb-title"></span>
+            <button class="tb-skip" data-skip-sources>Skip</button>
+          </div>
+          <div class="sources-content">
+            <div class="title-block tb-flush">
+              <h2>Choose who Alva reads</h2>
+              <p>Choose a preset group, add individual accounts, or use both. You can adjust this list later.</p>
+            </div>
+            <div class="search-field">
+              <img src="assets/search.svg" alt="">
+              <span>Search by handle, name, or focus</span>
+            </div>
+            <div class="source-grid" id="sourceGrid"></div>
+          </div>
+          <div class="sources-footer" id="sourcesFooter">
+            <div class="footer-cta">
+              <button class="btn-primary" data-nav="confirm">Next</button>
+            </div>
+            <div class="home-indicator hi-white"><span></span></div>
+          </div>
+          <div class="home-indicator hi-abs"><span></span></div>
+        </section>
+
+        <!-- ═══════════ 04 · Confirm digest ═══════════ -->
+        <section class="screen" data-screen="confirm">
+          <div class="statusbar sb-static">
+            <div class="sb-left"><span class="sb-time">9:41</span></div>
+            <div class="sb-island"></div>
+            <div class="sb-right">
+              <img src="assets/status-signal.svg" alt=""><img src="assets/status-wifi.svg" alt="">
+              <span class="sb-batt"><img src="assets/battery-outline.svg" class="b-out" alt=""><img src="assets/battery-fill.svg" class="b-fill" alt=""><img src="assets/battery-end.svg" class="b-end" alt=""></span>
+            </div>
+          </div>
+          <div class="topbar">
+            <button class="tb-back" data-back><span class="arrow-back"><img src="assets/icon-arrow-back.svg" alt="Back"></span></button>
+            <span class="tb-title"></span>
+            <button class="tb-skip" data-nav="success">Skip</button>
+          </div>
+          <div class="confirm-content">
+            <div class="title-block tb-flush">
+              <h2>Confirm your digest</h2>
+              <p>One digest a day, one notification — at the time you choose.</p>
+            </div>
+            <div class="chip-wrap" id="chipWrap"></div>
+          </div>
+          <div class="confirm-footer">
+            <div class="digest-controls">
+              <div class="select-group">
+                <label>Daily alert time</label>
+                <button class="select" data-picker="time"><span id="timeValue">07:30 ET</span><span class="caret"><img src="assets/icon-arrow-down.svg" alt=""></span></button>
+              </div>
+              <div class="select-group">
+                <label>Digest language</label>
+                <button class="select" data-picker="lang"><span id="langValue">English</span><span class="caret"><img src="assets/icon-arrow-down.svg" alt=""></span></button>
+              </div>
+            </div>
+            <button class="btn-primary" data-nav="success">Confirm &amp; Generate digest</button>
+            <div class="home-indicator hi-white"><span></span></div>
+          </div>
+        </section>
+
+        <!-- ═══════════ 05 · Success ═══════════ -->
+        <section class="screen" data-screen="success">
+          <div class="statusbar sb-static">
+            <div class="sb-left"><span class="sb-time">9:41</span></div>
+            <div class="sb-island"></div>
+            <div class="sb-right">
+              <img src="assets/status-signal.svg" alt=""><img src="assets/status-wifi.svg" alt="">
+              <span class="sb-batt"><img src="assets/battery-outline.svg" class="b-out" alt=""><img src="assets/battery-fill.svg" class="b-fill" alt=""><img src="assets/battery-end.svg" class="b-end" alt=""></span>
+            </div>
+          </div>
+          <div class="success-body">
+            <div class="success-icon">
+              <img src="assets/success-squircle.png" alt="" class="squircle">
+              <span class="party">🎉</span>
+            </div>
+            <div class="success-text">
+              <p class="st-title">Request submitted</p>
+              <p class="st-sub">You can chat with Alva now.</p>
+            </div>
+          </div>
+          <div class="home-indicator"><span></span></div>
+        </section>
+
+        <!-- ═══════════ 06 · First digest & alerts ═══════════ -->
+        <section class="screen" data-screen="digest">
+          <div class="statusbar sb-static">
+            <div class="sb-left"><span class="sb-time">9:41</span></div>
+            <div class="sb-island"></div>
+            <div class="sb-right">
+              <img src="assets/status-signal.svg" alt=""><img src="assets/status-wifi.svg" alt="">
+              <span class="sb-batt"><img src="assets/battery-outline.svg" class="b-out" alt=""><img src="assets/battery-fill.svg" class="b-fill" alt=""><img src="assets/battery-end.svg" class="b-end" alt=""></span>
+            </div>
+          </div>
+          <div class="topbar tb-app">
+            <button class="tb-icon-btn"><img src="assets/icon-menu.svg" alt="Menu"></button>
+            <span class="tb-title tb-title-app">Alva</span>
+            <button class="tb-icon-btn sm"><img src="assets/icon-info.svg" alt="Info"></button>
+            <button class="tb-icon-btn sm"><img src="assets/icon-settings.svg" alt="Settings"></button>
+          </div>
+          <div class="app-tabs">
+            <span class="tab on">Chat</span>
+            <span class="tab">Tasks <em>(5)</em></span>
+            <span class="tab">Alerts <em>(8)</em></span>
+            <span class="tab">Memory</span>
+            <span class="tab">Files <em>(8)</em></span>
+          </div>
+          <div class="digest-body">
+            <div class="user-bubble-row">
+              <div class="user-bubble">Create today's FinTwit Digest from my chosen FinTwit list.</div>
+            </div>
+            <div class="answer">
+              <div class="agent-row">
+                <span class="agent-logo"><img src="assets/logo-portrait2.svg" alt=""></span>
+                <span class="agent-name">Alva</span>
+              </div>
+              <div class="report-card">
+                <div class="report-head">
+                  <div class="report-info">
+                    <p class="report-title">Daily Digest · Market Digest</p>
+                    <span class="status-pill"><span class="dot"></span>nvda-macd-hft-notify</span>
+                    <p class="report-meta">English · Jun 15 · Daily Digest · Previous day · Based on 53 FinTwits</p>
+                  </div>
+                  <button class="btn-outline">Open full report</button>
+                </div>
+                <div class="report-rows">
+                  <p>Top-ranked traders clustered around $NVDA, $000660.KS, $AKAM, $AMPG, and $AVGO in this window.</p>
+                  <p>The strongest current theme is AI infrastructure and cloud names, with $NVDA receiving repeated attention while $AVGO appears as a possible funding short.</p>
+                  <p>Most calls still need confirmation from price action, volume, and follow-up posts before they become high-conviction trade ideas.</p>
+                  <p>The strongest current theme is AI infrastructure and cloud names, with $NVDA receiving repeated attention while $AVGO appears as a possible funding short.</p>
+                  <p>Most calls still need confirmation from price action, volume, and follow-up posts before they become high-conviction trade ideas.</p>
+                  <div class="report-fade"></div>
+                </div>
+              </div>
+              <div class="alerts-card">
+                <div class="alerts-copy">
+                  <p class="ac-title">Where should Alva send alerts?</p>
+                  <p class="ac-sub">Connect one destination first. Once connected, send yourself this sample digest to complete setup.</p>
+                </div>
+                <div class="alerts-btns">
+                  <button class="btn-dest"><img src="assets/icon-telegram.svg" alt="">Telegram</button>
+                  <button class="btn-dest"><img src="assets/icon-discord.svg" alt="">Discord</button>
+                  <button class="btn-dest"><img src="assets/icon-whatsapp.svg" alt="">WhatsApp</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="chatbox-area">
+            <div class="chatbox">
+              <span class="cb-add"><img src="assets/icon-add.svg" alt=""></span>
+              <span class="cb-placeholder">Ask Alva anything. @ for context, / for skills</span>
+              <span class="cb-mic"><img src="assets/icon-mic.svg" alt=""></span>
+              <span class="cb-send"><span class="arrow-up"><img src="assets/icon-arrow-up.svg" alt=""></span></span>
+            </div>
+            <div class="home-indicator hi-white"><span></span></div>
+          </div>
+        </section>
+
+        <div class="dim" id="dim"></div>
+
+        <!-- iOS-style bottom sheet picker -->
+        <div class="sheet-layer" id="sheetLayer">
+          <div class="sheet-backdrop" id="sheetBackdrop"></div>
+          <div class="sheet" id="sheet">
+            <div class="sheet-grabber"></div>
+            <p class="sheet-title" id="sheetTitle"></p>
+            <div class="sheet-options" id="sheetOptions"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<a class="figma-badge" href="https://www.figma.com/design/A4jIwN4EMWr0fJVVGmCIsr/Mobile?node-id=1355-5243" target="_blank" rel="noopener">Onboarding · Production v4 · FinTwit path</a>
+
+<script src="app.js"></script>
+</body>
+</html>
