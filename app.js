@@ -303,12 +303,18 @@
       chipList = opts.skipped ? [...DEFAULT_CHIPS] : [...selected];
       renderChips();
     }
-    if (name === 'success') screens.success.classList.remove('celebrate');
+    if (name === 'success') {
+      // Arm the celebration BEFORE the cross-dissolve starts. The keyframes
+      // carry their own pre-state (fill: both), so the content fades in and
+      // pops exactly once instead of appearing, resetting, and popping again.
+      screens.success.classList.remove('celebrate');
+      void screens.success.offsetWidth;
+      screens.success.classList.add('celebrate');
+    }
   }
 
   function onDidShow(name) {
     if (name === 'success') {
-      screens.success.classList.add('celebrate');
       clearTimeout(successTimer);
       // Auto-advances ~2s (Figma: "05 · Success only · auto-advances ~2s").
       // Landing on the first digest DISMISSES onboarding: the stack resets,
@@ -499,17 +505,16 @@
   sheet.addEventListener('pointercancel', endSheetDrag);
 
   /* ──────────────────────────────
-     02 · Tasks: FinTwit is the built path; other rows guide back to it
+     Scroll-edge divider — the top bar earns a hairline only once
+     content has actually scrolled beneath it (iOS scroll edge effect)
      ────────────────────────────── */
 
-  const fintwitRow = document.getElementById('fintwitRow');
-  document.querySelectorAll('[data-offpath]').forEach(row =>
-    row.addEventListener('click', () => {
-      showToast('This demo builds the FinTwit path');
-      fintwitRow.classList.remove('pulse');
-      void fintwitRow.offsetWidth;
-      fintwitRow.classList.add('pulse');
-    }));
+  document.querySelectorAll('[data-scroll]').forEach(sc => {
+    const screen = sc.closest('.screen');
+    const sync = () => screen.classList.toggle('scrolled', sc.scrollTop > 1);
+    sc.addEventListener('scroll', sync, { passive: true });
+    sync();
+  });
 
   /* ──────────────────────────────
      06 · Digest: simulated connect + out-of-scope feedback

@@ -1,6 +1,15 @@
 /* ═══════════════════════════════════════════════════════════
    Alva · FinTwit onboarding demo
    Rebuilt from Figma: Onboarding · Production v4 · FinTwit path
+
+   Layout contract (per screen):
+     · system chrome (status bar + home indicator) is GLOBAL and fixed —
+       it never travels with a screen and never animates
+     · .topbar is fixed; it grows a hairline divider once content
+       scrolls underneath it
+     · .bottom-bar is fixed
+     · .scroll is the one and only scrolling region — titles, search
+       fields and lists all scroll inside it
    ═══════════════════════════════════════════════════════════ */
 
 @font-face {
@@ -40,8 +49,19 @@
   --r-btn-m: 6px;
   --r-ct-l: 8px;
   --sidebar: #2a2a38;
-  --push-ease: cubic-bezier(0.32, 0.72, 0, 1);
-  --push-dur: 520ms;
+
+  /* system chrome heights */
+  --sb-h: 59px;
+  --home-h: 34px;
+
+  /* motion */
+  --ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --spring: cubic-bezier(0.34, 1.3, 0.64, 1);
+
+  /* one press language across the whole app */
+  --press-dur: 0.16s;
+  --press-scale: 0.97;
+  --press-dim: 0.55;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -67,7 +87,48 @@ button {
   letter-spacing: inherit;
 }
 
-img { display: block; }
+/* images never intercept the edge-swipe gesture, never drag */
+img {
+  display: block;
+  pointer-events: none;
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+[hidden] { display: none !important; }
+
+/* ═════════════════════════════════════════════
+   Press feedback — one language, three surfaces
+   ═════════════════════════════════════════════ */
+
+/* filled / card surfaces: settle inward */
+.btn-primary, .btn-dest, .btn-outline, .select, .source-cell {
+  transition: transform var(--press-dur) ease, opacity var(--press-dur) ease,
+              filter var(--press-dur) ease, background var(--press-dur) ease;
+}
+.btn-primary:active, .btn-dest:active {
+  transform: scale(var(--press-scale));
+  filter: brightness(0.94);
+}
+.btn-outline:active, .select:active, .source-cell:active {
+  transform: scale(var(--press-scale));
+  background: var(--br03);
+}
+
+/* icon / text-only controls: dim */
+.tb-back, .tb-skip, .tb-icon-btn, .btn-ghost, .chip-close,
+.tab[data-toast], .chatbox[data-toast] {
+  transition: opacity var(--press-dur) ease;
+}
+.tb-back:active, .tb-skip:active, .tb-icon-btn:active, .btn-ghost:active,
+.chip-close:active, .tab[data-toast]:active, .chatbox[data-toast]:active {
+  opacity: var(--press-dim);
+}
+.tab[data-toast], .chatbox[data-toast] { cursor: pointer; }
+
+/* list rows: background tint */
+.task-row[data-nav], .sheet-option { transition: background var(--press-dur) ease; }
+.task-row[data-nav]:active, .sheet-option:active { background: var(--br03); }
 
 /* ─────────────────────────────────────────────
    Desktop stage + iPhone mockup
@@ -138,25 +199,34 @@ img { display: block; }
     border-radius: 0;
     box-shadow: none;
   }
-  .figma-badge { display: none; }
 }
 
-.figma-badge {
+.stage-controls {
   position: fixed;
   right: 20px;
   bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.figma-badge, .replay-pill {
   font-size: 12px;
   letter-spacing: 0.01em;
-  color: rgba(23, 32, 34, 0.45);
+  color: rgba(23, 32, 34, 0.5);
   text-decoration: none;
   padding: 6px 14px;
   border-radius: 960px;
   border: 0.5px solid rgba(23, 32, 34, 0.12);
   background: rgba(255, 255, 255, 0.55);
+  -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
   transition: color 0.2s, border-color 0.2s;
 }
-.figma-badge:hover { color: var(--m1); border-color: var(--m1); }
+.figma-badge:hover, .replay-pill:hover { color: var(--m1); border-color: var(--m1); }
+/* declared after the definition so it actually wins */
+@media (max-width: 520px), (max-height: 700px) and (pointer: coarse) {
+  .stage-controls { display: none; }
+}
 
 /* ─────────────────────────────────────────────
    App shell + screens
@@ -169,6 +239,7 @@ img { display: block; }
   overflow: hidden;
   letter-spacing: 0.01em;
   color: var(--n9);
+  touch-action: pan-y;
 }
 
 .screen {
@@ -179,9 +250,14 @@ img { display: block; }
   background: #fff;
   visibility: hidden;
   will-change: transform;
+  padding-top: var(--sb-h);
+  padding-bottom: var(--home-h);
 }
-.screen.current { visibility: visible; }
+.screen.current,
 .screen.animating { visibility: visible; }
+
+/* Welcome runs its artwork under the status bar */
+.screen.s-welcome { padding-top: 0; }
 
 .dim {
   position: absolute;
@@ -192,25 +268,18 @@ img { display: block; }
   z-index: 5;
 }
 
-/* transition helpers driven by JS */
-.screen.trans { transition: transform var(--push-dur) var(--push-ease), opacity var(--push-dur) var(--push-ease); }
-.dim.trans    { transition: opacity var(--push-dur) var(--push-ease); }
+/* ── System chrome — fixed above every screen, never animated ── */
 
-/* ─────────────────────────────────────────────
-   Shared: status bar / topbar / home indicator
-   ───────────────────────────────────────────── */
-
-.statusbar {
+.sysbar {
   position: absolute;
   top: 0; left: 0; right: 0;
-  height: 59px;
+  height: var(--sb-h);
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  z-index: 3;
+  z-index: 6;
+  pointer-events: none;
 }
-.sb-static { position: relative; flex-shrink: 0; }
-
 .sb-left {
   flex: 1;
   height: 100%;
@@ -245,19 +314,54 @@ img { display: block; }
 .sb-right > img:nth-child(1) { width: 18px; height: 12px; }
 .sb-right > img:nth-child(2) { width: 17px; height: 11.8px; }
 
-.sb-batt { position: relative; width: 27.4px; height: 13px; display: block; }
-.sb-batt .b-out  { position: absolute; left: 0; right: 2.4px; top: 0; height: 13px; width: 25px; }
+.sb-batt { position: relative; display: block; width: 27.4px; height: 13px; }
+.sb-batt .b-out  { position: absolute; left: 0; top: 0; width: 25px; height: 13px; }
 .sb-batt .b-fill { position: absolute; left: 2px; top: 2px; width: 21px; height: 9px; }
 .sb-batt .b-end  { position: absolute; right: 0; top: 4.4px; width: 1.4px; height: 4.2px; }
 
+.sys-home {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: var(--home-h);
+  z-index: 6;
+  pointer-events: none;
+}
+.sys-home span {
+  position: absolute;
+  left: 50%;
+  bottom: 8px;
+  transform: translateX(-50%);
+  width: 144px;
+  height: 5px;
+  border-radius: 100px;
+  background: #000;
+}
+
+/* ── Top bar (fixed) with scroll-edge divider ── */
+
 .topbar {
+  position: relative;
   flex-shrink: 0;
   height: 56px;
   display: flex;
   align-items: center;
   background: #fff;
   padding-right: 8px;
+  z-index: 2;
 }
+.topbar::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 0.5px;
+  background: var(--l12);
+  opacity: 0;
+  transition: opacity 0.22s ease;
+}
+.screen.scrolled .topbar::after { opacity: 1; }
+/* 06 already carries a permanent tab divider */
+.screen[data-screen="digest"] .topbar::after { display: none; }
+
 .tb-back {
   height: 100%;
   display: flex;
@@ -288,26 +392,48 @@ img { display: block; }
   color: var(--n9);
 }
 
-.home-indicator {
+.top-chrome {
   flex-shrink: 0;
-  height: 34px;
   position: relative;
+  z-index: 2;
+  background: #fff;
 }
-.home-indicator span {
+
+/* ── The single scrolling region ── */
+
+.scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.scroll::-webkit-scrollbar { display: none; }
+/* leave room for the floating CTA on 03 */
+.scroll.pad-cta { padding-bottom: 96px; }
+
+/* ── Bottom bar (fixed) ── */
+
+.bottom-bar { flex-shrink: 0; position: relative; z-index: 2; }
+
+/* 03's CTA floats over the grid and slides in from the bottom edge.
+   The home indicator stays put — it is system chrome. */
+.float-bar {
   position: absolute;
-  left: 50%;
-  bottom: 8px;
-  transform: translateX(-50%);
-  width: 144px;
-  height: 5px;
-  border-radius: 100px;
-  background: var(--n9);
+  left: 0; right: 0;
+  bottom: var(--home-h);
+  padding: 16px 24px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, #fff 38%);
+  transform: translateY(calc(100% + var(--home-h)));
+  transition: transform 0.44s var(--ease);
 }
-.hi-white { background: #fff; }
-.hi-abs { position: absolute; bottom: 0; left: 0; right: 0; z-index: 1; }
+.float-bar.visible { transform: translateY(0); }
+
+/* ── Shared blocks ── */
 
 .title-block {
-  flex-shrink: 0;
   padding: 0 16px;
   display: flex;
   flex-direction: column;
@@ -325,7 +451,6 @@ img { display: block; }
   line-height: 22px;
   color: var(--n7);
 }
-.tb-flush { padding: 0; }
 
 .btn-primary {
   width: 100%;
@@ -339,9 +464,9 @@ img { display: block; }
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.18s ease, filter 0.18s ease;
 }
-.btn-primary:active { transform: scale(0.97); filter: brightness(0.94); }
+.btn-primary.disabled { background: var(--br05); color: var(--n3); }
+.btn-primary.disabled:active { transform: none; filter: none; }
 
 .btn-ghost {
   width: 100%;
@@ -351,9 +476,16 @@ img { display: block; }
   font-weight: 500;
   font-size: 14px;
   line-height: 22px;
-  transition: background 0.18s ease, transform 0.18s ease;
 }
-.btn-ghost:active { background: var(--br03); transform: scale(0.98); }
+
+.grid-empty, .chips-empty {
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--n5);
+  text-align: center;
+  padding: 48px 24px;
+}
+.grid-empty b { font-weight: 500; color: var(--n7); }
 
 /* ─────────────────────────────────────────────
    01 · Welcome
@@ -386,20 +518,23 @@ img { display: block; }
   transform: translate(-50%, -50%);
   opacity: 0.2;
   object-fit: cover;
-  pointer-events: none;
 }
 
-.hero-fade {
+.miniphone-wrap { position: relative; z-index: 1; }
+
+/* Sits ABOVE the device (Figma 1772:85727) so the white device body
+   never merges into the white brand section below the hero. */
+.hero-shadow {
   position: absolute;
   left: 61px; right: 61px;
   bottom: 0;
   height: 53px;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.1) 100%);
+  z-index: 2;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.13) 100%);
   pointer-events: none;
 }
 
 /* mini phone (product proof) */
-.miniphone-wrap { position: relative; z-index: 1; }
 .miniphone {
   position: relative;
   width: 272px;
@@ -434,9 +569,8 @@ img { display: block; }
 .mini-time { font-weight: 600; font-size: 10.5px; color: #000; }
 .mini-sb-icons { display: flex; align-items: center; gap: 3.5px; }
 .mini-sb-icons img { height: 7.5px; width: auto; }
-.mini-batt { position: relative; display: flex; }
+.mini-batt { display: flex; }
 .mini-batt img { height: 8px; width: auto; }
-.mini-batt .b-fill, .mini-batt .b-end { display: none; }
 
 .mini-topbar {
   display: flex;
@@ -551,7 +685,7 @@ img { display: block; }
 .wordmark { display: flex; align-items: center; height: 16px; gap: 3px; }
 .wm-symbol { height: 15.7px; width: auto; }
 .wm-text { height: 16px; width: auto; }
-/* Figma: gap 12px wordmark→copy, gap 4px title→subtitle */
+/* Figma: 12px wordmark→copy, 4px title→subtitle */
 .brand-copy {
   display: flex;
   flex-direction: column;
@@ -572,7 +706,6 @@ img { display: block; }
 }
 
 .welcome-actions {
-  flex-shrink: 0;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -583,12 +716,7 @@ img { display: block; }
    02 · Choose a task
    ───────────────────────────────────────────── */
 
-.task-area {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  padding: 24px 16px 56px;
-}
+.task-area { padding: 24px 16px 56px; }
 
 .task-card {
   border: 0.5px solid var(--l2);
@@ -604,10 +732,10 @@ img { display: block; }
   padding: 16px;
   text-align: left;
   border-bottom: 0.5px solid var(--l2);
-  transition: background 0.15s ease;
 }
 .task-row:last-child { border-bottom: 0; }
-.task-row:active { background: var(--br03); }
+/* routes whose behaviour is not wired up yet stay inert */
+.task-row.is-pending { cursor: default; }
 
 .task-emoji {
   font-weight: 500;
@@ -652,18 +780,14 @@ img { display: block; }
    03 · Choose sources
    ───────────────────────────────────────────── */
 
-.sources-content {
-  flex: 1;
-  min-height: 0;
+.sources-body {
   display: flex;
   flex-direction: column;
   gap: 24px;
-  padding: 0 16px;
-  overflow: hidden;
+  padding: 24px 16px 0;
 }
 
 .search-field {
-  flex-shrink: 0;
   height: 40px;
   display: flex;
   align-items: center;
@@ -672,75 +796,76 @@ img { display: block; }
   background: #fff;
   border: 0.5px solid var(--l3);
   border-radius: var(--r-btn-m);
+  transition: border-color 0.18s ease;
 }
 .search-field img { width: 13px; height: 13px; }
-.search-field span {
+.search-field input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  background: none;
+  font-family: inherit;
   font-size: 14px;
   line-height: 22px;
-  color: var(--n3);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  letter-spacing: 0.01em;
+  color: var(--n9);
 }
+.search-field input::placeholder { color: var(--n3); }
+.search-field:focus-within { border-color: var(--m1); }
 
 .source-grid {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
   align-content: start;
-  padding-bottom: 140px;
-  scrollbar-width: none;
 }
-.source-grid::-webkit-scrollbar { display: none; }
 
 .source-cell {
   display: flex;
   flex-direction: column;
   gap: 8px;
   text-align: center;
-  position: relative;
+  background: none;
+  border-radius: var(--r-ct-l);
 }
-.sc-avatar-pad { padding: 0 12px; position: relative; }
+.sc-avatar-pad { display: block; position: relative; padding: 0 12px; }
+
+/* display:block is load-bearing here — an inline span cannot clip its
+   overflow, which is what made half of these avatars render square */
 .sc-avatar {
+  display: block;
   position: relative;
   width: 100%;
-  aspect-ratio: 1;
-  border-radius: 960px;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
   overflow: hidden;
-  transform: translateZ(0);
-  transition: transform 0.2s var(--push-ease);
+  background: var(--br03);
 }
-.source-cell:active .sc-avatar { transform: scale(0.94); }
-.sc-avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
+.sc-avatar img { width: 100%; height: 100%; object-fit: cover; }
 .sc-avatar.collage {
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr 1fr;
-  background: var(--br03);
 }
+
 .sc-check {
   position: absolute;
-  top: 4px;
+  top: 2px;
   right: 4px;
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   opacity: 0;
   transform: scale(0.4);
-  transition: opacity 0.22s var(--push-ease), transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
-  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.3s var(--spring);
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.18));
 }
-.sc-check img { width: 24px; height: 20px; }
+/* square, like the exported asset — not the squashed Figma frame */
+.sc-check img { width: 20px; height: 20px; }
 .source-cell.selected .sc-check { opacity: 1; transform: scale(1); }
 
 .sc-name {
+  display: block;
   font-weight: 500;
   font-size: 12px;
   line-height: 20px;
@@ -751,42 +876,19 @@ img { display: block; }
   margin-bottom: -2px;
 }
 .sc-sub {
+  display: block;
   font-size: 12px;
   line-height: 20px;
   color: var(--n5);
   white-space: nowrap;
 }
-.sc-sub b {
-  font-weight: 500;
-  color: var(--m1);
-}
-
-.sources-footer {
-  position: absolute;
-  left: 0; right: 0; bottom: 0;
-  z-index: 2;
-  transform: translateY(100%);
-  transition: transform 0.45s var(--push-ease);
-}
-.sources-footer.visible { transform: translateY(0); }
-.footer-cta {
-  padding: 16px 24px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, #fff 38%);
-}
+.sc-sub b { font-weight: 500; color: var(--m1); }
 
 /* ─────────────────────────────────────────────
    04 · Confirm digest
    ───────────────────────────────────────────── */
 
-.confirm-content {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  padding: 0 16px 24px;
-  overflow-y: auto;
-}
+.confirm-body { padding: 24px 16px; }
 
 .chip-wrap {
   display: flex;
@@ -803,12 +905,14 @@ img { display: block; }
   background: var(--br03);
   border: 0.5px solid var(--l05);
   border-radius: 960px;
-  transition: transform 0.25s var(--push-ease), opacity 0.25s var(--push-ease);
+  transition: transform 0.22s var(--ease), opacity 0.22s var(--ease);
 }
 .chip.removing { transform: scale(0.7); opacity: 0; }
 .chip-avatar {
+  display: block;
+  position: relative;
   width: 24px; height: 24px;
-  border-radius: 960px;
+  border-radius: 50%;
   overflow: hidden;
   background: var(--br03);
   flex-shrink: 0;
@@ -829,22 +933,18 @@ img { display: block; }
   width: 14px; height: 14px;
   display: grid;
   place-items: center;
-  cursor: pointer;
+  padding: 0;
 }
 .chip-close img { width: 9.1px; height: 9.1px; }
 
 .confirm-footer {
-  flex-shrink: 0;
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding: 16px 24px 0;
+  padding: 16px 24px;
+  background: #fff;
 }
-
-.digest-controls {
-  display: flex;
-  gap: 16px;
-}
+.digest-controls { display: flex; gap: 16px; }
 .select-group {
   flex: 1;
   min-width: 0;
@@ -869,9 +969,7 @@ img { display: block; }
   background: #fff;
   border: 0.5px solid var(--l3);
   border-radius: var(--r-btn-m);
-  transition: border-color 0.18s ease, transform 0.18s ease;
 }
-.select:active { transform: scale(0.98); border-color: var(--m1); }
 .select > span:first-child {
   flex: 1;
   min-width: 0;
@@ -921,21 +1019,6 @@ img { display: block; }
   line-height: 72px;
 }
 
-.screen[data-screen="success"].celebrate .success-icon {
-  animation: pop-in 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-}
-.screen[data-screen="success"].celebrate .success-text {
-  animation: rise-in 0.5s 0.12s var(--push-ease) both;
-}
-@keyframes pop-in {
-  from { transform: scale(0.55); opacity: 0; }
-  to   { transform: scale(1); opacity: 1; }
-}
-@keyframes rise-in {
-  from { transform: translateY(14px); opacity: 0; }
-  to   { transform: translateY(0); opacity: 1; }
-}
-
 .success-text {
   text-align: center;
   display: flex;
@@ -945,6 +1028,26 @@ img { display: block; }
 }
 .st-title { font-size: 20px; line-height: 30px; color: var(--n9); }
 .st-sub   { font-size: 14px; line-height: 22px; color: var(--n5); }
+
+/* Exactly ONE entrance: .celebrate is applied before the cross-dissolve
+   starts and the keyframes' `both` fill supplies the pre-state, so the
+   content is never shown at rest and then re-animated. */
+.screen[data-screen="success"] .success-icon,
+.screen[data-screen="success"] .success-text { opacity: 0; }
+.screen[data-screen="success"].celebrate .success-icon {
+  animation: pop-in 0.62s 0.06s var(--spring) both;
+}
+.screen[data-screen="success"].celebrate .success-text {
+  animation: rise-in 0.5s 0.2s var(--ease) both;
+}
+@keyframes pop-in {
+  from { transform: scale(0.6); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+@keyframes rise-in {
+  from { transform: translateY(14px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
 
 /* ─────────────────────────────────────────────
    06 · First digest & alerts
@@ -964,7 +1067,6 @@ img { display: block; }
 .tb-title-app { font-size: 16px; }
 
 .app-tabs {
-  flex-shrink: 0;
   display: flex;
   justify-content: space-between;
   padding: 0 16px;
@@ -985,16 +1087,11 @@ img { display: block; }
 }
 
 .digest-body {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 28px;
   padding: 16px 16px 28px;
-  scrollbar-width: none;
 }
-.digest-body::-webkit-scrollbar { display: none; }
 
 .user-bubble-row { display: flex; justify-content: flex-end; }
 .user-bubble {
@@ -1008,11 +1105,7 @@ img { display: block; }
   color: var(--n9);
 }
 
-.answer {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
+.answer { display: flex; flex-direction: column; gap: 8px; }
 .agent-row { display: flex; align-items: center; gap: 8px; }
 .agent-logo {
   width: 22px; height: 22px;
@@ -1068,17 +1161,14 @@ img { display: block; }
   color: var(--n9);
 }
 .status-pill .dot {
+  display: block;
   width: 8.5px; height: 8.5px;
   border-radius: 50%;
   background: #35c759;
   box-shadow: 0 0 0 2.7px rgba(53, 199, 89, 0.22);
   margin: 2.7px;
 }
-.report-meta {
-  font-size: 12px;
-  line-height: 20px;
-  color: var(--n5);
-}
+.report-meta { font-size: 12px; line-height: 20px; color: var(--n5); }
 .btn-outline {
   flex-shrink: 0;
   height: 32px;
@@ -1090,9 +1180,7 @@ img { display: block; }
   line-height: 20px;
   color: var(--n9);
   white-space: nowrap;
-  transition: background 0.15s ease, transform 0.15s ease;
 }
-.btn-outline:active { background: var(--br03); transform: scale(0.97); }
 
 .report-rows {
   position: relative;
@@ -1103,11 +1191,7 @@ img { display: block; }
   gap: 8px;
   padding: 12px 16px;
 }
-.report-rows p {
-  font-size: 14px;
-  line-height: 22px;
-  color: var(--n9);
-}
+.report-rows p { font-size: 14px; line-height: 22px; color: var(--n9); }
 .report-fade {
   position: absolute;
   left: 0; right: 0; bottom: 0;
@@ -1125,21 +1209,9 @@ img { display: block; }
   flex-direction: column;
   gap: 8px;
 }
-.alerts-copy .ac-title {
-  font-size: 14px;
-  line-height: 22px;
-  color: var(--n9);
-}
-.alerts-copy .ac-sub {
-  font-size: 12px;
-  line-height: 20px;
-  color: var(--n5);
-}
-.alerts-btns {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
+.alerts-copy .ac-title { font-size: 14px; line-height: 22px; color: var(--n9); }
+.alerts-copy .ac-sub   { font-size: 12px; line-height: 20px; color: var(--n5); }
+.alerts-btns { display: flex; flex-wrap: wrap; gap: 8px; }
 .btn-dest {
   height: 32px;
   display: inline-flex;
@@ -1147,21 +1219,27 @@ img { display: block; }
   gap: 6px;
   padding: 6px 12px;
   background: var(--m1);
+  border: 0.5px solid transparent;
   border-radius: var(--r-btn-s);
   color: #fff;
   font-weight: 500;
   font-size: 12px;
   line-height: 20px;
-  transition: transform 0.15s ease, filter 0.15s ease;
 }
-.btn-dest:active { transform: scale(0.96); filter: brightness(0.93); }
 .btn-dest img { width: 14px; height: 14px; }
-
-.chatbox-area {
-  flex-shrink: 0;
-  padding: 0 12px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, #fff 30%);
+.btn-dest.connecting { opacity: 0.72; }
+.btn-dest.connecting span { animation: connecting-blink 0.9s ease infinite; }
+@keyframes connecting-blink { 50% { opacity: 0.45; } }
+.btn-dest.connected {
+  background: #fff;
+  border-color: var(--m1);
+  color: var(--m1);
 }
+.btn-dest.connected img {
+  filter: invert(58%) sepia(23%) saturate(760%) hue-rotate(134deg) brightness(92%);
+}
+
+.chatbox-area { padding: 0 12px; background: #fff; }
 .chatbox {
   display: flex;
   align-items: flex-end;
@@ -1171,11 +1249,7 @@ img { display: block; }
   border: 0.5px solid var(--l2);
   border-radius: var(--r-ct-l);
 }
-.cb-add {
-  height: 28px;
-  display: flex;
-  align-items: center;
-}
+.cb-add { height: 28px; display: flex; align-items: center; }
 .cb-add img { width: 16px; height: 16px; }
 .cb-placeholder {
   flex: 1;
@@ -1188,11 +1262,7 @@ img { display: block; }
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.cb-mic {
-  width: 28px; height: 28px;
-  display: grid;
-  place-items: center;
-}
+.cb-mic { width: 28px; height: 28px; display: grid; place-items: center; }
 .cb-mic img { width: 16px; height: 16px; }
 .cb-send {
   width: 28px; height: 28px;
@@ -1205,7 +1275,33 @@ img { display: block; }
 .arrow-up img { width: 8.2px; height: 8.2px; transform: rotate(-45deg); }
 
 /* ─────────────────────────────────────────────
-   Bottom-sheet picker (iOS style)
+   Toast — transient status HUD
+   ───────────────────────────────────────────── */
+
+.toast {
+  position: absolute;
+  top: 66px;
+  left: 50%;
+  transform: translate(-50%, -16px);
+  max-width: 320px;
+  padding: 8px 16px;
+  border-radius: 960px;
+  background: rgba(20, 21, 26, 0.86);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  color: #fff;
+  font-size: 12px;
+  line-height: 20px;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 30;
+  transition: opacity 0.28s ease, transform 0.42s var(--spring);
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+/* ─────────────────────────────────────────────
+   Bottom-sheet picker
    ───────────────────────────────────────────── */
 
 .sheet-layer {
@@ -1230,10 +1326,11 @@ img { display: block; }
   left: 0; right: 0; bottom: 0;
   background: #fff;
   border-radius: 16px 16px 0 0;
-  padding: 8px 16px calc(16px + 34px);
+  padding: 8px 16px calc(16px + var(--home-h));
   transform: translateY(100%);
-  transition: transform 0.42s var(--push-ease);
+  transition: transform 0.46s var(--spring);
   box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.12);
+  touch-action: none;
 }
 .sheet-layer.open .sheet { transform: translateY(0); }
 
@@ -1262,146 +1359,18 @@ img { display: block; }
   color: var(--n9);
   border-bottom: 0.5px solid var(--l05);
   text-align: left;
-  transition: background 0.15s ease;
 }
 .sheet-option:last-child { border-bottom: 0; }
-.sheet-option:active { background: var(--br03); }
 .sheet-option .tick { color: var(--m1); font-weight: 500; opacity: 0; }
 .sheet-option.selected .tick { opacity: 1; }
 
 /* ─────────────────────────────────────────────
-   Interaction-state layer (audit pass 2)
+   Accessibility
    ───────────────────────────────────────────── */
 
-/* images must never hijack the edge-swipe gesture */
-img { -webkit-user-drag: none; user-select: none; pointer-events: none; }
-
-.app { touch-action: pan-y; }
-.task-area, .confirm-content, .digest-body { scrollbar-width: none; }
-.task-area::-webkit-scrollbar,
-.confirm-content::-webkit-scrollbar,
-.digest-body::-webkit-scrollbar { display: none; }
-.source-grid, .task-area, .confirm-content, .digest-body { overscroll-behavior: contain; }
-
-/* welcome home indicator is pure black in the spec (dark-on-light elsewhere) */
-.screen[data-screen="welcome"] .home-indicator span { background: #000; }
-
-/* 03 · working search field */
-.search-field input {
-  flex: 1;
-  min-width: 0;
-  border: 0;
-  outline: none;
-  background: none;
-  font-family: inherit;
-  font-size: 14px;
-  line-height: 22px;
-  letter-spacing: 0.01em;
-  color: var(--n9);
-}
-.search-field input::placeholder { color: var(--n3); }
-.search-field:focus-within { border-color: var(--m1); }
-
-.grid-empty, .chips-empty {
-  font-size: 14px;
-  line-height: 22px;
-  color: var(--n5);
-  text-align: center;
-  padding: 32px 24px;
-}
-.grid-empty { flex: 1; padding-top: 56px; }
-.grid-empty b { font-weight: 500; color: var(--n7); }
-
-/* 02 · guide attention back to the FinTwit row */
-@keyframes row-pulse {
-  0%   { background: rgba(73, 163, 166, 0); }
-  30%  { background: rgba(73, 163, 166, 0.10); }
-  100% { background: rgba(73, 163, 166, 0); }
-}
-.task-row.pulse { animation: row-pulse 0.9s ease 2; }
-
-/* 04 · CTA disabled until at least one source remains */
-.btn-primary.disabled {
-  background: var(--br05);
-  color: var(--n3);
-}
-.btn-primary.disabled:active { transform: none; filter: none; }
-.chip-close { padding: 0; }
-.chip-close:active { opacity: 0.5; }
-.chip-close img { pointer-events: none; }
-
-/* 06 · simulated destination connect */
-.btn-dest.connecting { opacity: 0.75; }
-.btn-dest.connecting span { animation: connecting-blink 0.9s ease infinite; }
-@keyframes connecting-blink { 50% { opacity: 0.45; } }
-.btn-dest.connected {
-  background: #fff;
-  border: 0.5px solid var(--m1);
-  color: var(--m1);
-}
-.btn-dest.connected img { filter: invert(58%) sepia(23%) saturate(760%) hue-rotate(134deg) brightness(92%); }
-
-/* toast — transient status HUD, drops from under the Dynamic Island */
-.toast {
-  position: absolute;
-  top: 66px;
-  left: 50%;
-  transform: translate(-50%, -16px);
-  max-width: 320px;
-  padding: 8px 16px;
-  border-radius: 960px;
-  background: rgba(20, 21, 26, 0.86);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
-  color: #fff;
-  font-size: 12px;
-  line-height: 20px;
-  letter-spacing: 0.01em;
-  text-align: center;
-  opacity: 0;
-  pointer-events: none;
-  z-index: 30;
-  transition: opacity 0.28s ease, transform 0.42s cubic-bezier(0.34, 1.3, 0.64, 1);
-}
-.toast.show { opacity: 1; transform: translate(-50%, 0); }
-
-/* desktop stage controls */
-.stage-controls {
-  position: fixed;
-  right: 20px;
-  bottom: 18px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.figma-badge { position: static; }
-.replay-pill {
-  font-size: 12px;
-  letter-spacing: 0.01em;
-  color: rgba(23, 32, 34, 0.55);
-  padding: 6px 14px;
-  border-radius: 960px;
-  border: 0.5px solid rgba(23, 32, 34, 0.12);
-  background: rgba(255, 255, 255, 0.55);
-  backdrop-filter: blur(8px);
-  transition: color 0.2s, border-color 0.2s;
-}
-.replay-pill:hover { color: var(--m1); border-color: var(--m1); }
-@media (max-width: 520px), (max-height: 700px) and (pointer: coarse) {
-  .stage-controls { display: none; }
-}
-
-/* sheet: springier entrance, draggable */
-.sheet { transition: transform 0.46s cubic-bezier(0.34, 1.2, 0.64, 1); touch-action: none; }
-
-/* respect reduced-motion preferences */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+  *, *::before, *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
 }
-
-/* [hidden] must always win over class display rules */
-[hidden] { display: none !important; }
-
-/* out-of-scope affordances still feel tappable */
-.tab[data-toast], .chatbox[data-toast] { cursor: pointer; }
-.tab[data-toast]:active, .chatbox[data-toast]:active { opacity: 0.6; }

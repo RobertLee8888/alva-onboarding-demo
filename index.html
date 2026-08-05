@@ -28,7 +28,7 @@
       <div class="app" id="app">
 
         <!-- ═══════════ 01 · Welcome ═══════════ -->
-        <section class="screen" data-screen="welcome">
+        <section class="screen s-welcome" data-screen="welcome">
           <div class="welcome-main">
             <div class="welcome-hero">
               <img class="hero-texture" src="assets/ascii-texture.webp" alt="">
@@ -39,7 +39,7 @@
                     <span class="mini-time">9:41</span>
                     <span class="mini-sb-icons">
                       <img src="assets/status-signal.svg" alt=""><img src="assets/status-wifi.svg" alt="">
-                      <span class="mini-batt"><img src="assets/battery-outline.svg" class="b-out" alt=""><img src="assets/battery-fill.svg" class="b-fill" alt=""><img src="assets/battery-end.svg" class="b-end" alt=""></span>
+                      <span class="mini-batt"><img src="assets/battery-outline.svg" class="b-out" alt=""></span>
                     </span>
                   </div>
                   <div class="mini-topbar">
@@ -76,7 +76,9 @@
                   </div>
                 </div>
               </div>
-              <div class="hero-fade"></div>
+              <!-- Figma 1772:85727 — drop shadow so the white device body never
+                   merges into the white section below the hero -->
+              <div class="hero-shadow"></div>
             </div>
             <div class="welcome-brand">
               <div class="wordmark">
@@ -89,147 +91,115 @@
               </div>
             </div>
           </div>
-          <div class="welcome-actions">
+          <div class="bottom-bar welcome-actions">
             <button class="btn-primary" data-nav="tasks">Get started</button>
             <button class="btn-ghost" data-toast="Log in is outside this demo — tap Get started">Already have an account?&nbsp; Log in</button>
-          </div>
-          <div class="home-indicator"><span></span></div>
-          <div class="statusbar">
-            <div class="sb-left"><span class="sb-time">9:41</span></div>
-            <div class="sb-island"></div>
-            <div class="sb-right">
-              <img src="assets/status-signal.svg" alt=""><img src="assets/status-wifi.svg" alt="">
-              <span class="sb-batt"><img src="assets/battery-outline.svg" class="b-out" alt=""><img src="assets/battery-fill.svg" class="b-fill" alt=""><img src="assets/battery-end.svg" class="b-end" alt=""></span>
-            </div>
           </div>
         </section>
 
         <!-- ═══════════ 02 · Choose a task ═══════════ -->
         <section class="screen" data-screen="tasks">
-          <div class="statusbar sb-static">
-            <div class="sb-left"><span class="sb-time">9:41</span></div>
-            <div class="sb-island"></div>
-            <div class="sb-right">
-              <img src="assets/status-signal.svg" alt=""><img src="assets/status-wifi.svg" alt="">
-              <span class="sb-batt"><img src="assets/battery-outline.svg" class="b-out" alt=""><img src="assets/battery-fill.svg" class="b-fill" alt=""><img src="assets/battery-end.svg" class="b-end" alt=""></span>
-            </div>
-          </div>
           <div class="topbar">
-            <button class="tb-back" data-back><span class="arrow-back"><img src="assets/icon-arrow-back.svg" alt="Back"></span></button>
+            <button class="tb-back" data-back aria-label="Back"><span class="arrow-back"><img src="assets/icon-arrow-back.svg" alt=""></span></button>
             <span class="tb-title"></span>
             <button class="tb-skip" data-nav="sources">Skip</button>
           </div>
-          <div class="title-block">
-            <h2>What should I handle?</h2>
-            <p>Choose one to start. I&rsquo;ll turn your input into focused monitoring, research, or automation.</p>
-          </div>
-          <div class="task-area">
-            <div class="task-card">
-              <button class="task-row" data-offpath>
-                <span class="task-emoji">💼</span>
-                <span class="task-copy">
-                  <span class="task-title">Watch your portfolio 24/7</span>
-                  <span class="task-desc">Important portfolio moves — without the noise.</span>
-                  <span class="task-action">Add my portfolio<span class="arrow-right"><img src="assets/icon-arrow-right.svg" alt=""></span></span>
-                </span>
-              </button>
-              <button class="task-row" id="fintwitRow" data-nav="sources">
-                <span class="task-emoji">📣</span>
-                <span class="task-copy">
-                  <span class="task-title">Track FinTwit, news &amp; technicals</span>
-                  <span class="task-desc">Signals where FinTwit, news, and charts line up.</span>
-                  <span class="task-action">Choose sources<span class="arrow-right"><img src="assets/icon-arrow-right.svg" alt=""></span></span>
-                </span>
-              </button>
-              <button class="task-row" data-offpath>
-                <span class="task-emoji">📊</span>
-                <span class="task-copy">
-                  <span class="task-title">Get a quick read on any ticker</span>
-                  <span class="task-desc">A short, sourced read — no buy/sell calls.</span>
-                  <span class="task-action">Enter a ticker<span class="arrow-right"><img src="assets/icon-arrow-right.svg" alt=""></span></span>
-                </span>
-              </button>
-              <button class="task-row" data-offpath>
-                <span class="task-emoji">🔍</span>
-                <span class="task-copy">
-                  <span class="task-title">Screen the market on your rules</span>
-                  <span class="task-desc">New names only when they match your rules.</span>
-                  <span class="task-action">Set screening rules<span class="arrow-right"><img src="assets/icon-arrow-right.svg" alt=""></span></span>
-                </span>
-              </button>
-              <button class="task-row" data-offpath>
-                <span class="task-emoji">⚙️</span>
-                <span class="task-copy">
-                  <span class="task-title">Build your own automations</span>
-                  <span class="task-desc">A reliable automation on your terms.</span>
-                  <span class="task-action">Describe what to automate<span class="arrow-right"><img src="assets/icon-arrow-right.svg" alt=""></span></span>
-                </span>
-              </button>
+          <div class="scroll" data-scroll>
+            <div class="title-block">
+              <h2>What should I handle?</h2>
+              <p>Choose one to start. I&rsquo;ll turn your input into focused monitoring, research, or automation.</p>
+            </div>
+            <div class="task-area">
+              <div class="task-card">
+                <div class="task-row is-pending">
+                  <span class="task-emoji">💼</span>
+                  <span class="task-copy">
+                    <span class="task-title">Watch your portfolio 24/7</span>
+                    <span class="task-desc">Important portfolio moves — without the noise.</span>
+                    <span class="task-action">Add my portfolio<span class="arrow-right"><img src="assets/icon-arrow-right.svg" alt=""></span></span>
+                  </span>
+                </div>
+                <button class="task-row" data-nav="sources">
+                  <span class="task-emoji">📣</span>
+                  <span class="task-copy">
+                    <span class="task-title">Track FinTwit, news &amp; technicals</span>
+                    <span class="task-desc">Signals where FinTwit, news, and charts line up.</span>
+                    <span class="task-action">Choose sources<span class="arrow-right"><img src="assets/icon-arrow-right.svg" alt=""></span></span>
+                  </span>
+                </button>
+                <div class="task-row is-pending">
+                  <span class="task-emoji">📊</span>
+                  <span class="task-copy">
+                    <span class="task-title">Get a quick read on any ticker</span>
+                    <span class="task-desc">A short, sourced read — no buy/sell calls.</span>
+                    <span class="task-action">Enter a ticker<span class="arrow-right"><img src="assets/icon-arrow-right.svg" alt=""></span></span>
+                  </span>
+                </div>
+                <div class="task-row is-pending">
+                  <span class="task-emoji">🔍</span>
+                  <span class="task-copy">
+                    <span class="task-title">Screen the market on your rules</span>
+                    <span class="task-desc">New names only when they match your rules.</span>
+                    <span class="task-action">Set screening rules<span class="arrow-right"><img src="assets/icon-arrow-right.svg" alt=""></span></span>
+                  </span>
+                </div>
+                <div class="task-row is-pending">
+                  <span class="task-emoji">⚙️</span>
+                  <span class="task-copy">
+                    <span class="task-title">Build your own automations</span>
+                    <span class="task-desc">A reliable automation on your terms.</span>
+                    <span class="task-action">Describe what to automate<span class="arrow-right"><img src="assets/icon-arrow-right.svg" alt=""></span></span>
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
-          <div class="home-indicator"><span></span></div>
         </section>
 
         <!-- ═══════════ 03 · Choose sources ═══════════ -->
         <section class="screen" data-screen="sources">
-          <div class="statusbar sb-static">
-            <div class="sb-left"><span class="sb-time">9:41</span></div>
-            <div class="sb-island"></div>
-            <div class="sb-right">
-              <img src="assets/status-signal.svg" alt=""><img src="assets/status-wifi.svg" alt="">
-              <span class="sb-batt"><img src="assets/battery-outline.svg" class="b-out" alt=""><img src="assets/battery-fill.svg" class="b-fill" alt=""><img src="assets/battery-end.svg" class="b-end" alt=""></span>
-            </div>
-          </div>
           <div class="topbar">
-            <button class="tb-back" data-back><span class="arrow-back"><img src="assets/icon-arrow-back.svg" alt="Back"></span></button>
+            <button class="tb-back" data-back aria-label="Back"><span class="arrow-back"><img src="assets/icon-arrow-back.svg" alt=""></span></button>
             <span class="tb-title"></span>
             <button class="tb-skip" data-skip-sources>Skip</button>
           </div>
-          <div class="sources-content">
-            <div class="title-block tb-flush">
+          <div class="scroll pad-cta" data-scroll>
+            <div class="title-block">
               <h2>Choose who Alva reads</h2>
               <p>Choose a preset group, add individual accounts, or use both. You can adjust this list later.</p>
             </div>
-            <div class="search-field">
-              <img src="assets/search.svg" alt="">
-              <input id="searchInput" type="text" placeholder="Search by handle, name, or focus" autocomplete="off" spellcheck="false">
+            <div class="sources-body">
+              <div class="search-field">
+                <img src="assets/search.svg" alt="">
+                <input id="searchInput" type="text" placeholder="Search by handle, name, or focus" autocomplete="off" spellcheck="false">
+              </div>
+              <div class="source-grid" id="sourceGrid"></div>
+              <div class="grid-empty" id="gridEmpty" hidden>No sources match &ldquo;<b></b>&rdquo;.<br>Try a handle, name, or focus.</div>
             </div>
-            <div class="source-grid" id="sourceGrid"></div>
-            <div class="grid-empty" id="gridEmpty" hidden>No sources match &ldquo;<b></b>&rdquo;.<br>Try a handle, name, or focus.</div>
           </div>
-          <div class="sources-footer" id="sourcesFooter">
-            <div class="footer-cta">
-              <button class="btn-primary" data-nav="confirm">Next</button>
-            </div>
-            <div class="home-indicator hi-white"><span></span></div>
+          <div class="bottom-bar float-bar" id="sourcesFooter">
+            <button class="btn-primary" data-nav="confirm">Next</button>
           </div>
-          <div class="home-indicator hi-abs"><span></span></div>
         </section>
 
         <!-- ═══════════ 04 · Confirm digest ═══════════ -->
         <section class="screen" data-screen="confirm">
-          <div class="statusbar sb-static">
-            <div class="sb-left"><span class="sb-time">9:41</span></div>
-            <div class="sb-island"></div>
-            <div class="sb-right">
-              <img src="assets/status-signal.svg" alt=""><img src="assets/status-wifi.svg" alt="">
-              <span class="sb-batt"><img src="assets/battery-outline.svg" class="b-out" alt=""><img src="assets/battery-fill.svg" class="b-fill" alt=""><img src="assets/battery-end.svg" class="b-end" alt=""></span>
-            </div>
-          </div>
           <div class="topbar">
-            <button class="tb-back" data-back><span class="arrow-back"><img src="assets/icon-arrow-back.svg" alt="Back"></span></button>
+            <button class="tb-back" data-back aria-label="Back"><span class="arrow-back"><img src="assets/icon-arrow-back.svg" alt=""></span></button>
             <span class="tb-title"></span>
             <button class="tb-skip" data-skip-confirm>Skip</button>
           </div>
-          <div class="confirm-content">
-            <div class="title-block tb-flush">
+          <div class="scroll" data-scroll>
+            <div class="title-block">
               <h2>Confirm your digest</h2>
               <p>One digest a day, one notification — at the time you choose.</p>
             </div>
-            <div class="chip-wrap" id="chipWrap"></div>
-            <div class="chips-empty" id="chipsEmpty" hidden>All sources removed.<br>Go back to pick at least one, or Skip to use the recommended set.</div>
+            <div class="confirm-body">
+              <div class="chip-wrap" id="chipWrap"></div>
+              <div class="chips-empty" id="chipsEmpty" hidden>All sources removed.<br>Go back to pick at least one, or Skip to use the recommended set.</div>
+            </div>
           </div>
-          <div class="confirm-footer">
+          <div class="bottom-bar confirm-footer">
             <div class="digest-controls">
               <div class="select-group">
                 <label>Daily alert time</label>
@@ -241,20 +211,11 @@
               </div>
             </div>
             <button class="btn-primary" id="generateBtn">Confirm &amp; Generate digest</button>
-            <div class="home-indicator hi-white"><span></span></div>
           </div>
         </section>
 
         <!-- ═══════════ 05 · Success ═══════════ -->
         <section class="screen" data-screen="success">
-          <div class="statusbar sb-static">
-            <div class="sb-left"><span class="sb-time">9:41</span></div>
-            <div class="sb-island"></div>
-            <div class="sb-right">
-              <img src="assets/status-signal.svg" alt=""><img src="assets/status-wifi.svg" alt="">
-              <span class="sb-batt"><img src="assets/battery-outline.svg" class="b-out" alt=""><img src="assets/battery-fill.svg" class="b-fill" alt=""><img src="assets/battery-end.svg" class="b-end" alt=""></span>
-            </div>
-          </div>
           <div class="success-body">
             <div class="success-icon">
               <img src="assets/success-squircle.png" alt="" class="squircle">
@@ -265,33 +226,26 @@
               <p class="st-sub">You can chat with Alva now.</p>
             </div>
           </div>
-          <div class="home-indicator"><span></span></div>
         </section>
 
         <!-- ═══════════ 06 · First digest & alerts ═══════════ -->
         <section class="screen" data-screen="digest">
-          <div class="statusbar sb-static">
-            <div class="sb-left"><span class="sb-time">9:41</span></div>
-            <div class="sb-island"></div>
-            <div class="sb-right">
-              <img src="assets/status-signal.svg" alt=""><img src="assets/status-wifi.svg" alt="">
-              <span class="sb-batt"><img src="assets/battery-outline.svg" class="b-out" alt=""><img src="assets/battery-fill.svg" class="b-fill" alt=""><img src="assets/battery-end.svg" class="b-end" alt=""></span>
+          <div class="top-chrome">
+            <div class="topbar tb-app">
+              <button class="tb-icon-btn" data-toast="Navigation is outside this demo" aria-label="Menu"><img src="assets/icon-menu.svg" alt=""></button>
+              <span class="tb-title tb-title-app">Alva</span>
+              <button class="tb-icon-btn sm" data-toast="Info is outside this demo" aria-label="Info"><img src="assets/icon-info.svg" alt=""></button>
+              <button class="tb-icon-btn sm" data-toast="Settings are outside this demo" aria-label="Settings"><img src="assets/icon-settings.svg" alt=""></button>
+            </div>
+            <div class="app-tabs">
+              <span class="tab on">Chat</span>
+              <span class="tab" data-toast="Only Chat is part of this demo">Tasks <em>(5)</em></span>
+              <span class="tab" data-toast="Only Chat is part of this demo">Alerts <em>(8)</em></span>
+              <span class="tab" data-toast="Only Chat is part of this demo">Memory</span>
+              <span class="tab" data-toast="Only Chat is part of this demo">Files <em>(8)</em></span>
             </div>
           </div>
-          <div class="topbar tb-app">
-            <button class="tb-icon-btn" data-toast="Navigation is outside this demo"><img src="assets/icon-menu.svg" alt="Menu"></button>
-            <span class="tb-title tb-title-app">Alva</span>
-            <button class="tb-icon-btn sm" data-toast="Info is outside this demo"><img src="assets/icon-info.svg" alt="Info"></button>
-            <button class="tb-icon-btn sm" data-toast="Settings are outside this demo"><img src="assets/icon-settings.svg" alt="Settings"></button>
-          </div>
-          <div class="app-tabs">
-            <span class="tab on">Chat</span>
-            <span class="tab" data-toast="Only Chat is part of this demo">Tasks <em>(5)</em></span>
-            <span class="tab" data-toast="Only Chat is part of this demo">Alerts <em>(8)</em></span>
-            <span class="tab" data-toast="Only Chat is part of this demo">Memory</span>
-            <span class="tab" data-toast="Only Chat is part of this demo">Files <em>(8)</em></span>
-          </div>
-          <div class="digest-body">
+          <div class="scroll digest-body" data-scroll>
             <div class="user-bubble-row">
               <div class="user-bubble">Create today's FinTwit Digest from my chosen FinTwit list.</div>
             </div>
@@ -331,18 +285,32 @@
               </div>
             </div>
           </div>
-          <div class="chatbox-area">
+          <div class="bottom-bar chatbox-area">
             <div class="chatbox" data-toast="Chat with Alva is outside this demo">
               <span class="cb-add"><img src="assets/icon-add.svg" alt=""></span>
               <span class="cb-placeholder">Ask Alva anything. @ for context, / for skills</span>
               <span class="cb-mic"><img src="assets/icon-mic.svg" alt=""></span>
               <span class="cb-send"><span class="arrow-up"><img src="assets/icon-arrow-up.svg" alt=""></span></span>
             </div>
-            <div class="home-indicator hi-white"><span></span></div>
           </div>
         </section>
 
         <div class="dim" id="dim"></div>
+
+        <!-- ── System chrome: fixed, never travels with a screen ── -->
+        <div class="sysbar">
+          <div class="sb-left"><span class="sb-time">9:41</span></div>
+          <div class="sb-island"></div>
+          <div class="sb-right">
+            <img src="assets/status-signal.svg" alt=""><img src="assets/status-wifi.svg" alt="">
+            <span class="sb-batt">
+              <img src="assets/battery-outline.svg" class="b-out" alt="">
+              <img src="assets/battery-fill.svg" class="b-fill" alt="">
+              <img src="assets/battery-end.svg" class="b-end" alt="">
+            </span>
+          </div>
+        </div>
+        <div class="sys-home"><span></span></div>
 
         <div class="toast" id="toast" role="status"></div>
 
