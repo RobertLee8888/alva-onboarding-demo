@@ -114,6 +114,23 @@
     animating = false;
   }
 
+  /* A transition must ALWAYS settle, even if requestAnimationFrame is
+     throttled (backgrounded tab, a long layout, a stylesheet swap). The
+     completion timer is therefore armed immediately and never depends on
+     a frame callback — otherwise `animating` could stay true forever and
+     freeze every subsequent interaction. */
+  function commitNav(from, to, dur, reset, name, opts) {
+    let settled = false;
+    const settle = () => {
+      if (settled) return;
+      settled = true;
+      finishNav(from, to, reset);
+      if (name) onDidShow(name, opts);
+    };
+    setTimeout(settle, dur + 60);
+    return settle;
+  }
+
   function push(name, opts = {}) {
     if (animating) return;
     const fromName = stack[stack.length - 1];
@@ -131,11 +148,11 @@
       to.style.opacity = '0';
       to.style.transform = 'scale(1.03)';
       to.style.zIndex = '3';
+      commitNav(from, to, FADE_MS, opts.reset, name, opts);
       afterFrame(() => {
         setTransition(to, true, FADE_MS);
         to.style.opacity = '1';
         to.style.transform = 'scale(1)';
-        setTimeout(() => { finishNav(from, to, opts.reset); onDidShow(name, opts); }, FADE_MS + 20);
       });
       return;
     }
@@ -155,6 +172,7 @@
     dim.style.zIndex = '2';
     to.style.zIndex = '3';
 
+    commitNav(from, to, PUSH_MS, opts.reset, name, opts);
     afterFrame(() => {
       setTransition(to, true);
       setTransition(from, true);
@@ -162,7 +180,6 @@
       to.style.transform = 'translate3d(0, 0, 0)';
       from.style.transform = 'translate3d(-30%, 0, 0)';
       dim.style.opacity = '0.08';
-      setTimeout(() => { finishNav(from, to, opts.reset); onDidShow(name, opts); }, PUSH_MS + 20);
     });
   }
 
@@ -188,6 +205,7 @@
     dim.style.zIndex = '2';
     from.style.zIndex = '3';
 
+    commitNav(from, to, PUSH_MS, false, null, null);
     afterFrame(() => {
       setTransition(to, true);
       setTransition(from, true);
@@ -195,7 +213,6 @@
       to.style.transform = 'translate3d(0, 0, 0)';
       from.style.transform = 'translate3d(100%, 0, 0)';
       dim.style.opacity = '0';
-      setTimeout(() => finishNav(from, to, false), PUSH_MS + 20);
     });
   }
 
