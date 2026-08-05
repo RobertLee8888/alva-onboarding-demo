@@ -551,6 +551,13 @@ img { display: block; }
 .wordmark { display: flex; align-items: center; height: 16px; gap: 3px; }
 .wm-symbol { height: 15.7px; width: auto; }
 .wm-text { height: 16px; width: auto; }
+/* Figma: gap 12px wordmark→copy, gap 4px title→subtitle */
+.brand-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
 .welcome-brand h1 {
   font-weight: 500;
   font-size: 28px;
@@ -562,7 +569,6 @@ img { display: block; }
   font-size: 14px;
   line-height: 22px;
   color: var(--n7);
-  margin-top: -8px;
 }
 
 .welcome-actions {
@@ -1262,3 +1268,140 @@ img { display: block; }
 .sheet-option:active { background: var(--br03); }
 .sheet-option .tick { color: var(--m1); font-weight: 500; opacity: 0; }
 .sheet-option.selected .tick { opacity: 1; }
+
+/* ─────────────────────────────────────────────
+   Interaction-state layer (audit pass 2)
+   ───────────────────────────────────────────── */
+
+/* images must never hijack the edge-swipe gesture */
+img { -webkit-user-drag: none; user-select: none; pointer-events: none; }
+
+.app { touch-action: pan-y; }
+.task-area, .confirm-content, .digest-body { scrollbar-width: none; }
+.task-area::-webkit-scrollbar,
+.confirm-content::-webkit-scrollbar,
+.digest-body::-webkit-scrollbar { display: none; }
+.source-grid, .task-area, .confirm-content, .digest-body { overscroll-behavior: contain; }
+
+/* welcome home indicator is pure black in the spec (dark-on-light elsewhere) */
+.screen[data-screen="welcome"] .home-indicator span { background: #000; }
+
+/* 03 · working search field */
+.search-field input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  background: none;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 22px;
+  letter-spacing: 0.01em;
+  color: var(--n9);
+}
+.search-field input::placeholder { color: var(--n3); }
+.search-field:focus-within { border-color: var(--m1); }
+
+.grid-empty, .chips-empty {
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--n5);
+  text-align: center;
+  padding: 32px 24px;
+}
+.grid-empty { flex: 1; padding-top: 56px; }
+.grid-empty b { font-weight: 500; color: var(--n7); }
+
+/* 02 · guide attention back to the FinTwit row */
+@keyframes row-pulse {
+  0%   { background: rgba(73, 163, 166, 0); }
+  30%  { background: rgba(73, 163, 166, 0.10); }
+  100% { background: rgba(73, 163, 166, 0); }
+}
+.task-row.pulse { animation: row-pulse 0.9s ease 2; }
+
+/* 04 · CTA disabled until at least one source remains */
+.btn-primary.disabled {
+  background: var(--br05);
+  color: var(--n3);
+}
+.btn-primary.disabled:active { transform: none; filter: none; }
+.chip-close { padding: 0; }
+.chip-close:active { opacity: 0.5; }
+.chip-close img { pointer-events: none; }
+
+/* 06 · simulated destination connect */
+.btn-dest.connecting { opacity: 0.75; }
+.btn-dest.connecting span { animation: connecting-blink 0.9s ease infinite; }
+@keyframes connecting-blink { 50% { opacity: 0.45; } }
+.btn-dest.connected {
+  background: #fff;
+  border: 0.5px solid var(--m1);
+  color: var(--m1);
+}
+.btn-dest.connected img { filter: invert(58%) sepia(23%) saturate(760%) hue-rotate(134deg) brightness(92%); }
+
+/* toast — transient status HUD, drops from under the Dynamic Island */
+.toast {
+  position: absolute;
+  top: 66px;
+  left: 50%;
+  transform: translate(-50%, -16px);
+  max-width: 320px;
+  padding: 8px 16px;
+  border-radius: 960px;
+  background: rgba(20, 21, 26, 0.86);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  color: #fff;
+  font-size: 12px;
+  line-height: 20px;
+  letter-spacing: 0.01em;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 30;
+  transition: opacity 0.28s ease, transform 0.42s cubic-bezier(0.34, 1.3, 0.64, 1);
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+/* desktop stage controls */
+.stage-controls {
+  position: fixed;
+  right: 20px;
+  bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.figma-badge { position: static; }
+.replay-pill {
+  font-size: 12px;
+  letter-spacing: 0.01em;
+  color: rgba(23, 32, 34, 0.55);
+  padding: 6px 14px;
+  border-radius: 960px;
+  border: 0.5px solid rgba(23, 32, 34, 0.12);
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(8px);
+  transition: color 0.2s, border-color 0.2s;
+}
+.replay-pill:hover { color: var(--m1); border-color: var(--m1); }
+@media (max-width: 520px), (max-height: 700px) and (pointer: coarse) {
+  .stage-controls { display: none; }
+}
+
+/* sheet: springier entrance, draggable */
+.sheet { transition: transform 0.46s cubic-bezier(0.34, 1.2, 0.64, 1); touch-action: none; }
+
+/* respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+}
+
+/* [hidden] must always win over class display rules */
+[hidden] { display: none !important; }
+
+/* out-of-scope affordances still feel tappable */
+.tab[data-toast], .chatbox[data-toast] { cursor: pointer; }
+.tab[data-toast]:active, .chatbox[data-toast]:active { opacity: 0.6; }

@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <title>Alva · Onboarding</title>
 <meta name="theme-color" content="#49a3a6">
+<link rel="icon" href="assets/logo-portrait2.svg" type="image/svg+xml">
+<link rel="preload" href="assets/fonts/Delight-Regular.ttf" as="font" type="font/ttf" crossorigin>
+<link rel="preload" href="assets/fonts/Delight-Medium.ttf" as="font" type="font/ttf" crossorigin>
+<link rel="preload" href="assets/fonts/Delight-SemiBold.ttf" as="font" type="font/ttf" crossorigin>
+<link rel="preload" href="assets/ascii-texture.webp" as="image">
+<link rel="preload" href="assets/wordmark-symbol.svg" as="image">
+<link rel="preload" href="assets/wordmark-text.svg" as="image">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -57,7 +64,7 @@
                     </div>
                     <div class="mini-answer">
                       <div class="mini-agent"><span class="mini-logo"><img src="assets/logo-portrait.svg" alt=""></span>Alva</div>
-                      <p class="mini-md">Screener built · running daily at 6:30 AM.<br>July 7 · 4 matches</p>
+                      <p class="mini-md">Screener built — running daily at 6:30 AM.<br>July 7 · 4 matches</p>
                       <table class="mini-table">
                         <tr><th>#</th><th>Ticker</th><th>Segment</th><th>FCF YoY</th><th>Net cash</th><th>7-day</th><th>Last-close</th></tr>
                         <tr><td>1</td><td>CRDO</td><td>Connectivity silicon</td><td>+1,302%</td><td>+$1.42B</td><td>+8.1%</td><td>$265.55</td></tr>
@@ -76,13 +83,15 @@
                 <img src="assets/wordmark-symbol.svg" class="wm-symbol" alt="">
                 <img src="assets/wordmark-text.svg" class="wm-text" alt="Alva">
               </div>
-              <h1>Your AI investing agent</h1>
-              <p>Watchlists, backtests, and a daily market digest.<br>Set up in about a minute.</p>
+              <div class="brand-copy">
+                <h1>Your AI investing agent</h1>
+                <p>Watchlists, backtests, and a daily market digest.<br>Set up in about a minute.</p>
+              </div>
             </div>
           </div>
           <div class="welcome-actions">
             <button class="btn-primary" data-nav="tasks">Get started</button>
-            <button class="btn-ghost">Already have an account?&nbsp; Log in</button>
+            <button class="btn-ghost" data-toast="Log in is outside this demo — tap Get started">Already have an account?&nbsp; Log in</button>
           </div>
           <div class="home-indicator"><span></span></div>
           <div class="statusbar">
@@ -116,7 +125,7 @@
           </div>
           <div class="task-area">
             <div class="task-card">
-              <button class="task-row" data-nav="sources">
+              <button class="task-row" data-offpath>
                 <span class="task-emoji">💼</span>
                 <span class="task-copy">
                   <span class="task-title">Watch your portfolio 24/7</span>
@@ -124,7 +133,7 @@
                   <span class="task-action">Add my portfolio<span class="arrow-right"><img src="assets/icon-arrow-right.svg" alt=""></span></span>
                 </span>
               </button>
-              <button class="task-row" data-nav="sources">
+              <button class="task-row" id="fintwitRow" data-nav="sources">
                 <span class="task-emoji">📣</span>
                 <span class="task-copy">
                   <span class="task-title">Track FinTwit, news &amp; technicals</span>
@@ -132,7 +141,7 @@
                   <span class="task-action">Choose sources<span class="arrow-right"><img src="assets/icon-arrow-right.svg" alt=""></span></span>
                 </span>
               </button>
-              <button class="task-row" data-nav="sources">
+              <button class="task-row" data-offpath>
                 <span class="task-emoji">📊</span>
                 <span class="task-copy">
                   <span class="task-title">Get a quick read on any ticker</span>
@@ -140,7 +149,7 @@
                   <span class="task-action">Enter a ticker<span class="arrow-right"><img src="assets/icon-arrow-right.svg" alt=""></span></span>
                 </span>
               </button>
-              <button class="task-row" data-nav="sources">
+              <button class="task-row" data-offpath>
                 <span class="task-emoji">🔍</span>
                 <span class="task-copy">
                   <span class="task-title">Screen the market on your rules</span>
@@ -148,7 +157,7 @@
                   <span class="task-action">Set screening rules<span class="arrow-right"><img src="assets/icon-arrow-right.svg" alt=""></span></span>
                 </span>
               </button>
-              <button class="task-row" data-nav="sources">
+              <button class="task-row" data-offpath>
                 <span class="task-emoji">⚙️</span>
                 <span class="task-copy">
                   <span class="task-title">Build your own automations</span>
@@ -183,9 +192,10 @@
             </div>
             <div class="search-field">
               <img src="assets/search.svg" alt="">
-              <span>Search by handle, name, or focus</span>
+              <input id="searchInput" type="text" placeholder="Search by handle, name, or focus" autocomplete="off" spellcheck="false">
             </div>
             <div class="source-grid" id="sourceGrid"></div>
+            <div class="grid-empty" id="gridEmpty" hidden>No sources match &ldquo;<b></b>&rdquo;.<br>Try a handle, name, or focus.</div>
           </div>
           <div class="sources-footer" id="sourcesFooter">
             <div class="footer-cta">
@@ -209,7 +219,7 @@
           <div class="topbar">
             <button class="tb-back" data-back><span class="arrow-back"><img src="assets/icon-arrow-back.svg" alt="Back"></span></button>
             <span class="tb-title"></span>
-            <button class="tb-skip" data-nav="success">Skip</button>
+            <button class="tb-skip" data-skip-confirm>Skip</button>
           </div>
           <div class="confirm-content">
             <div class="title-block tb-flush">
@@ -217,6 +227,7 @@
               <p>One digest a day, one notification — at the time you choose.</p>
             </div>
             <div class="chip-wrap" id="chipWrap"></div>
+            <div class="chips-empty" id="chipsEmpty" hidden>All sources removed.<br>Go back to pick at least one, or Skip to use the recommended set.</div>
           </div>
           <div class="confirm-footer">
             <div class="digest-controls">
@@ -229,7 +240,7 @@
                 <button class="select" data-picker="lang"><span id="langValue">English</span><span class="caret"><img src="assets/icon-arrow-down.svg" alt=""></span></button>
               </div>
             </div>
-            <button class="btn-primary" data-nav="success">Confirm &amp; Generate digest</button>
+            <button class="btn-primary" id="generateBtn">Confirm &amp; Generate digest</button>
             <div class="home-indicator hi-white"><span></span></div>
           </div>
         </section>
@@ -268,17 +279,17 @@
             </div>
           </div>
           <div class="topbar tb-app">
-            <button class="tb-icon-btn"><img src="assets/icon-menu.svg" alt="Menu"></button>
+            <button class="tb-icon-btn" data-toast="Navigation is outside this demo"><img src="assets/icon-menu.svg" alt="Menu"></button>
             <span class="tb-title tb-title-app">Alva</span>
-            <button class="tb-icon-btn sm"><img src="assets/icon-info.svg" alt="Info"></button>
-            <button class="tb-icon-btn sm"><img src="assets/icon-settings.svg" alt="Settings"></button>
+            <button class="tb-icon-btn sm" data-toast="Info is outside this demo"><img src="assets/icon-info.svg" alt="Info"></button>
+            <button class="tb-icon-btn sm" data-toast="Settings are outside this demo"><img src="assets/icon-settings.svg" alt="Settings"></button>
           </div>
           <div class="app-tabs">
             <span class="tab on">Chat</span>
-            <span class="tab">Tasks <em>(5)</em></span>
-            <span class="tab">Alerts <em>(8)</em></span>
-            <span class="tab">Memory</span>
-            <span class="tab">Files <em>(8)</em></span>
+            <span class="tab" data-toast="Only Chat is part of this demo">Tasks <em>(5)</em></span>
+            <span class="tab" data-toast="Only Chat is part of this demo">Alerts <em>(8)</em></span>
+            <span class="tab" data-toast="Only Chat is part of this demo">Memory</span>
+            <span class="tab" data-toast="Only Chat is part of this demo">Files <em>(8)</em></span>
           </div>
           <div class="digest-body">
             <div class="user-bubble-row">
@@ -296,7 +307,7 @@
                     <span class="status-pill"><span class="dot"></span>nvda-macd-hft-notify</span>
                     <p class="report-meta">English · Jun 15 · Daily Digest · Previous day · Based on 53 FinTwits</p>
                   </div>
-                  <button class="btn-outline">Open full report</button>
+                  <button class="btn-outline" data-toast="The full report is outside this demo">Open full report</button>
                 </div>
                 <div class="report-rows">
                   <p>Top-ranked traders clustered around $NVDA, $000660.KS, $AKAM, $AMPG, and $AVGO in this window.</p>
@@ -313,15 +324,15 @@
                   <p class="ac-sub">Connect one destination first. Once connected, send yourself this sample digest to complete setup.</p>
                 </div>
                 <div class="alerts-btns">
-                  <button class="btn-dest"><img src="assets/icon-telegram.svg" alt="">Telegram</button>
-                  <button class="btn-dest"><img src="assets/icon-discord.svg" alt="">Discord</button>
-                  <button class="btn-dest"><img src="assets/icon-whatsapp.svg" alt="">WhatsApp</button>
+                  <button class="btn-dest" data-connect="Telegram"><img src="assets/icon-telegram.svg" alt=""><span>Telegram</span></button>
+                  <button class="btn-dest" data-connect="Discord"><img src="assets/icon-discord.svg" alt=""><span>Discord</span></button>
+                  <button class="btn-dest" data-connect="WhatsApp"><img src="assets/icon-whatsapp.svg" alt=""><span>WhatsApp</span></button>
                 </div>
               </div>
             </div>
           </div>
           <div class="chatbox-area">
-            <div class="chatbox">
+            <div class="chatbox" data-toast="Chat with Alva is outside this demo">
               <span class="cb-add"><img src="assets/icon-add.svg" alt=""></span>
               <span class="cb-placeholder">Ask Alva anything. @ for context, / for skills</span>
               <span class="cb-mic"><img src="assets/icon-mic.svg" alt=""></span>
@@ -332,6 +343,8 @@
         </section>
 
         <div class="dim" id="dim"></div>
+
+        <div class="toast" id="toast" role="status"></div>
 
         <!-- iOS-style bottom sheet picker -->
         <div class="sheet-layer" id="sheetLayer">
@@ -348,7 +361,10 @@
   </div>
 </div>
 
-<a class="figma-badge" href="https://www.figma.com/design/A4jIwN4EMWr0fJVVGmCIsr/Mobile?node-id=1355-5243" target="_blank" rel="noopener">Onboarding · Production v4 · FinTwit path</a>
+<div class="stage-controls">
+  <button class="replay-pill" id="replayPill">↺&nbsp; Replay</button>
+  <a class="figma-badge" href="https://www.figma.com/design/A4jIwN4EMWr0fJVVGmCIsr/Mobile?node-id=1355-5243" target="_blank" rel="noopener">Onboarding · Production v4 · FinTwit path</a>
+</div>
 
 <script src="app.js"></script>
 </body>
