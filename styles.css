@@ -110,10 +110,35 @@ img {
   transform: scale(var(--press-scale));
   filter: brightness(0.94);
 }
-.btn-outline:active, .select:active, .source-cell:active {
+.btn-outline:active, .select:active {
   transform: scale(var(--press-scale));
   background: var(--br03);
 }
+
+/* The source cell has no padding of its own, so tinting the box itself
+   produced a highlight that touched the content. The crowding is almost
+   entirely vertical: the avatar's apex sits flush on the top edge and
+   the sub-label's line box ends on the bottom one, while the widest
+   label (92pt) already leaves ~9pt inside the 110pt column. So the
+   press tint is painted by a pseudo-element that reaches 10pt above and
+   5pt below — enough for an even ~10pt halo all round — and only 4pt to
+   the sides, which is all the sides need and keeps 8pt of air between
+   the tint and the neighbouring column (grid gap is 16pt).
+   The resting layout is untouched: the layer is transparent at rest and,
+   being absolutely positioned, never takes part in the grid. */
+.source-cell { position: relative; isolation: isolate; }
+.source-cell::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: -10px -4px -5px;
+  border-radius: 16px;
+  background: var(--br03);
+  opacity: 0;
+  transition: opacity var(--press-dur) ease;
+}
+.source-cell:active { transform: scale(var(--press-scale)); }
+.source-cell:active::before { opacity: 1; }
 
 /* icon / text-only controls: dim */
 .tb-back, .tb-skip, .tb-icon-btn, .btn-ghost, .chip-close,
