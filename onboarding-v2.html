@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-<title>Immersive onboarding · Alva prototypes</title>
+<title>Onboarding v2 · choice first · Alva prototypes</title>
 <meta name="theme-color" content="#49a3a6">
 <link rel="icon" href="assets/logo-portrait2.svg" type="image/svg+xml">
 <link rel="preload" href="assets/fonts/Delight-Regular.ttf" as="font" type="font/ttf" crossorigin>
@@ -27,132 +27,117 @@
     <div class="phone-screen">
       <div class="app" id="app">
 
-        <!-- ═══════════ 01 · Welcome ═══════════ -->
-        <section class="screen s-welcome" data-screen="welcome">
-          <div class="welcome-main">
-            <div class="welcome-hero">
-              <img class="hero-texture" src="assets/ascii-texture.webp" alt="">
-              <div class="miniphone-wrap">
-                <div class="miniphone">
-                  <div class="mini-island"></div>
-                  <div class="mini-statusbar">
-                    <span class="mini-time">9:41</span>
-                    <span class="mini-sb-icons">
-                      <img src="assets/status-signal.svg" alt=""><img src="assets/status-wifi.svg" alt="">
-                      <span class="mini-batt"><img src="assets/battery-outline.svg" class="b-out" alt=""></span>
-                    </span>
-                  </div>
-                  <div class="mini-topbar">
-                    <img src="assets/icon-menu.svg" class="mini-menu" alt="">
-                    <span class="mini-title">Alva</span>
-                    <span class="mini-cp">Connect Portfolio</span>
-                    <img src="assets/icon-settings.svg" class="mini-gear" alt="">
-                  </div>
-                  <div class="mini-tabs">
-                    <span class="on">Chat</span><span>Tasks</span><span>Alerts</span><span>Memory</span><span>Files</span>
-                  </div>
-                  <div class="mini-chat">
-                    <div class="mini-user">
-                      <div class="mini-bubble">
-                        <span class="mini-quote"><img src="assets/quote-image.png" alt="">Smart Screener</span>
-                        <p>Screen AI infrastructure stocks with FCF growth&gt;30% YoY, net cash on balance sheet, and with positive 7-day performance.<br>Re-run this every day and message me the matches.</p>
-                      </div>
-                    </div>
-                    <div class="mini-answer">
-                      <div class="mini-agent"><span class="mini-logo"><img src="assets/logo-portrait.svg" alt=""></span>Alva</div>
-                      <p class="mini-md">I'm using Alva's automation workflow to lock the screening rules and delivery schedule before dispatching the build.</p>
-                    </div>
-                    <div class="mini-answer">
-                      <div class="mini-agent"><span class="mini-logo"><img src="assets/logo-portrait.svg" alt=""></span>Alva</div>
-                      <p class="mini-md">Screener built — running daily at 6:30 AM.<br>July 7 · 4 matches</p>
-                      <table class="mini-table">
-                        <tr><th>#</th><th>Ticker</th><th>Segment</th><th>FCF YoY</th><th>Net cash</th><th>7-day</th><th>Last-close</th></tr>
-                        <tr><td>1</td><td>CRDO</td><td>Connectivity silicon</td><td>+1,302%</td><td>+$1.42B</td><td>+8.1%</td><td>$265.55</td></tr>
-                        <tr><td>2</td><td>ANET</td><td>Datacenter networking</td><td>+39%</td><td>+$12.4B</td><td>+5.6%</td><td>$173.28</td></tr>
-                        <tr><td>3</td><td>AMD</td><td>GPU / accelerators</td><td>+211%</td><td>+$8.49B</td><td>+2.3%</td><td>$552.05</td></tr>
-                        <tr><td>4</td><td>NVDA</td><td>GPU / accelerators</td><td>+65%</td><td>+$67.8B</td><td>+0.3%</td><td>$195.55</td></tr>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <!-- Figma 1772:85727 — drop shadow so the white device body never
-                   merges into the white section below the hero -->
-              <div class="hero-shadow"></div>
-            </div>
-            <div class="welcome-brand">
-              <div class="wordmark">
-                <img src="assets/wordmark-symbol.svg" class="wm-symbol" alt="">
-                <img src="assets/wordmark-text.svg" class="wm-text" alt="Alva">
-              </div>
-              <div class="brand-copy">
-                <h1>Your AI investing agent</h1>
-                <p>Watchlists, backtests, and a daily market digest.<br>Set up in about a minute.</p>
-              </div>
-            </div>
-          </div>
-          <div class="bottom-bar welcome-actions">
-            <button class="btn-primary" data-nav="tasks">Get started</button>
-            <button class="btn-ghost" data-toast="Log in is outside this demo — tap Get started">Already have an account?&nbsp; Log in</button>
-          </div>
-        </section>
-
-        <!-- ═══════════ 02 · Choose a task ═══════════ -->
-        <section class="screen" data-screen="tasks">
-          <div class="topbar">
-            <button class="tb-back" data-back aria-label="Back"><span class="arrow-back"><img src="assets/icon-arrow-back.svg" alt=""></span></button>
-            <span class="tb-title"></span>
-            <button class="tb-skip" data-nav="sources">Skip</button>
-          </div>
+        <!-- ═══════════ 01 · Start · identity + choice + log in ═══════════ -->
+        <section class="screen s-start" data-screen="start">
           <div class="scroll" data-scroll>
-            <div class="title-block">
-              <h2>What should I handle?</h2>
-              <p>Choose one to start. I&rsquo;ll turn your input into focused monitoring, research, or automation.</p>
+            <div class="start-hero">
+              <img class="hero-texture" src="assets/ascii-texture.webp" alt="">
+              <div class="start-brand">
+                <div class="wordmark on-teal">
+                  <img src="assets/wordmark-symbol.svg" class="wm-symbol" alt="">
+                  <img src="assets/wordmark-text.svg" class="wm-text" alt="Alva">
+                </div>
+                <h1>Your AI investing agent</h1>
+                <p>Pick what I should handle first. Setup takes about a minute.</p>
+              </div>
             </div>
             <div class="task-area">
               <div class="task-card">
-                <div class="task-row is-pending">
+                <div class="task-row slim is-pending">
                   <span class="task-emoji">💼</span>
                   <span class="task-copy">
                     <span class="task-title">Watch your portfolio 24/7</span>
                     <span class="task-desc">Important portfolio moves — without the noise.</span>
-                    <span class="task-action">Add my portfolio<span class="arrow-right"><img src="assets/icon-arrow-right.svg" alt=""></span></span>
                   </span>
+                  <span class="row-go"><img src="assets/icon-arrow-right.svg" alt=""></span>
                 </div>
-                <button class="task-row" data-nav="sources">
+                <button class="task-row slim" data-nav="preview">
                   <span class="task-emoji">📣</span>
                   <span class="task-copy">
                     <span class="task-title">Track FinTwit, news &amp; technicals</span>
                     <span class="task-desc">Signals where FinTwit, news, and charts line up.</span>
-                    <span class="task-action">Choose sources<span class="arrow-right"><img src="assets/icon-arrow-right.svg" alt=""></span></span>
                   </span>
+                  <span class="row-go"><img src="assets/icon-arrow-right.svg" alt=""></span>
                 </button>
-                <div class="task-row is-pending">
+                <div class="task-row slim is-pending">
                   <span class="task-emoji">📊</span>
                   <span class="task-copy">
                     <span class="task-title">Get a quick read on any ticker</span>
                     <span class="task-desc">A short, sourced read — no buy/sell calls.</span>
-                    <span class="task-action">Enter a ticker<span class="arrow-right"><img src="assets/icon-arrow-right.svg" alt=""></span></span>
                   </span>
+                  <span class="row-go"><img src="assets/icon-arrow-right.svg" alt=""></span>
                 </div>
-                <div class="task-row is-pending">
+                <div class="task-row slim is-pending">
                   <span class="task-emoji">🔍</span>
                   <span class="task-copy">
                     <span class="task-title">Screen the market on your rules</span>
                     <span class="task-desc">New names only when they match your rules.</span>
-                    <span class="task-action">Set screening rules<span class="arrow-right"><img src="assets/icon-arrow-right.svg" alt=""></span></span>
                   </span>
+                  <span class="row-go"><img src="assets/icon-arrow-right.svg" alt=""></span>
                 </div>
-                <div class="task-row is-pending">
+                <div class="task-row slim is-pending">
                   <span class="task-emoji">⚙️</span>
                   <span class="task-copy">
                     <span class="task-title">Build your own automations</span>
                     <span class="task-desc">A reliable automation on your terms.</span>
-                    <span class="task-action">Describe what to automate<span class="arrow-right"><img src="assets/icon-arrow-right.svg" alt=""></span></span>
                   </span>
+                  <span class="row-go"><img src="assets/icon-arrow-right.svg" alt=""></span>
                 </div>
               </div>
             </div>
+          </div>
+          <div class="bottom-bar login-bar">
+            <button class="btn-ghost login-btn" data-toast="Log in is outside this demo — pick a capability above">Already have an account?&nbsp;<b>Log in</b></button>
+          </div>
+        </section>
+
+        <!-- ═══════════ 02 · Preview · what you are signing up for ═══════════ -->
+        <section class="screen" data-screen="preview">
+          <div class="topbar">
+            <button class="tb-back" data-back aria-label="Back"><span class="arrow-back"><img src="assets/icon-arrow-back.svg" alt=""></span></button>
+            <span class="tb-title"></span>
+          </div>
+          <div class="scroll" data-scroll>
+            <div class="title-block">
+              <h2>Your daily FinTwit Digest</h2>
+              <p>Signals where FinTwit, news and charts line up — condensed into one read each morning.</p>
+            </div>
+            <div class="preview-body">
+              <div class="artifact">
+                <p class="artifact-cap">What lands each morning</p>
+                <div class="report-card">
+                  <div class="report-head">
+                    <div class="report-info">
+                      <p class="report-title">Daily Digest · Market Digest</p>
+                      <span class="status-pill"><span class="dot"></span>nvda-macd-hft-notify</span>
+                      <p class="report-meta">English · Daily Digest · Based on 53 FinTwits</p>
+                    </div>
+                  </div>
+                  <div class="report-rows">
+                    <p>Top-ranked traders clustered around $NVDA, $000660.KS, $AKAM, $AMPG, and $AVGO in this window.</p>
+                    <p>The strongest current theme is AI infrastructure and cloud names, with $NVDA receiving repeated attention.</p>
+                    <div class="report-fade"></div>
+                  </div>
+                </div>
+              </div>
+              <ol class="contract">
+                <li>
+                  <span class="c-num">1</span>
+                  <span class="c-body"><b>You pick who Alva reads</b><i>About 30 seconds — preset groups or individual accounts</i></span>
+                </li>
+                <li>
+                  <span class="c-num">2</span>
+                  <span class="c-body"><b>Alva reads them all day</b><i>Nothing for you to do — it keeps watching after setup</i></span>
+                </li>
+                <li>
+                  <span class="c-num">3</span>
+                  <span class="c-body"><b>One digest, one notification</b><i>Every morning at the time you choose</i></span>
+                </li>
+              </ol>
+            </div>
+          </div>
+          <div class="bottom-bar preview-footer">
+            <button class="btn-primary" data-nav="sources">Choose sources</button>
           </div>
         </section>
 

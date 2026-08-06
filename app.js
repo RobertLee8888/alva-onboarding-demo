@@ -80,9 +80,12 @@
      Navigation core
      ────────────────────────────── */
 
-  const stack = ['welcome'];
+  // The first .screen in the document is the entry point, so one shared
+  // script drives every prototype page regardless of how its flow starts.
+  const ENTRY = document.querySelector('.screen').dataset.screen;
+  const stack = [ENTRY];
   let animating = false;
-  screens.welcome.classList.add('current');
+  screens[ENTRY].classList.add('current');
 
   function setTransition(el, on, ms) {
     el.style.transition = on

@@ -11,9 +11,16 @@
 
   const PROTOTYPES = [
     {
-      title: 'Immersive onboarding',
-      subtitle: 'FinTwit Digest path — welcome, pick a task, choose who Alva reads, confirm, first digest. Native-feeling iOS transitions.',
+      title: 'Onboarding v2 · choice first',
+      subtitle: 'Identity, the five capabilities and log in on one screen — then a preview of what the capability you picked will actually deliver.',
       edited: '2026-08-06',
+      href: 'onboarding-v2.html',
+      meta: 'Mobile · 6 screens',
+    },
+    {
+      title: 'Onboarding v1 · splash first',
+      subtitle: 'Product proof up front, capability choice second. Kept alongside v2 so the two orderings can be compared.',
+      edited: '2026-08-05',
       href: 'onboarding.html',
       meta: 'Mobile · 6 screens',
     },
