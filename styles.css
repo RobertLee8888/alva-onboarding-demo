@@ -209,7 +209,8 @@ img {
   align-items: center;
   gap: 8px;
 }
-.figma-badge, .replay-pill {
+.stage-controls-left { right: auto; left: 20px; }
+.stage-pill {
   font-size: 12px;
   letter-spacing: 0.01em;
   color: rgba(23, 32, 34, 0.5);
@@ -222,7 +223,7 @@ img {
   backdrop-filter: blur(8px);
   transition: color 0.2s, border-color 0.2s;
 }
-.figma-badge:hover, .replay-pill:hover { color: var(--m1); border-color: var(--m1); }
+.stage-pill:hover { color: var(--m1); border-color: var(--m1); }
 /* declared after the definition so it actually wins */
 @media (max-width: 520px), (max-height: 700px) and (pointer: coarse) {
   .stage-controls { display: none; }
