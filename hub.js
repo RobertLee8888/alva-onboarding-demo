@@ -11,6 +11,13 @@
 
   const PROTOTYPES = [
     {
+      title: 'alpha radar mobile onboarding',
+      subtitle: 'Build an Alpha Radar from FinTwit accounts, key figures, podcasts, news, and earnings.',
+      edited: '2026-08-13',
+      href: 'alpha-radar.html',
+      meta: 'Mobile · 8 screens',
+    },
+    {
       title: 'Immersive onboarding',
       subtitle: 'FinTwit Digest path — welcome, pick a task, choose who Alva reads, confirm, first digest. Native-feeling iOS transitions.',
       edited: '2026-08-06',

@@ -1,0 +1,15 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Advanced Micro Devices Inc" clip-path="url(#clip0_0_196)">
+<path id="Vector" d="M0 0H20V20H0V0Z" fill="url(#paint0_linear_0_196)"/>
+<path id="Vector_2" d="M12.5 7.5H7.49429L4.38143 4.28571H15.7143V15.6189L12.5 12.5057V7.5ZM7.5 12.5V8.02321L4.28571 11.2279V15.7143H8.77143L11.9764 12.5H7.5Z" fill="white"/>
+</g>
+<defs>
+<linearGradient id="paint0_linear_0_196" x1="3.72071" y1="3.46857" x2="24.3382" y2="27.1489" gradientUnits="userSpaceOnUse">
+<stop stop-color="#1A1E21"/>
+<stop offset="1" stop-color="#06060A"/>
+</linearGradient>
+<clipPath id="clip0_0_196">
+<rect width="20" height="20" fill="white"/>
+</clipPath>
+</defs>
+</svg>
