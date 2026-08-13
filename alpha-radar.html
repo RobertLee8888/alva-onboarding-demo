@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Alpha Radar mobile onboarding · Alva prototypes</title>
+<meta name="theme-color" content="#49a3a6">
+<link rel="icon" href="assets/logo-portrait2.svg" type="image/svg+xml">
+<link rel="preload" href="assets/fonts/Delight-Regular.ttf" as="font" type="font/ttf" crossorigin>
+<link rel="preload" href="assets/fonts/Delight-Medium.ttf" as="font" type="font/ttf" crossorigin>
+<link rel="preload" href="assets/fonts/Delight-SemiBold.ttf" as="font" type="font/ttf" crossorigin>
+<link rel="stylesheet" href="alpha-radar.css?v=14">
+</head>
+<body>
+
+<div class="desk">
+  <div class="phone" id="phone">
+    <div class="phone-buttons" aria-hidden="true">
+      <span class="pb pb-action"></span>
+      <span class="pb pb-volup"></span>
+      <span class="pb pb-voldown"></span>
+      <span class="pb pb-power"></span>
+    </div>
+    <div class="phone-screen">
+      <main class="radar-app" id="radarApp">
+        <div class="screens" id="screens"></div>
+
+        <div class="system-bar" aria-hidden="true">
+          <div class="system-side system-left"><span>9:41</span></div>
+          <div class="dynamic-island"></div>
+          <div class="system-side system-right">
+            <img src="assets/status-signal.svg" alt="">
+            <img src="assets/status-wifi.svg" alt="">
+            <span class="battery">
+              <img class="battery-outline" src="assets/battery-outline.svg" alt="">
+              <img class="battery-fill" src="assets/battery-fill.svg" alt="">
+              <img class="battery-end" src="assets/battery-end.svg" alt="">
+            </span>
+          </div>
+        </div>
+
+        <header class="flow-topbar" id="flowTopbar">
+          <button class="top-back" id="backButton" aria-label="Back">
+            <img src="assets/icon-arrow-back.svg" alt="">
+          </button>
+          <div class="progress" id="progress" aria-label="Onboarding progress"></div>
+          <button class="top-skip" id="skipButton">Skip</button>
+        </header>
+
+        <div class="home-indicator" aria-hidden="true"><span></span></div>
+
+        <div class="sheet-layer" id="sheetLayer" aria-hidden="true">
+          <button class="sheet-shade" data-close-sheet aria-label="Close"></button>
+          <section class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+            <div class="sheet-grabber"></div>
+            <h2 id="sheetTitle"></h2>
+            <div class="sheet-options" id="sheetOptions"></div>
+          </section>
+        </div>
+
+        <div class="toast" id="toast" role="status"></div>
+      </main>
+    </div>
+  </div>
+
+  <nav class="stage-controls stage-controls-left" aria-label="Prototype navigation">
+    <a class="stage-pill" href="index.html">← All prototypes</a>
+  </nav>
+  <div class="stage-controls">
+    <button class="stage-pill" id="restartButton">Restart</button>
+  </div>
+</div>
+
+<script src="alpha-radar.js?v=14"></script>
+</body>
+</html>

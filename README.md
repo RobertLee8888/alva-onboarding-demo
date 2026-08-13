@@ -11,6 +11,7 @@ Interactive design prototypes for Alva. The site opens on an index of prototypes
 | | Prototype | Source |
 | --- | --- | --- |
 | `index.html` | **Prototypes** — the index: one card per exploration, with title, subtitle and last-edited time | — |
+| `alpha-radar.html` | **Alpha Radar mobile onboarding** — source selection, radar setup, login, and building states across 8 screens | [Alpha Radar onboarding](https://www.figma.com/design/DJ9Acp13FruTilsTdrE0id/Draft?node-id=13241-205457) |
 | `onboarding.html` | **Immersive onboarding** — FinTwit Digest path, 6 screens | [Onboarding · Production v4 · FinTwit path](https://www.figma.com/design/A4jIwN4EMWr0fJVVGmCIsr/Mobile?node-id=1355-5243) |
 
 Zero dependencies — plain HTML / CSS / JS, no build step. Alva design tokens (`main/m1 #49a3a6`, `text/n9…n3`, `line/l05…l3`), the Delight typeface, and assets exported from Figma.
