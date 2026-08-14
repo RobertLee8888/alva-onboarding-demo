@@ -14,7 +14,7 @@
       title: 'alpha radar mobile onboarding',
       subtitle: 'Build an Alpha Radar from FinTwit accounts, key figures, podcasts, news, and earnings.',
       edited: '2026-08-13',
-      href: 'alpha-radar.html?v=15',
+      href: 'alpha-radar.html',
       meta: 'Mobile · 8 screens',
     },
     {
