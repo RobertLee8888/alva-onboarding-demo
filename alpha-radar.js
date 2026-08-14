@@ -251,14 +251,6 @@
       </footer>`;
   }
 
-  function renderIntroAction() {
-    return `
-      <footer class="action-bar intro-action">
-        <button class="primary-button" data-primary-action>Choose my sources</button>
-        <button class="secondary-button" data-intro-login>Have an account? Log in</button>
-      </footer>`;
-  }
-
   function renderIntro() {
     return `
       <section class="screen intro" data-step="0">
@@ -294,7 +286,7 @@
             <img class="source-icon" src="assets/alpha-source-podcast.png" alt="">
           </div>
         </div>
-        ${renderIntroAction()}
+        ${renderAction('Choose my sources')}
       </section>`;
   }
 
@@ -414,11 +406,7 @@
             <span class="ticker-fade ticker-fade-top"></span>
             <span class="ticker-fade ticker-fade-bottom"></span>
           </div>
-          <div class="building-copy">
-            <h1>Building your Alpha Radar</h1>
-            <p>This can take a few minutes — Alva will message you as soon as the first report is ready.</p>
-            <button class="secondary-button building-continue" data-continue-app>Continue to app</button>
-          </div>
+          <div class="building-copy"><h1>Building your Alpha Radar</h1><p>This can take a few minutes — Alva will message you as soon as the first report is ready.</p></div>
         </div>
       </section>`;
   }
@@ -626,16 +614,6 @@
 
     if (event.target.closest('[data-login-option]')) {
       navigate(7, 'forward');
-      return;
-    }
-
-    if (event.target.closest('[data-intro-login]')) {
-      navigate(6, 'forward');
-      return;
-    }
-
-    if (event.target.closest('[data-continue-app]')) {
-      window.location.assign('https://beta.alva.ai/');
       return;
     }
 
