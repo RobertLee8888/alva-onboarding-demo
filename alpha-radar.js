@@ -224,7 +224,11 @@
   const memberGrid = document.getElementById('memberGrid');
   const memberScroll = document.getElementById('memberScroll');
   const memberFollow = document.getElementById('memberFollow');
+  const sheet = document.getElementById('sheet');
+  const sheetGrabber = document.getElementById('sheetGrabber');
+  const sheetHead = document.getElementById('sheetHead');
   const sheetTitle = document.getElementById('sheetTitle');
+  const sheetMeta = document.getElementById('sheetMeta');
   const sheetOptions = document.getElementById('sheetOptions');
   const toast = document.getElementById('toast');
   const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -239,7 +243,13 @@
   let toastTimer = null;
   let newsOn = true;
   let earningsOn = true;
-  let alertTime = '20:00 GMT+8';
+  /* The zone qualifies the list, not the value, so it lives apart: the option
+     rows read "20:00", the sheet header reads GMT+8, and the Ready row joins
+     the two back together (14237:49014). */
+  const ZONE = 'GMT+8';
+  const HOURS = Array.from({ length: 24 }, (_, hour) => `${String(hour).padStart(2, '0')}:00`);
+  const LANGUAGES = ['English', 'Chinese (Simplified)', 'Korean'];
+  let alertTime = '20:00';
   let language = 'English';
   const loadedSteps = new Set();
   const loadTimers = new Map();
@@ -369,8 +379,8 @@
               </div>
             </div>
             <div class="delivery-card">
-              <button class="delivery-row" data-sheet="time"><span class="delivery-copy"><span class="delivery-label">Daily alert</span><span class="delivery-value" id="timeValue">20:00 GMT+8</span></span><span class="change-button">Change</span></button>
-              <button class="delivery-row" data-sheet="language"><span class="delivery-copy"><span class="delivery-label">Language</span><span class="delivery-value" id="languageValue">English</span></span><span class="change-button">Change</span></button>
+              <button class="delivery-row" data-sheet="time"><span class="delivery-copy"><span class="delivery-label">Daily alert</span><span class="delivery-value" id="timeValue">${alertTime} ${ZONE}</span></span><span class="change-button">Change</span></button>
+              <button class="delivery-row" data-sheet="language"><span class="delivery-copy"><span class="delivery-label">Language</span><span class="delivery-value" id="languageValue">${language}</span></span><span class="change-button">Change</span></button>
             </div>
           </div>
         </div>
@@ -833,28 +843,95 @@
   });
 
   document.addEventListener('keydown', event => {
-    if (event.key === 'Escape' && memberOpen) closeMemberSheet();
+    if (event.key !== 'Escape') return;
+    if (memberOpen) closeMemberSheet();
+    if (sheetLayer.classList.contains('open')) closeSheet();
   });
+
+  /* ──────────────────────────────
+     Change → selection sheet (14236:48905)
+
+     One sheet serves both rows. Hours are whole hours — a picker that also
+     offers 20:15 asks a question nobody answering "when should the digest
+     land" wants to think about — and the zone is stated once in the header.
+     Languages are named in English because Delight carries no CJK, so
+     「中文」would fall back to another face mid-list; the native-name
+     question is still Robert's to call.
+     ────────────────────────────── */
 
   function openSheet(type) {
     const isTime = type === 'time';
-    const options = isTime
-      ? ['08:00 GMT+8', '12:00 GMT+8', '20:00 GMT+8']
-      : ['English', '简体中文', '繁體中文'];
+    const options = isTime ? HOURS : LANGUAGES;
     const currentValue = isTime ? alertTime : language;
-    sheetTitle.textContent = isTime ? 'Daily alert time' : 'Language';
+    sheetTitle.textContent = isTime ? 'Daily alert' : 'Language';
+    sheetMeta.textContent = isTime ? ZONE : '';
+    sheetMeta.hidden = !isTime;
     sheetOptions.innerHTML = options.map(option => `
-      <button class="sheet-option${option === currentValue ? ' selected' : ''}" data-sheet-option="${type}" data-value="${option}">
-        <span>${option}</span><span>${option === currentValue ? '✓' : ''}</span>
-      </button>`).join('');
+      <button class="sheet-option${option === currentValue ? ' selected' : ''}" role="option"
+        aria-selected="${option === currentValue}"
+        data-sheet-option="${type}" data-value="${option}">${option}</button>`).join('');
     sheetLayer.classList.add('open');
     sheetLayer.setAttribute('aria-hidden', 'false');
+    revealCurrentOption();
+  }
+
+  /* Open on the value you already have rather than at the top of the list:
+     20:00 is the twenty-first row of twenty-four, and making you scroll to
+     find where you already are is work the sheet can do itself. Set, not
+     animated — it should be there before the sheet arrives. */
+  function revealCurrentOption() {
+    const selected = sheetOptions.querySelector('.sheet-option.selected');
+    if (!selected) { sheetOptions.scrollTop = 0; return; }
+    const centred = selected.offsetTop - (sheetOptions.clientHeight - selected.offsetHeight) / 2;
+    const furthest = sheetOptions.scrollHeight - sheetOptions.clientHeight;
+    sheetOptions.scrollTop = Math.max(0, Math.min(furthest, centred));
   }
 
   function closeSheet() {
     sheetLayer.classList.remove('open');
     sheetLayer.setAttribute('aria-hidden', 'true');
   }
+
+  /* Drag down to dismiss — the third exit the contract lists, next to ✕ and
+     the scrim. Only the grabber and the header start a drag: a finger that
+     came down on the list is scrolling it, and hijacking that would make the
+     list feel broken. Released short of a quarter of the sheet, it springs
+     back, so a half-hearted pull costs you nothing. */
+  function enableDragDismiss(panel, handle, dismiss) {
+    let startY = 0;
+    let travel = 0;
+    let dragging = false;
+
+    handle.addEventListener('pointerdown', event => {
+      /* a press on the ✕ is a press on the ✕, not the start of a drag */
+      if (event.button || event.target.closest('button')) return;
+      dragging = true;
+      startY = event.clientY;
+      travel = 0;
+      panel.classList.add('dragging');
+      handle.setPointerCapture(event.pointerId);
+    });
+
+    handle.addEventListener('pointermove', event => {
+      if (!dragging) return;
+      travel = Math.max(0, event.clientY - startY);   /* down only */
+      panel.style.transform = `translateY(${travel}px)`;
+    });
+
+    function release() {
+      if (!dragging) return;
+      dragging = false;
+      panel.classList.remove('dragging');
+      panel.style.removeProperty('transform');
+      if (travel > Math.min(96, panel.offsetHeight * .25)) dismiss();
+    }
+
+    handle.addEventListener('pointerup', release);
+    handle.addEventListener('pointercancel', release);
+  }
+
+  enableDragDismiss(sheet, sheetGrabber, closeSheet);
+  enableDragDismiss(sheet, sheetHead, closeSheet);
 
   sheetLayer.addEventListener('click', event => {
     if (event.target.closest('[data-close-sheet]')) {
@@ -865,7 +942,7 @@
     if (!option) return;
     if (option.dataset.sheetOption === 'time') {
       alertTime = option.dataset.value;
-      document.getElementById('timeValue').textContent = alertTime;
+      document.getElementById('timeValue').textContent = `${alertTime} ${ZONE}`;
     } else {
       language = option.dataset.value;
       document.getElementById('languageValue').textContent = language;

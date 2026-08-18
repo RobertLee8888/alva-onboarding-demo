@@ -56,9 +56,27 @@ The file draws two of the four states. The one-sided ones are inferred, on the r
 
 ### Ready screen empty row
 
-A category with nothing selected stops being a row-with-an-action and becomes the action ([14159:48746](https://www.figma.com/design/DJ9Acp13FruTilsTdrE0id/Draft?node-id=14159-48746)): the grey label and the pencil both go, and one centred text button carries the row — `＋ Add podcasts`, Medium/12 in `main/m1`, `add-l1` at 16px, gap 8, no fill and no pill. 16 + 20 + 16 makes it 52 tall, a little tighter than the 56 of a filled row. Tapping anywhere in the row still opens that picker.
+A category with nothing selected stops being a row-with-an-action and becomes the action ([14159:48746](https://www.figma.com/design/DJ9Acp13FruTilsTdrE0id/Draft?node-id=14159-48746)): the grey label and the pencil both go, and one centred text button carries the row — `⊕ Add podcasts`, **Medium/14** in `main/m1`, `add-l1` at 16px, gap 8, no fill and no pill. 16 + 22 + 16 makes it 54 tall, a little tighter than the 56 of a filled row, whose avatar is 24. Tapping anywhere in the row still opens that picker.
+
+`add-l1` is a **plus inside a ring**, not a bare plus, so `assets/add-l1-m1.svg` holds that node's own exported path bytes (16px box, ring at 5% inset, `main/m1`). It is not `icon-add.svg` recoloured — that glyph is the bare plus, and the first pass at this row used it.
 
 Reaching that state needed a rule the design file does not state. Walking **forward**, a step still requires at least one source, as before — a radar that reads nothing is not a radar. But coming back from Ready via the pencil, **Confirm accepts whatever you chose, including nothing**: clearing a category is a legitimate edit, and it is the only path to the empty row that does not change what Skip means.
+
+### Change → selection sheet
+
+Both rows of the delivery card open the same bottom sheet ([14236:48905](https://www.figma.com/design/DJ9Acp13FruTilsTdrE0id/Draft?node-id=14236-48905)). Its height has two bands and this is the shorter one: **content height, capped at half the viewport** (852 → 426). The cap is the cross-checked convention — iOS's medium detent is "approximately half the height of the screen", Material's `halfExpandedRatio` defaults to 0.5, Flutter caps a modal sheet at 9/16 — and it keeps the list inside the thumb's reach. It is a ceiling, not a fixed height: three languages hug at 236, twenty-four hours hit 426 and scroll, cut by the window with no bottom backing, exactly as the collection sheet is.
+
+Container: `main/m7` scrim, 12px top corners, grabber, then a `[✕ | title | qualifier]` header — 52 tall, gap 12, Medium/18. The list is padded 8, each row 46 tall with 12 of its own padding (so text lands on the 16 line) and a 4px radius; the selected row is `main/m1` at 8% with a `main/m1` label, which is the Library's `Select=Yes` variant rather than a tick.
+
+Three decisions the frames imply rather than state:
+
+- **Whole hours only, and the zone stated once.** A picker offering 20:15 asks a question nobody answering "when should the digest land" wants to think about. `GMT+8` qualifies the whole list, so it reads once in the header instead of 24 times down the rows; the Ready row joins the hour and the zone back together.
+- **It opens on the value you already have.** 20:00 is the twenty-first row of twenty-four. Scrolling to find where you already are is work the sheet can do itself, so the list is positioned — not animated — before it arrives.
+- **Languages are named in Latin script.** Delight carries no CJK, so 「中文」would fall back to another face mid-list. Whether to use native names is still Robert's call, and it depends on adding Noto Sans SC.
+
+Tapping an option commits it and closes. ✕, the scrim, **a drag down** and Esc all leave the value exactly as it was; a pull shorter than a quarter of the sheet springs back, so a half-hearted drag costs nothing. Only the grabber and the header start a drag — a finger that came down on the list is scrolling it. Dismissal is the entrance played backwards, on the same mirrored curve as the collection sheet.
+
+The two `Change` rows now answer a press the way the summary rows do, with a tint that reaches the card's inner edges and takes no space, so nothing shifts.
 
 ### Collection member sheet
 

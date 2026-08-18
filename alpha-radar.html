@@ -13,7 +13,7 @@
      stage chrome, so the page renders as a bare full-screen app. Set before
      the stylesheet loads so no mockup is ever painted. -->
 <script>if (window.self !== window.top) document.documentElement.classList.add('embedded');</script>
-<link rel="stylesheet" href="alpha-radar.css?v=22">
+<link rel="stylesheet" href="alpha-radar.css?v=23">
 </head>
 <body>
 
@@ -77,12 +77,22 @@
           </section>
         </div>
 
+        <!-- Change → selection sheet. Same container grammar as the collection
+             sheet: grabber, [✕ | title | qualifier] header, then the list.
+             Tapping an option commits and closes; ✕ / scrim / drag / Esc do
+             not (14236:48905). -->
         <div class="sheet-layer" id="sheetLayer" aria-hidden="true">
           <button class="sheet-shade" data-close-sheet aria-label="Close"></button>
-          <section class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
-            <div class="sheet-grabber"></div>
-            <h2 id="sheetTitle"></h2>
-            <div class="sheet-options" id="sheetOptions"></div>
+          <section class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+            <div class="sheet-grabber" id="sheetGrabber" aria-hidden="true"><span></span></div>
+            <header class="sheet-head" id="sheetHead">
+              <button class="sheet-close" data-close-sheet aria-label="Close">
+                <img src="assets/close-l1.svg" alt="">
+              </button>
+              <h2 id="sheetTitle"></h2>
+              <span class="sheet-meta" id="sheetMeta" hidden></span>
+            </header>
+            <div class="sheet-options" id="sheetOptions" role="listbox"></div>
           </section>
         </div>
 
@@ -99,6 +109,6 @@
   </div>
 </div>
 
-<script src="alpha-radar.js?v=22"></script>
+<script src="alpha-radar.js?v=23"></script>
 </body>
 </html>
