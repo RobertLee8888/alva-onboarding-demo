@@ -713,12 +713,14 @@ img { display: block; pointer-events: none; -webkit-user-drag: none; }
   border: .5px solid var(--l2);
   border-radius: 8px;
 }
+/* Row · 13718:47652 — collection collage, a "+", the individuals' stack,
+   the count, then the pencil. gap 8, padding-y 16, 24px content = 56 tall. */
 .summary-row {
   display: flex;
   width: 100%;
   align-items: center;
   min-height: 56px;
-  gap: 12px;
+  gap: 8px;
   padding: 16px 0;
   text-align: left;
 }
@@ -734,11 +736,48 @@ img { display: block; pointer-events: none; -webkit-user-drag: none; }
 }
 .avatar-stack img:first-child { margin-left: 0; }
 .summary-label { min-width: 0; flex: 1; font-size: 14px; line-height: 22px; }
-/* Nothing selected: the avatar stack would be an empty gap, so it goes and
-   the words carry the row instead. The edit pencil stays — it is the way
-   back in to pick something (Robert 2026-08-18). */
-.summary-row.is-empty .avatar-stack { display: none; }
-.summary-row.is-empty .summary-label { color: var(--n7); }
+
+/* The collection, as its own collage avatar — same molecule as the grid card,
+   at 24px: a full circle clipping a 2×2 of 12px tiles. */
+.summary-collage {
+  display: grid;
+  width: 24px;
+  height: 24px;
+  flex: none;
+  grid-template-columns: 1fr 1fr;
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--br03);
+}
+.summary-collage img { width: 12px; height: 12px; object-fit: cover; }
+
+/* Regular/14 · text/n9 (14200:20928) — it joins the two halves of the row,
+   which is why it is a glyph in the row and not part of the sentence. */
+.summary-plus {
+  flex: none;
+  color: var(--n9);
+  font-size: 14px;
+  line-height: 22px;
+}
+
+/* Nothing selected (14159:48781): the words go grey and the pencil is
+   replaced by an explicit way in. Row grows to 60 on the 28px button. */
+.summary-row.is-empty .summary-label { color: var(--n3); }
+.summary-add {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border-radius: 4px;
+  background: var(--m1);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 20px;
+  white-space: nowrap;
+}
+.summary-add img { width: 14px; height: 14px; }
 .edit-icon {
   flex: 0 0 16px;
   width: 16px;
@@ -1121,9 +1160,10 @@ img { display: block; pointer-events: none; -webkit-user-drag: none; }
   padding: 0 16px 106px;
 }
 .member-rule {
-  color: var(--n5);
-  font-size: 12px;
-  line-height: 20px;
+  /* Regular/14 · text/n7 (14157:212843) */
+  color: var(--n7);
+  font-size: 14px;
+  line-height: 22px;
 }
 .member-grid { margin-top: 16px; }
 /* member cards are the same molecule, but read-only — no press feedback */

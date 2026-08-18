@@ -25,10 +25,11 @@ Everything below applies to the three source-selection screens (FinTwit accounts
 
 Each screen now carries **one** collection card, not two — `Most Followed 50` is gone. The selection read-out **names the collection and counts the individuals**, joined with a plus:
 
+The selection-screen footer says it in words (Regular/12, centred, `text/n5`):
+
 | | |
 | --- | --- |
-| Selection screen footer | `Win Rate Top 50 + 12 accounts selected` |
-| Ready screen row | `Win Rate Top 50 + 12 accounts` |
+| Both | `Win Rate Top 50 + 12 accounts selected` |
 | Collection only | `Win Rate Top 50 selected` |
 | Individuals only | `12 accounts selected` |
 | Nothing | `Select at least one` |
@@ -39,9 +40,17 @@ The screens open with the collection plus a number of individuals already select
 
 The design file adds filler cards so no grid row is left holding two stretched cards. That is an artifact of Figma auto-layout, where the cards are FILL children — this grid is `repeat(3, minmax(0, 1fr))`, so a short last row keeps its column width and no filler is needed.
 
+### Ready screen row is composed, not labelled
+
+On the Ready screen the plus moved out of the sentence and into the row ([13223:47199](https://www.figma.com/design/DJ9Acp13FruTilsTdrE0id/Draft?node-id=13223-47199)). The row is `collection collage avatar` · `+` · `individuals' avatar stack` · `count` · pencil — gap 8, 24px content, 56 tall — so the collection is carried by its avatar and the words are only the count.
+
+Both avatar groups are live: the collage is the collection's own four images, and the stack is the first four individuals you actually picked, so the row keeps up as you edit.
+
+The file draws two of the four states. The one-sided ones are inferred, on the rule that the words say whatever the avatars cannot — with a collection alone the words become its name, with individuals alone they stay the count.
+
 ### Ready screen empty row
 
-A category with nothing selected keeps its edit pencil and says so in words — `No podcasts selected` — with the avatar stack dropped rather than left as an empty gap.
+A category with nothing selected goes grey (`text/n3`) and swaps the pencil for an explicit way in — a teal `+ Add podcasts` pill ([14159:48746](https://www.figma.com/design/DJ9Acp13FruTilsTdrE0id/Draft?node-id=14159-48746)). The row grows to 60 on the 28px button. Tapping anywhere in the row, pill included, opens that picker.
 
 Reaching that state needed a rule the design file does not state. Walking **forward**, a step still requires at least one source, as before — a radar that reads nothing is not a radar. But coming back from Ready via the pencil, **Confirm accepts whatever you chose, including nothing**: clearing a category is a legitimate edit, and it is the only path to the empty row that does not change what Skip means.
 
@@ -52,7 +61,7 @@ Tapping now works by card type:
 - **Single card** — whole card = select / deselect, unchanged.
 - **Collection card** (the 2×2 collage) — whole card = open a **member bottom sheet**; it no longer toggles.
 
-The sheet follows the finalized frames ([⑥ unselected](https://www.figma.com/design/DJ9Acp13FruTilsTdrE0id/Draft?node-id=14144-48617) / [⑦ selected](https://www.figma.com/design/DJ9Acp13FruTilsTdrE0id/Draft?node-id=14144-48781)): scrim over the app (never over the status bar or home indicator), sheet from y 106 with a grabber, **close on the left** of the header next to the title, and the collection's inclusion rule ("Highest prediction win rate over the past 90 days · Updated 3 hours ago") as the first line of the scroll area, so it scrolls away with the list. Members render as the page grid's own 3-up card molecule and are read-only — the collection is atomic, so the only action is the floating dual-state button: **Follow all** (primary) ⇄ **✓ Following** (white, hairline, check). It toggles in place, and the card's checkmark and the selection count behind the scrim stay in sync live. Esc, the ✕, or tapping the scrim closes it.
+The sheet follows the finalized frames ([⑥ unselected](https://www.figma.com/design/DJ9Acp13FruTilsTdrE0id/Draft?node-id=14144-48617) / [⑦ selected](https://www.figma.com/design/DJ9Acp13FruTilsTdrE0id/Draft?node-id=14144-48781)): scrim over the app (never over the status bar or home indicator), sheet from y 106 with a grabber, **close on the left** of the header next to the title, and the collection's inclusion rule ("Highest prediction win rate over the past 90 days · Updated 3 hours ago") as the first line of the scroll area — Regular/14 in `text/n7` — so it scrolls away with the list. Members render as the page grid's own 3-up card molecule and are read-only — the collection is atomic, so the only action is the floating dual-state button: **Follow all** (primary) ⇄ **✓ Following** (white, hairline, check). It toggles in place, and the card's checkmark and the selection count behind the scrim stay in sync live. Esc, the ✕, or tapping the scrim closes it.
 
 In the demo, members are drawn from the screen's own account list (Win Rate Top 50 really is the 50 highest win rates), rather than the design file's placeholder loop of 7 mock accounts.
 

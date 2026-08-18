@@ -362,10 +362,6 @@
       </section>`;
   }
 
-  function avatarStack() {
-    return `<span class="avatar-stack">${[1, 2, 3, 4].map(i => `<img src="${ASSET}alpha-ready-avatar-${i}.png" alt="">`).join('')}</span>`;
-  }
-
   function renderReady(step, index) {
     return `
       <section class="screen" data-step="${index}">
@@ -373,9 +369,9 @@
           <div class="content">
             <div class="title-block"><h1>${step.title}</h1><p>${step.description}</p></div>
             <div class="summary-card">
-              <button class="summary-row" data-edit-step="1">${avatarStack()}<span class="summary-label" data-summary-count="1">100 FinTwit accounts</span><img class="edit-icon" src="${ASSET}alpha-edit.svg" alt=""></button>
-              <button class="summary-row" data-edit-step="2">${avatarStack()}<span class="summary-label" data-summary-count="2">100 key figures</span><img class="edit-icon" src="${ASSET}alpha-edit.svg" alt=""></button>
-              <button class="summary-row" data-edit-step="3">${avatarStack()}<span class="summary-label" data-summary-count="3">100 podcasts</span><img class="edit-icon" src="${ASSET}alpha-edit.svg" alt=""></button>
+              <button class="summary-row" data-edit-step="1"></button>
+              <button class="summary-row" data-edit-step="2"></button>
+              <button class="summary-row" data-edit-step="3"></button>
               <div class="watch-summary">
                 <button class="summary-option" data-toggle="news"><span>News</span><span class="switch compact on"></span></button><i class="divider"></i>
                 <button class="summary-option" data-toggle="earnings"><span>Earnings</span><span class="switch compact on"></span></button>
@@ -483,10 +479,49 @@
     return parts.join(' + ') + (suffix ? ' selected' : '');
   }
 
-  function summaryCountLabel(index) {
-    /* Empty row keeps its edit pencil and says so in words, rather than
-       showing an empty avatar stack (Robert 2026-08-18) */
-    return selectionLabel(index, false) || `No ${NOUNS[index][1]} selected`;
+  /* ──────────────────────────────
+     Ready row (13718:47652 / empty 14159:48781)
+
+     The design moved the "+" out of the sentence and into the row itself:
+     the collection is its own collage avatar, the individuals are an avatar
+     stack, and the words are only the count. So the row is composed, not
+     just labelled — and it is rebuilt whenever the selection changes.
+
+     Only "both" and "neither" are drawn in the file. The two one-sided cases
+     are inferred, on the rule that the text says whatever the avatars cannot:
+     with a collection alone the words are its name, with individuals alone
+     the words stay the count.
+     ────────────────────────────── */
+
+  function readyRowMarkup(index) {
+    const collection = selectedCollections(index)[0];
+    const singles = selectedSingles(index);
+    const [one, many] = NOUNS[index];
+
+    if (!collection && !singles.length) {
+      return `
+        <span class="summary-label">No ${many} selected</span>
+        <span class="summary-add"><img src="${ASSET}add-l1-reverse.svg" alt="">Add ${many}</span>`;
+    }
+
+    const collage = collection
+      ? `<span class="summary-collage">${collection.collage
+          .map(i => `<img src="${avatar(STEPS[index].id, i)}" alt="">`).join('')}</span>`
+      : '';
+    /* the real first four, so the row keeps up as you edit */
+    const stack = singles.length
+      ? `<span class="avatar-stack">${singles.slice(0, 4)
+          .map(item => `<img src="${avatar(STEPS[index].id, item.image)}" alt="">`).join('')}</span>`
+      : '';
+    const plus = collection && singles.length ? '<span class="summary-plus">+</span>' : '';
+    const words = singles.length
+      ? `${singles.length} ${singles.length === 1 ? one : many}`
+      : collection.name;
+
+    return `
+      ${collage}${plus}${stack}
+      <span class="summary-label">${words}</span>
+      <img class="edit-icon" src="${ASSET}alpha-edit.svg" alt="">`;
   }
 
   function updateChrome(index = current) {
@@ -520,10 +555,10 @@
     }
 
     if (index === 5) {
-      document.querySelectorAll('[data-summary-count]').forEach(label => {
-        const step = Number(label.dataset.summaryCount);
-        label.textContent = summaryCountLabel(step);
-        label.closest('.summary-row').classList.toggle('is-empty', !hasSelection(step));
+      document.querySelectorAll('[data-edit-step]').forEach(row => {
+        const step = Number(row.dataset.editStep);
+        row.classList.toggle('is-empty', !hasSelection(step));
+        row.innerHTML = readyRowMarkup(step);
       });
     }
   }
