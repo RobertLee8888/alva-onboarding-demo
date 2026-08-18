@@ -29,24 +29,24 @@ The selection-screen footer says it in words (Regular/12, centred, `text/n5`):
 
 | | |
 | --- | --- |
+| Collection only — **the default** | `Win Rate Top 50 selected` |
 | Both | `Win Rate Top 50 + 12 accounts selected` |
-| Collection only | `Win Rate Top 50 selected` |
 | Individuals only | `12 accounts selected` |
 | Nothing | `Select at least one` |
 
 Naming the collection instead of adding its 50 also settles the old double-counting question: someone who is both a collection member and checked in the grid is counted once, as an individual, never twice.
 
-The screens open with the collection plus a number of individuals already selected — 12 / 8 / 5 — the first three of which sit in the opening rows so the number is visibly self-consistent; the rest are further down the list. 12 is Robert's figure, 8 and 5 are placeholders.
+**Each picker opens with only its collection card checked.** The curated collection is the default; every individual is the user's own addition, so the `+ N accounts` half of the read-out counts what they actually did rather than a number the demo pre-filled. The design file's `12 accounts` / `8 key figures` / `5 podcasts` are therefore a demo state you reach by checking people, not the state the screen opens in.
 
 The design file adds filler cards so no grid row is left holding two stretched cards. That is an artifact of Figma auto-layout, where the cards are FILL children — this grid is `repeat(3, minmax(0, 1fr))`, so a short last row keeps its column width and no filler is needed.
 
 ### Ready screen row is composed, not labelled
 
-On the Ready screen the plus moved out of the sentence and into the row ([13223:47199](https://www.figma.com/design/DJ9Acp13FruTilsTdrE0id/Draft?node-id=13223-47199)). The row is `collection collage avatar` · `+` · `individuals' avatar stack` · `count` · pencil — gap 8, 24px content, 56 tall — so the collection is carried by its avatar and the words are only the count.
+On the Ready screen the plus moved out of the sentence and into the row ([13223:47199](https://www.figma.com/design/DJ9Acp13FruTilsTdrE0id/Draft?node-id=13223-47199)). The row is `collection collage avatar` · `+` · `individuals' avatar stack` · `count` · pencil — gap 8, 24px content, 56 tall — so the collection is carried by its avatar and the words are only the count. Straight out of onboarding, with only the collections checked, each row is the collage plus the collection's name; the plus and the stack appear as soon as you add people.
 
 Both avatar groups are live: the collage is the collection's own four images, and the stack is the first four individuals you actually picked, so the row keeps up as you edit.
 
-The file draws two of the four states. The one-sided ones are inferred, on the rule that the words say whatever the avatars cannot — with a collection alone the words become its name, with individuals alone they stay the count.
+The file draws two of the four states. The one-sided ones are inferred, on the rule that the words say whatever the avatars cannot — with a collection alone the words become its name, with individuals alone they stay the count. Note that "collection alone" is now the opening state, so it is on screen more than the file's drawn one.
 
 ### Ready screen empty row
 
@@ -65,7 +65,7 @@ The sheet follows the finalized frames ([⑥ unselected](https://www.figma.com/d
 
 In the demo, members are drawn from the screen's own account list (Win Rate Top 50 really is the 50 highest win rates), rather than the design file's placeholder loop of 7 mock accounts.
 
-**Still open** (carried over from the design file): the demo counts for key figures and podcasts (8 / 5) are placeholders awaiting Robert's numbers.
+**Still open** (carried over from the design file): the file's per-screen individual counts (12 / 8 / 5) no longer describe a default, since the pickers open with the collection alone.
 
 ## How the single page holds together
 

@@ -197,12 +197,10 @@
     ],
   };
 
-  /* Demo seed for the "+ N accounts" read-out (Robert 2026-08-18).
-     One collection plus a number of individuals: the first three land in
-     the opening rows so the number is visibly self-consistent, the rest
-     sit further down the list, off the first screen. 12 is Robert's
-     figure; 8 / 5 are placeholders pending his numbers. */
-  const SEEDED_SINGLES = { fintwit: 12, figures: 8, podcasts: 5 };
+  /* Each picker opens with ONLY its collection card checked (Robert
+     2026-08-18). The curated collection is the default; every individual
+     is the user's own addition, so the "+ N accounts" read-out counts
+     what they actually did rather than a number we pre-filled. */
 
   Object.entries(EXTRA_ITEMS).forEach(([id, names]) => {
     const step = STEPS.find(item => item.id === id);
@@ -211,13 +209,6 @@
       if (id === 'fintwit') item.rate = `${Math.max(10, 39 - index)}% win rate`;
       step.items.push(item);
     });
-  });
-
-  Object.entries(SEEDED_SINGLES).forEach(([id, n]) => {
-    STEPS.find(step => step.id === id)
-      .items.filter(item => !item.collage)
-      .slice(0, n)
-      .forEach(item => { item.selected = true; });
   });
 
   const screensEl = document.getElementById('screens');
