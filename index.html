@@ -2,36 +2,84 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <title>Alva · Prototypes</title>
-<meta name="description" content="Interactive design prototypes for Alva — each one a self-contained exploration.">
+<meta name="description" content="Interactive design prototypes for Alva — a list on the left, the running prototype on the right.">
 <meta name="theme-color" content="#eef1f2">
 <link rel="icon" href="assets/logo-portrait2.svg" type="image/svg+xml">
 <link rel="preload" href="assets/fonts/Delight-Regular.ttf" as="font" type="font/ttf" crossorigin>
 <link rel="preload" href="assets/fonts/Delight-Medium.ttf" as="font" type="font/ttf" crossorigin>
-<link rel="stylesheet" href="hub.css?v=1">
+<link rel="stylesheet" href="shell.css?v=1">
 </head>
 <body>
 
-<main class="hub">
-  <div class="hub-inner">
+<!-- ═══════════════════════════════════════════════════════════
+     One page, two layouts.
 
-    <header class="hub-head">
-      <div class="wordmark">
-        <img src="assets/wordmark-symbol.svg" class="wm-symbol" alt="">
-        <img src="assets/wordmark-text.svg" class="wm-text" alt="Alva">
+     ≥ 900px  → sidebar (the list) + stage (the running prototype)
+     < 900px  → two views, list ⇄ prototype, switched by the hash,
+                so the browser's own back gesture is the way back
+
+     Each prototype runs inside an iframe sized to a phone screen
+     (393 × 852). The bezel around it is drawn here, by the shell —
+     so the prototype itself is always in its full-screen mode and
+     never renders a mockup of its own.
+     ═══════════════════════════════════════════════════════════ -->
+
+<div class="shell" id="shell">
+
+  <!-- ── The list ── -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-scroll">
+
+      <header class="sb-head">
+        <div class="wordmark">
+          <img src="assets/wordmark-symbol.svg" class="wm-symbol" alt="">
+          <img src="assets/wordmark-text.svg" class="wm-text" alt="Alva">
+        </div>
+        <h1>Prototypes</h1>
+        <p class="sb-sub">Interactive design explorations. Each one is self-contained — open it, click through it, come back.</p>
+      </header>
+
+      <nav class="proto-list" id="protoList" aria-label="Prototypes"></nav>
+
+      <p class="sb-foot" id="sbFoot"></p>
+
+    </div>
+  </aside>
+
+  <!-- ── The running prototype ── -->
+  <main class="stage" id="stage">
+
+    <div class="stage-fit" id="stageFit">
+      <div class="phone" aria-hidden="false">
+        <div class="phone-buttons" aria-hidden="true">
+          <span class="pb pb-action"></span>
+          <span class="pb pb-volup"></span>
+          <span class="pb pb-voldown"></span>
+          <span class="pb pb-power"></span>
+        </div>
+        <div class="phone-screen" id="phoneScreen">
+          <!-- shell.js mounts a fresh <iframe> here on every selection -->
+        </div>
       </div>
-      <h1>Prototypes</h1>
-      <p class="hub-sub">Interactive design explorations. Each one is self-contained — open it, click through it, come back.</p>
-    </header>
+    </div>
 
-    <div class="proto-list" id="protoList"></div>
+    <!-- Desktop-only stage chrome, outside the phone -->
+    <div class="stage-bar stage-bar-left">
+      <a class="stage-pill" id="figmaPill" href="#" target="_blank" rel="noopener" hidden>
+        <span id="figmaPillText">Figma source</span><span class="pill-ico">↗</span>
+      </a>
+    </div>
+    <div class="stage-bar stage-bar-right">
+      <button class="stage-pill" id="restartPill">↺&nbsp; Restart</button>
+      <a class="stage-pill" id="standalonePill" href="#" target="_blank" rel="noopener">Open standalone&nbsp; ↗</a>
+    </div>
 
-    <p class="hub-foot" id="hubFoot"></p>
+  </main>
 
-  </div>
-</main>
+</div>
 
-<script src="hub.js?v=2"></script>
+<script src="shell.js?v=1"></script>
 </body>
 </html>

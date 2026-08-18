@@ -1394,6 +1394,37 @@ img {
    Accessibility
    ───────────────────────────────────────────── */
 
+/* ═══════════════════════════════════════════════════════════
+   Embedded in the prototypes shell (index.html)
+
+   The shell draws the iPhone bezel and owns the stage chrome, and the
+   iframe it mounts is exactly one phone screen — so inside it this page
+   is a bare, full-screen app. Opening the page directly is untouched:
+   these rules only apply in an iframe.
+   ═══════════════════════════════════════════════════════════ */
+
+html.embedded .desk {
+  display: block;
+  background: #fff;
+}
+html.embedded .phone {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  transform: none !important;   /* beats the standalone fit-to-window scale */
+}
+html.embedded .phone-buttons,
+html.embedded .stage-controls { display: none; }
+html.embedded .phone-screen {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+  box-shadow: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     transition-duration: 0.01ms !important;

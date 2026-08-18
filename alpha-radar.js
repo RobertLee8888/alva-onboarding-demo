@@ -30,8 +30,7 @@
       count: '100 accounts selected',
       skip: true,
       items: [
-        { name: 'Win Rate Top 50', meta: '50 accounts', collage: [0, 1, 2, 3], selected: true },
-        { name: 'Most Followed 50', meta: '50 accounts', collage: [4, 5, 6, 0], selected: true },
+        { name: 'Win Rate Top 50', meta: '50 accounts', collage: [0, 1, 2, 3], selected: true, rule: 'Highest prediction win rate over the past 90 days', ranked: true },
         { name: 'Crypto Wizard', rate: '69% win rate', image: 0 },
         { name: 'Arthur Hayes', rate: '67% win rate', image: 1 },
         { name: 'Ming-Chi Kuo', rate: '70% win rate', image: 2 },
@@ -70,8 +69,7 @@
       count: '100 key figures selected',
       skip: true,
       items: [
-        { name: 'Top Key Figures', meta: '50 key figures', collage: [0, 1, 2, 3], selected: true },
-        { name: 'Most Followed 50', meta: '50 key figures', collage: [4, 5, 6, 7], selected: true },
+        { name: 'Top Key Figures', meta: '50 key figures', collage: [0, 1, 2, 3], selected: true, rule: 'People whose moves shifted markets most over the past 90 days' },
         { name: 'Elon Musk', image: 0 },
         { name: 'Barack Obama', image: 1 },
         { name: 'Cristiano Ronaldo', image: 2 },
@@ -110,8 +108,7 @@
       count: '100 podcasts selected',
       skip: true,
       items: [
-        { name: 'Top Podcasts', meta: '50 podcasts', collage: [0, 1, 2, 3], selected: true },
-        { name: 'Most Followed 50', meta: '50 podcasts', collage: [4, 5, 6, 7], selected: true },
+        { name: 'Top Podcasts', meta: '50 podcasts', collage: [0, 1, 2, 3], selected: true, rule: 'Most cited market podcasts over the past 90 days' },
         { name: 'All-In', image: 0 },
         { name: 'BG2', image: 1 },
         { name: 'Acquired', image: 2 },
@@ -200,6 +197,13 @@
     ],
   };
 
+  /* Demo seed for the "+ N accounts" read-out (Robert 2026-08-18).
+     One collection plus a number of individuals: the first three land in
+     the opening rows so the number is visibly self-consistent, the rest
+     sit further down the list, off the first screen. 12 is Robert's
+     figure; 8 / 5 are placeholders pending his numbers. */
+  const SEEDED_SINGLES = { fintwit: 12, figures: 8, podcasts: 5 };
+
   Object.entries(EXTRA_ITEMS).forEach(([id, names]) => {
     const step = STEPS.find(item => item.id === id);
     names.forEach((name, index) => {
@@ -209,6 +213,13 @@
     });
   });
 
+  Object.entries(SEEDED_SINGLES).forEach(([id, n]) => {
+    STEPS.find(step => step.id === id)
+      .items.filter(item => !item.collage)
+      .slice(0, n)
+      .forEach(item => { item.selected = true; });
+  });
+
   const screensEl = document.getElementById('screens');
   const app = document.getElementById('radarApp');
   const topbar = document.getElementById('flowTopbar');
@@ -216,6 +227,12 @@
   const backButton = document.getElementById('backButton');
   const skipButton = document.getElementById('skipButton');
   const sheetLayer = document.getElementById('sheetLayer');
+  const memberLayer = document.getElementById('memberLayer');
+  const memberTitle = document.getElementById('memberTitle');
+  const memberRule = document.getElementById('memberRule');
+  const memberGrid = document.getElementById('memberGrid');
+  const memberScroll = document.getElementById('memberScroll');
+  const memberFollow = document.getElementById('memberFollow');
   const sheetTitle = document.getElementById('sheetTitle');
   const sheetOptions = document.getElementById('sheetOptions');
   const toast = document.getElementById('toast');
@@ -237,6 +254,7 @@
   const loadTimers = new Map();
   let buildingStep = 4;
   let buildingTimer = null;
+  let memberOpen = null;   // { step, index } of the collection in the sheet
 
   function avatar(type, index) {
     return ASSET + AVATARS[type][index % AVATARS[type].length];
@@ -305,7 +323,7 @@
         ? `<span class="source-meta"><span class="rate">${item.rate.split(' ')[0]}</span> ${item.rate.substring(item.rate.indexOf(' ') + 1)}</span>`
         : item.meta ? `<span class="source-meta">${item.meta}</span>` : '';
       return `
-        <button class="source-card${item.selected ? ' selected' : ''}" style="--item-delay:${Math.min(itemIndex, 11) * LIST_STAGGER_MS}ms" data-source-index="${itemIndex}" data-search="${item.name.toLowerCase()}">
+        <button class="source-card${item.selected ? ' selected' : ''}" style="--item-delay:${Math.min(itemIndex, 11) * LIST_STAGGER_MS}ms" data-source-index="${itemIndex}"${item.collage ? ' data-collection' : ''} data-search="${item.name.toLowerCase()}">
           <span class="source-avatar${item.collage ? ' collage' : ''}">${images}</span>
           <span class="source-copy"><span class="source-name">${item.name}</span>${meta}</span>
           <span class="selected-badge" aria-hidden="true"></span>
@@ -424,17 +442,51 @@
   screens[0].classList.add('current');
   progress.innerHTML = Array.from({ length: 5 }, () => '<span class="progress-segment"></span>').join('');
 
-  function selectedCount(index) {
+  /* ──────────────────────────────
+     Selection read-out (Robert 2026-08-18)
+
+     A collection is named, individuals are counted, and the two are
+     joined with a plus: "Win Rate Top 50 + 12 accounts". Naming the
+     collection rather than adding its 50 also settles the old
+     double-counting question — a member who is also checked in the grid
+     is now counted once, as an individual, and never twice.
+
+     The selection screens append "selected"; the Ready rows do not.
+     ────────────────────────────── */
+
+  const NOUNS = {
+    1: ['account', 'accounts'],
+    2: ['key figure', 'key figures'],
+    3: ['podcast', 'podcasts'],
+  };
+
+  function selectedCollections(index) {
     const step = STEPS[index];
-    if (!step.items) return 0;
-    return step.items.filter(item => item.selected).reduce((total, item) => total + (item.meta ? 50 : 1), 0);
+    return step.items ? step.items.filter(item => item.collage && item.selected) : [];
+  }
+
+  function selectedSingles(index) {
+    const step = STEPS[index];
+    return step.items ? step.items.filter(item => !item.collage && item.selected) : [];
+  }
+
+  function hasSelection(index) {
+    return selectedCollections(index).length + selectedSingles(index).length > 0;
+  }
+
+  function selectionLabel(index, suffix) {
+    const [one, many] = NOUNS[index];
+    const singles = selectedSingles(index).length;
+    const parts = selectedCollections(index).map(item => item.name);
+    if (singles) parts.push(`${singles} ${singles === 1 ? one : many}`);
+    if (!parts.length) return '';
+    return parts.join(' + ') + (suffix ? ' selected' : '');
   }
 
   function summaryCountLabel(index) {
-    const count = selectedCount(index);
-    if (index === 1) return `${count} FinTwit account${count === 1 ? '' : 's'}`;
-    if (index === 2) return `${count} key figure${count === 1 ? '' : 's'}`;
-    return `${count} podcast${count === 1 ? '' : 's'}`;
+    /* Empty row keeps its edit pencil and says so in words, rather than
+       showing an empty avatar stack (Robert 2026-08-18) */
+    return selectionLabel(index, false) || `No ${NOUNS[index][1]} selected`;
   }
 
   function updateChrome(index = current) {
@@ -453,19 +505,25 @@
     });
 
     if (sourceStep) {
-      const count = selectedCount(index);
-      const noun = index === 1 ? 'accounts' : index === 2 ? 'key figures' : 'podcasts';
       const screen = screens[index];
       const selectionCount = screen.querySelector('.selection-count');
-      selectionCount.textContent = count ? `${count} ${noun} selected` : 'Select at least one';
+      selectionCount.textContent = selectionLabel(index, true) || 'Select at least one';
       selectionCount.hidden = !loadedSteps.has(index);
       screen.querySelector('[data-primary-action]').textContent = editingSource ? 'Confirm' : 'Next';
-      screen.querySelector('[data-primary-action]').disabled = !loadedSteps.has(index) || count === 0;
+      /* Walking forward, a step still needs at least one source — a radar that
+         reads nothing is not a radar. But coming back from Ready via the pencil,
+         Confirm has to accept whatever you chose, including nothing: clearing a
+         category is a legitimate edit, and it is how the Ready screen's empty
+         row is reached (Figma ④b Podcasts 空态, 14159:48746). */
+      screen.querySelector('[data-primary-action]').disabled =
+        !loadedSteps.has(index) || (!editingSource && !hasSelection(index));
     }
 
     if (index === 5) {
       document.querySelectorAll('[data-summary-count]').forEach(label => {
-        label.textContent = summaryCountLabel(Number(label.dataset.summaryCount));
+        const step = Number(label.dataset.summaryCount);
+        label.textContent = summaryCountLabel(step);
+        label.closest('.summary-row').classList.toggle('is-empty', !hasSelection(step));
       });
     }
   }
@@ -511,6 +569,7 @@
 
   function navigate(next, direction) {
     if (animating || next < 0 || next >= screens.length || next === current) return;
+    closeMemberSheet();
     const from = screens[current];
     const to = screens[next];
     const forward = direction !== 'back';
@@ -599,7 +658,7 @@
     if (primary) {
       primary.blur();
       if (primary.disabled) return;
-      if (current >= 1 && current <= 3 && selectedCount(current) === 0) {
+      if (current >= 1 && current <= 3 && editingStep !== current && !hasSelection(current)) {
         showToast('Select at least one source, or use Skip.');
         return;
       }
@@ -619,6 +678,12 @@
 
     const source = event.target.closest('[data-source-index]');
     if (source) {
+      // collection card: the whole card opens the member sheet —
+      // single cards keep whole-card = select/deselect, unchanged
+      if (source.hasAttribute('data-collection')) {
+        openMemberSheet(current, Number(source.dataset.sourceIndex));
+        return;
+      }
       const item = STEPS[current].items[Number(source.dataset.sourceIndex)];
       item.selected = !item.selected;
       source.classList.toggle('selected', item.selected);
@@ -664,6 +729,83 @@
       });
       grid.querySelector('.grid-empty').hidden = visible > 0;
     });
+  });
+
+  /* ──────────────────────────────
+     Collection member sheet
+     Figma 13969:48088 row 2 — sheet y=106, close-l1 left, rule line
+     scrolls with the list, 3-up page-grid molecule, floating dual-state
+     button. The collection is atomic (Robert 2026-08-14): members are
+     read-only, the ONLY action is Follow all / Following, synced live
+     with the card's checkmark and the selection count behind the scrim.
+     ────────────────────────────── */
+
+  function collectionMembers(step, item) {
+    const singles = step.items.filter(it => !it.collage);
+    // "Win Rate Top 50" — exactly what its rule says: sort by win rate
+    const pool = item.ranked && step.id === 'fintwit'
+      ? singles.slice().sort((a, b) => parseInt(b.rate) - parseInt(a.rate))
+      : singles.slice();
+    return pool.slice(0, 50);
+  }
+
+  function paintFollowButton(item) {
+    memberFollow.classList.toggle('following', !!item.selected);
+    memberFollow.innerHTML = item.selected
+      ? `<img class="follow-check" src="${ASSET}check-l1.svg" alt="">Following`
+      : 'Follow all';
+  }
+
+  function openMemberSheet(stepIndex, itemIndex) {
+    const step = STEPS[stepIndex];
+    const item = step.items[itemIndex];
+    memberOpen = { step: stepIndex, index: itemIndex };
+
+    memberTitle.textContent = item.name;
+    memberRule.innerHTML = '';
+    memberRule.append(item.rule || '', document.createElement('br'), 'Updated 3 hours ago');
+
+    memberGrid.innerHTML = collectionMembers(step, item).map(member => {
+      const meta = member.rate
+        ? `<span class="source-meta"><span class="rate">${member.rate.split(' ')[0]}</span> ${member.rate.substring(member.rate.indexOf(' ') + 1)}</span>`
+        : '';
+      return `
+        <span class="source-card">
+          <span class="source-avatar"><img src="${avatar(step.id, member.image)}" alt=""></span>
+          <span class="source-copy"><span class="source-name">${member.name}</span>${meta}</span>
+        </span>`;
+    }).join('');
+
+    paintFollowButton(item);
+    memberScroll.scrollTop = 0;
+    memberLayer.classList.add('open');
+    memberLayer.setAttribute('aria-hidden', 'false');
+  }
+
+  function closeMemberSheet() {
+    if (!memberOpen) return;
+    memberOpen = null;
+    memberLayer.classList.remove('open');
+    memberLayer.setAttribute('aria-hidden', 'true');
+  }
+
+  memberFollow.addEventListener('click', () => {
+    if (!memberOpen) return;
+    const item = STEPS[memberOpen.step].items[memberOpen.index];
+    item.selected = !item.selected;
+    paintFollowButton(item);
+    // the card's checkmark and the count behind the scrim follow along
+    const card = screens[memberOpen.step].querySelector(`[data-source-index="${memberOpen.index}"]`);
+    if (card) card.classList.toggle('selected', item.selected);
+    updateChrome(memberOpen.step);
+  });
+
+  memberLayer.addEventListener('click', event => {
+    if (event.target.closest('[data-close-member]')) closeMemberSheet();
+  });
+
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && memberOpen) closeMemberSheet();
   });
 
   function openSheet(type) {

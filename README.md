@@ -1,39 +1,115 @@
 # Alva · Design Prototypes
 
-Interactive design prototypes for Alva. The site opens on an index of prototypes; each one is a standalone page, so they never interfere with one another.
+A single-page gallery of interactive design prototypes for Alva. One page, two layouts:
+
+- **Desktop** — the list of prototypes on the left, the selected prototype running on the right, inside an iPhone mockup that scales to fit the window.
+- **Phone** — two views. The list, then the prototype full-screen with no mockup and no added chrome, because it is already running on a phone. The system back gesture returns to the list.
 
 ### ▶︎ [Open the live prototypes](https://robertlee8888.github.io/alva-onboarding-demo/)
 
-<https://robertlee8888.github.io/alva-onboarding-demo/> — pick a card and click straight into it. On desktop each mobile prototype runs inside a phone mockup; on a phone it fills the screen.
-
 ## Contents
 
-| | Prototype | Source |
+| | | Source |
 | --- | --- | --- |
-| `index.html` | **Prototypes** — the index: one card per exploration, with title, subtitle and last-edited time | — |
-| `alpha-radar.html` | **Alpha Radar mobile onboarding** — source selection, radar setup, login, and building states across 8 screens | [Alpha Radar onboarding](https://www.figma.com/design/DJ9Acp13FruTilsTdrE0id/Draft?node-id=13241-205457) |
-| `onboarding.html` | **Immersive onboarding** — FinTwit Digest path, 6 screens | [Onboarding · Production v4 · FinTwit path](https://www.figma.com/design/A4jIwN4EMWr0fJVVGmCIsr/Mobile?node-id=1355-5243) |
+| `index.html` · `shell.css` · `shell.js` | **The shell** — the list, the stage, the phone mockup, and hash routing | — |
+| `alpha-radar.html` · `alpha-radar.css` · `alpha-radar.js` | **Alpha Radar mobile onboarding** — source selection, radar setup, login, and building states across 8 screens. On the three source-selection screens a collection card opens a member bottom sheet | [Alpha Radar onboarding](https://www.figma.com/design/DJ9Acp13FruTilsTdrE0id/Draft?node-id=13241-205457) · [Collection member sheet](https://www.figma.com/design/DJ9Acp13FruTilsTdrE0id/Draft?node-id=14144-48781) |
+| `onboarding.html` · `styles.css` · `app.js` | **Immersive onboarding** — FinTwit Digest path, 6 screens | [Onboarding · Production v4 · FinTwit path](https://www.figma.com/design/A4jIwN4EMWr0fJVVGmCIsr/Mobile?node-id=1355-5243) |
 
 Zero dependencies — plain HTML / CSS / JS, no build step. Alva design tokens (`main/m1 #49a3a6`, `text/n9…n3`, `line/l05…l3`), the Delight typeface, and assets exported from Figma.
 
-Navigating between the index and a prototype is a real page navigation, so the browser's own back button and back gesture return you to the index — that is the way back on a phone, where the prototype runs full-screen with no added chrome. On desktop there is an explicit **← All prototypes** control at the bottom left.
+## Alpha Radar — the 2026-08-18 design round
+
+Everything below applies to the three source-selection screens (FinTwit accounts, key figures, podcasts) and the Ready screen.
+
+### One collection per screen, and a split read-out
+
+Each screen now carries **one** collection card, not two — `Most Followed 50` is gone. The selection read-out **names the collection and counts the individuals**, joined with a plus:
+
+| | |
+| --- | --- |
+| Selection screen footer | `Win Rate Top 50 + 12 accounts selected` |
+| Ready screen row | `Win Rate Top 50 + 12 accounts` |
+| Collection only | `Win Rate Top 50 selected` |
+| Individuals only | `12 accounts selected` |
+| Nothing | `Select at least one` |
+
+Naming the collection instead of adding its 50 also settles the old double-counting question: someone who is both a collection member and checked in the grid is counted once, as an individual, never twice.
+
+The screens open with the collection plus a number of individuals already selected — 12 / 8 / 5 — the first three of which sit in the opening rows so the number is visibly self-consistent; the rest are further down the list. 12 is Robert's figure, 8 and 5 are placeholders.
+
+The design file adds filler cards so no grid row is left holding two stretched cards. That is an artifact of Figma auto-layout, where the cards are FILL children — this grid is `repeat(3, minmax(0, 1fr))`, so a short last row keeps its column width and no filler is needed.
+
+### Ready screen empty row
+
+A category with nothing selected keeps its edit pencil and says so in words — `No podcasts selected` — with the avatar stack dropped rather than left as an empty gap.
+
+Reaching that state needed a rule the design file does not state. Walking **forward**, a step still requires at least one source, as before — a radar that reads nothing is not a radar. But coming back from Ready via the pencil, **Confirm accepts whatever you chose, including nothing**: clearing a category is a legitimate edit, and it is the only path to the empty row that does not change what Skip means.
+
+### Collection member sheet
+
+Tapping now works by card type:
+
+- **Single card** — whole card = select / deselect, unchanged.
+- **Collection card** (the 2×2 collage) — whole card = open a **member bottom sheet**; it no longer toggles.
+
+The sheet follows the finalized frames ([⑥ unselected](https://www.figma.com/design/DJ9Acp13FruTilsTdrE0id/Draft?node-id=14144-48617) / [⑦ selected](https://www.figma.com/design/DJ9Acp13FruTilsTdrE0id/Draft?node-id=14144-48781)): scrim over the app (never over the status bar or home indicator), sheet from y 106 with a grabber, **close on the left** of the header next to the title, and the collection's inclusion rule ("Highest prediction win rate over the past 90 days · Updated 3 hours ago") as the first line of the scroll area, so it scrolls away with the list. Members render as the page grid's own 3-up card molecule and are read-only — the collection is atomic, so the only action is the floating dual-state button: **Follow all** (primary) ⇄ **✓ Following** (white, hairline, check). It toggles in place, and the card's checkmark and the selection count behind the scrim stay in sync live. Esc, the ✕, or tapping the scrim closes it.
+
+In the demo, members are drawn from the screen's own account list (Win Rate Top 50 really is the 50 highest win rates), rather than the design file's placeholder loop of 7 mock accounts.
+
+**Still open** (carried over from the design file): the demo counts for key figures and podcasts (8 / 5) are placeholders awaiting Robert's numbers.
+
+## How the single page holds together
+
+Each prototype runs in its own `<iframe>`, and the shell mounts exactly one at a time.
+
+That is deliberate, not a shortcut. The prototypes are full-screen apps that own their document: they set `body { overflow: hidden }`, position themselves `fixed`, and both use the same class names (`.screen`, `.toast`, `.sheet`, `.phone`) and the same element ids. Loading two of them into one document would have them overwrite each other. Giving each its own document means a new prototype can never break an existing one, and each stays openable on its own URL.
+
+**The iframe is laid out at exactly 393 × 852 — one phone screen.** So the prototype always sees a real phone viewport: its own `vh`, its own media queries, its own full-screen mode. The iPhone bezel around it on desktop is drawn by the shell, outside the iframe, and only the bezel is scaled to fit the window — never above 1:1. Inside the iframe the prototype is always in its bare full-screen mode, which is why the phone layout needed nothing removed: there was never a mockup inside it to remove.
+
+**Routing is the hash.**
+
+| URL | |
+| --- | --- |
+| `#/` | the list |
+| `#/alpha-radar` | that prototype, running |
+
+On desktop both halves are on screen at once, so `#/` resolves immediately to the newest prototype — a blank right half is never a useful state, and the redirect uses `replaceState` so it does not become a history entry the user has to press back through. On a phone the two views are separate and each selection is a real history entry, so the browser's own back gesture is the way back and the page does not need to invent a back button.
+
+Selecting a prototype mounts a **fresh** iframe element rather than reassigning `src` on an existing one: setting `src` before the node enters the document adds no history entry, so back keeps meaning "back to the list" instead of stepping through prototypes the user never chose. It also gives a guaranteed clean reset, which is what **Restart** uses. Returning to the list on a phone unmounts the iframe, so a prototype's timers and animation loops do not keep running behind it — and coming back gives a fresh flow rather than a half-finished one.
 
 ## Adding a prototype
 
 1. Drop `your-prototype.html` (plus its own CSS/JS) into this folder.
-2. Append one entry to `PROTOTYPES` in `hub.js`:
+2. Give it the two lines every prototype needs, so it renders bare inside the shell and keeps its mockup when opened directly:
+
+   In `<head>`, **before** the stylesheet:
+
+   ```html
+   <script>if (window.self !== window.top) document.documentElement.classList.add('embedded');</script>
+   ```
+
+   And in its CSS — copy the `html.embedded` block from `alpha-radar.css`.
+3. Append one entry to `PROTOTYPES` in `shell.js`:
 
 ```js
 {
   title: 'Your prototype',
   subtitle: 'One line on what it explores.',
-  edited: '2026-08-12',
+  edited: '2026-08-18',
   href: 'your-prototype.html',
-  meta: 'Mobile · 4 screens',   // optional
+  meta: 'Mobile · 4 screens',                        // optional
+  figma: { label: 'Frame name', url: 'https://…' },  // optional
 }
 ```
 
-The index sorts by `edited` (newest first) and renders the time as `Edited today` / `Edited 3 days ago` / `Edited Aug 12`, the way design tools phrase it. Nothing else needs to change, and a new prototype cannot affect an existing one.
+The route slug is derived from `href`, so `your-prototype.html` is reachable at `#/your-prototype`. The list sorts by `edited` (newest first) and renders the time as `Edited today` / `Edited 3 days ago` / `Edited Aug 12`, the way design tools phrase it. Nothing else needs to change.
+
+## Run locally
+
+```bash
+python3 -m http.server 8000
+# open http://localhost:8000
+```
 
 ---
 
@@ -73,13 +149,6 @@ A transition's completion is armed independently of `requestAnimationFrame`, so 
 **05 · Success** — transient and celebratory. The icon's spring pop and the copy's rise are armed *before* the cross-dissolve begins, so the screen has exactly one entrance rather than appearing, resetting and animating again. Auto-advances after ~2.1 s; no back gesture, by design.
 
 **06 · First digest & alerts** — the destination. Telegram / Discord / WhatsApp simulate a connect: pressed → `Connecting…` → outlined `Connected` state plus a confirmation toast. Everything else visible but out of scope (tabs, menu, settings, full report, chatbox) answers with an explanatory toast rather than dead silence. The nav stack was reset on arrival, so the completed onboarding is unreachable.
-
-## Run locally
-
-```bash
-python3 -m http.server 8000
-# open http://localhost:8000
-```
 
 ---
 

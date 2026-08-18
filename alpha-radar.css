@@ -734,6 +734,11 @@ img { display: block; pointer-events: none; -webkit-user-drag: none; }
 }
 .avatar-stack img:first-child { margin-left: 0; }
 .summary-label { min-width: 0; flex: 1; font-size: 14px; line-height: 22px; }
+/* Nothing selected: the avatar stack would be an empty gap, so it goes and
+   the words carry the row instead. The edit pencil stays — it is the way
+   back in to pick something (Robert 2026-08-18). */
+.summary-row.is-empty .avatar-stack { display: none; }
+.summary-row.is-empty .summary-label { color: var(--n7); }
 .edit-icon {
   flex: 0 0 16px;
   width: 16px;
@@ -1011,6 +1016,191 @@ img { display: block; pointer-events: none; -webkit-user-drag: none; }
   .phone { width: 100%; height: 100%; padding: 0; border-radius: 0; background: none; box-shadow: none; }
   .phone-buttons, .stage-controls { display: none; }
   .phone-screen { width: 100%; height: 100%; border-radius: 0; box-shadow: none; }
+}
+
+/* ─────────────────────────────────────────────
+   Collection member sheet
+   Figma: Draft 13969:48088 row 2 (⑥ 14144:48617 / ⑦ 14144:48781)
+
+   Sheet at y=106, top radius 12, grabber strip 12; header 52 with
+   close-l1 on the LEFT (Switch-chats btnLeft position) + Medium/18
+   title; the rule line lives in the scroll area so it scrolls away
+   with the list; member cards are the page grid's own molecule,
+   3-up, read-only. The footer is in flow with no fill of its own —
+   the button's library shadow (0 10 20 @8%) is what reads as
+   "floating", and the list stays visible through the gaps.
+
+   z-order: above the flow topbar (15) and action bar (16), below the
+   system bar (20) and home indicator (25) — the scrim dims the app,
+   never the OS chrome, and the indicator sits on top of the sheet
+   exactly as in the frames.
+   ───────────────────────────────────────────── */
+
+.member-layer {
+  position: absolute;
+  z-index: 18;
+  inset: 0;
+  visibility: hidden;
+}
+.member-layer.open { visibility: visible; }
+
+.member-scrim {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  background: rgba(0, 0, 0, .6);   /* main/m7 #00000099 */
+  opacity: 0;
+  transition: opacity .3s ease;
+}
+.member-layer.open .member-scrim { opacity: 1; }
+
+.member-sheet {
+  position: absolute;
+  top: 106px;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 12px 12px 0 0;
+  background: #fff;
+  transform: translateY(103%);
+  transition: transform .38s var(--ease);
+}
+.member-layer.open .member-sheet { transform: translateY(0); }
+
+.member-grabber {
+  display: grid;
+  height: 12px;
+  flex: none;
+  place-items: center;
+}
+.member-grabber span {
+  width: 36px;
+  height: 4px;
+  border-radius: 4px;
+  background: var(--l2);
+}
+
+.member-head {
+  display: flex;
+  height: 52px;
+  flex: none;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+}
+.member-close {
+  display: grid;
+  width: 20px;
+  height: 20px;
+  flex: none;
+  place-items: center;
+  transition: opacity .16s ease;
+}
+.member-close:active { opacity: .55; }
+.member-close img { width: 20px; height: 20px; }
+.member-head h2 {
+  overflow: hidden;
+  min-width: 0;
+  flex: 1;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 28px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.member-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  /* clears the floating footer (94) so the last row can scroll above it */
+  padding: 0 16px 106px;
+}
+.member-rule {
+  color: var(--n5);
+  font-size: 12px;
+  line-height: 20px;
+}
+.member-grid { margin-top: 16px; }
+/* member cards are the same molecule, but read-only — no press feedback */
+.member-grid .source-card { cursor: default; }
+.member-grid .source-card:active { transform: none; }
+.member-grid .source-card:active::before { opacity: 0; }
+
+.member-foot {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 12px 16px 34px;
+  pointer-events: none;   /* the list scrolls under it; only the button is real */
+}
+.member-follow {
+  display: flex;
+  width: 100%;
+  height: 48px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 6px;
+  background: var(--m1);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, .08);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 26px;
+  pointer-events: auto;
+  transition: transform .16s ease, filter .16s ease,
+              background .2s ease, color .2s ease, box-shadow .2s ease;
+}
+.member-follow:active { filter: brightness(.96); transform: scale(.98); }
+.member-follow .follow-check {
+  display: none;
+  width: 20px;
+  height: 20px;
+}
+/* selected state — Primary_Reverse: white pill, hairline, ink text, check */
+.member-follow.following {
+  background: #fff;
+  box-shadow: inset 0 0 0 .5px var(--l12), 0 10px 20px rgba(0, 0, 0, .08);
+  color: var(--n9);
+}
+.member-follow.following .follow-check { display: block; }
+
+
+/* ═══════════════════════════════════════════════════════════
+   Embedded in the prototypes shell (index.html)
+
+   The shell draws the iPhone bezel and owns the stage chrome, and the
+   iframe it mounts is exactly one phone screen — so inside it this page
+   is a bare, full-screen app. Opening the page directly is untouched:
+   these rules only apply in an iframe.
+   ═══════════════════════════════════════════════════════════ */
+
+html.embedded .desk {
+  display: block;
+  background: #fff;
+}
+html.embedded .phone {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  transform: none !important;   /* beats the standalone fit-to-window scale */
+}
+html.embedded .phone-buttons,
+html.embedded .stage-controls { display: none; }
+html.embedded .phone-screen {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 @media (prefers-reduced-motion: reduce) {

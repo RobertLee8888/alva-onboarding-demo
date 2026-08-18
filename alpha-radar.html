@@ -9,7 +9,11 @@
 <link rel="preload" href="assets/fonts/Delight-Regular.ttf" as="font" type="font/ttf" crossorigin>
 <link rel="preload" href="assets/fonts/Delight-Medium.ttf" as="font" type="font/ttf" crossorigin>
 <link rel="preload" href="assets/fonts/Delight-SemiBold.ttf" as="font" type="font/ttf" crossorigin>
-<link rel="stylesheet" href="alpha-radar.css?v=14">
+<!-- Embedded in the prototypes shell? The shell draws the bezel and owns the
+     stage chrome, so the page renders as a bare full-screen app. Set before
+     the stylesheet loads so no mockup is ever painted. -->
+<script>if (window.self !== window.top) document.documentElement.classList.add('embedded');</script>
+<link rel="stylesheet" href="alpha-radar.css?v=17">
 </head>
 <body>
 
@@ -49,6 +53,30 @@
 
         <div class="home-indicator" aria-hidden="true"><span></span></div>
 
+        <!-- Collection member sheet — a collection card opens this instead of
+             toggling. The collection stays atomic: member cards are read-only,
+             the only action is the dual-state follow button, which stays in
+             sync with the card's checkmark and the selection count behind. -->
+        <div class="member-layer" id="memberLayer" aria-hidden="true">
+          <button class="member-scrim" data-close-member aria-label="Close"></button>
+          <section class="member-sheet" role="dialog" aria-modal="true" aria-labelledby="memberTitle">
+            <div class="member-grabber" aria-hidden="true"><span></span></div>
+            <header class="member-head">
+              <button class="member-close" data-close-member aria-label="Close">
+                <img src="assets/close-l1.svg" alt="">
+              </button>
+              <h2 id="memberTitle"></h2>
+            </header>
+            <div class="member-scroll" id="memberScroll">
+              <p class="member-rule" id="memberRule"></p>
+              <div class="source-grid member-grid" id="memberGrid"></div>
+            </div>
+            <footer class="member-foot">
+              <button class="member-follow" id="memberFollow"></button>
+            </footer>
+          </section>
+        </div>
+
         <div class="sheet-layer" id="sheetLayer" aria-hidden="true">
           <button class="sheet-shade" data-close-sheet aria-label="Close"></button>
           <section class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
@@ -64,13 +92,13 @@
   </div>
 
   <nav class="stage-controls stage-controls-left" aria-label="Prototype navigation">
-    <a class="stage-pill" href="index.html">← All prototypes</a>
+    <a class="stage-pill" href="index.html#/alpha-radar">← All prototypes</a>
   </nav>
   <div class="stage-controls">
     <button class="stage-pill" id="restartButton">Restart</button>
   </div>
 </div>
 
-<script src="alpha-radar.js?v=14"></script>
+<script src="alpha-radar.js?v=17"></script>
 </body>
 </html>

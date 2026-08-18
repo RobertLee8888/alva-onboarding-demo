@@ -1,0 +1,411 @@
+/* ═══════════════════════════════════════════════════════════
+   Alva · Prototypes — the single-page shell
+
+   Two layouts, one page:
+
+   ≥ 900px   sidebar (the list) + stage (the running prototype).
+             The stage draws the iPhone bezel; the iframe inside it is
+             exactly one phone screen, 393 × 852.
+
+   < 900px   two views, list ⇄ prototype, swapped by [data-view] on
+             <html>. The prototype fills the viewport with no bezel and
+             no added chrome — it is already running on a phone — and
+             the browser's own back gesture is the way back.
+
+   The prototypes keep their own CSS/JS and their own document, so they
+   can never collide with each other or with this shell.
+   ═══════════════════════════════════════════════════════════ */
+
+@font-face {
+  font-family: 'Delight';
+  src: url('assets/fonts/Delight-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Delight';
+  src: url('assets/fonts/Delight-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-display: swap;
+}
+
+:root {
+  --m1: #49a3a6;
+  --n9: rgba(0, 0, 0, 0.9);
+  --n7: rgba(0, 0, 0, 0.7);
+  --n5: rgba(0, 0, 0, 0.5);
+  --n3: rgba(0, 0, 0, 0.3);
+  --l07: rgba(0, 0, 0, 0.07);
+  --l12: rgba(0, 0, 0, 0.12);
+  --br03: rgba(0, 0, 0, 0.03);
+  --r-ct-l: 8px;
+  --ease: cubic-bezier(0.32, 0.72, 0, 1);
+
+  --sidebar-w: 344px;
+  --phone-w: 425px;   /* 393 + 2×16 bezel */
+  --phone-h: 884px;   /* 852 + 2×16 bezel */
+
+  --stage-bg:
+    radial-gradient(900px 650px at 80% 0%, rgba(73, 163, 166, 0.15), transparent 60%),
+    radial-gradient(800px 600px at 8% 110%, rgba(73, 163, 166, 0.10), transparent 58%),
+    linear-gradient(180deg, #eef1f2 0%, #e3e7e9 100%);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  font-family: 'Delight', -apple-system, 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
+  letter-spacing: 0.01em;
+  color: var(--n9);
+  background: #eef1f2;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+img { display: block; -webkit-user-drag: none; }
+button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; }
+[hidden] { display: none !important; }
+
+/* ─────────────────────────────────────────────
+   Frame
+   ───────────────────────────────────────────── */
+
+.shell {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
+}
+
+/* ─────────────────────────────────────────────
+   Sidebar — the list
+   ───────────────────────────────────────────── */
+
+.sidebar {
+  position: relative;
+  overflow: hidden;
+  border-right: 0.5px solid var(--l12);
+  background:
+    radial-gradient(520px 420px at 100% 0%, rgba(73, 163, 166, 0.10), transparent 62%),
+    linear-gradient(180deg, #f7f9f9 0%, #eef2f2 100%);
+}
+.sidebar-scroll {
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 40px 20px 28px;
+}
+
+.sb-head { padding: 0 4px; margin-bottom: 24px; }
+.wordmark {
+  display: flex;
+  align-items: center;
+  height: 18px;
+  gap: 3.5px;
+  margin-bottom: 22px;
+}
+.wm-symbol { height: 17.7px; width: auto; }
+.wm-text { height: 18px; width: auto; }
+
+.sb-head h1 {
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 32px;
+  color: var(--n9);
+}
+.sb-sub {
+  margin-top: 4px;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--n7);
+}
+
+/* ── List items ── */
+
+.proto-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.proto-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 14px 15px;
+  border: 0.5px solid transparent;
+  border-radius: var(--r-ct-l);
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.18s ease, border-color 0.18s ease,
+              box-shadow 0.18s ease, transform 0.18s var(--ease);
+}
+.proto-item:hover { background: rgba(255, 255, 255, 0.72); }
+.proto-item:active { transform: scale(0.995); }
+.proto-item:focus-visible { outline: 2px solid var(--m1); outline-offset: 2px; }
+
+.proto-item[aria-current='true'] {
+  background: #fff;
+  border-color: rgba(73, 163, 166, 0.45);
+  box-shadow: 0 1px 2px rgba(23, 32, 34, 0.04),
+              0 8px 20px -14px rgba(23, 32, 34, 0.22);
+}
+
+/* spans inside an <a> must be blockified to stack */
+.pi-body { display: block; flex: 1; min-width: 0; }
+.pi-title, .pi-sub, .pi-meta { display: block; }
+
+.pi-title {
+  font-weight: 500;
+  font-size: 15px;
+  line-height: 22px;
+  color: var(--n9);
+}
+.pi-sub {
+  margin-top: 1px;
+  font-size: 13px;
+  line-height: 19px;
+  color: var(--n7);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.pi-meta {
+  margin-top: 7px;
+  font-size: 11px;
+  line-height: 16px;
+  color: var(--n5);
+}
+.pi-meta .dot { color: var(--n3); padding: 0 5px; }
+
+/* the chevron is the "this navigates" cue the two-view layout needs;
+   on desktop the selected row is its own indicator, so it is dropped */
+.pi-go { display: none; }
+
+.sb-foot {
+  margin-top: 20px;
+  padding: 0 4px;
+  font-size: 11px;
+  line-height: 18px;
+  color: var(--n5);
+}
+
+/* ─────────────────────────────────────────────
+   Stage — the running prototype
+   ───────────────────────────────────────────── */
+
+.stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: var(--stage-bg);
+  /* The bottom band belongs to the stage chrome. Reserving it here — rather
+     than letting the phone centre on the whole stage — is what keeps a pill
+     from ever landing on top of the phone in a short or narrow window. */
+  padding: 24px 28px 62px;
+}
+
+/* scaled by shell.js so the phone always fits, never blown up past 1:1 */
+.stage-fit {
+  width: var(--phone-w);
+  height: var(--phone-h);
+  flex: none;
+  transform: scale(var(--fit, 1));
+  transform-origin: center center;
+}
+
+.phone {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding: 16px;
+  border-radius: 68px;
+  background: linear-gradient(145deg, #3f4147 0%, #17181c 55%, #3a3c42 100%);
+  box-shadow:
+    inset 0 0 3px 1px rgba(255, 255, 255, 0.28),
+    inset 0 0 2px 5px rgba(255, 255, 255, 0.09),
+    0 0 0 1px rgba(0, 0, 0, 0.55),
+    0 30px 60px -12px rgba(23, 32, 34, 0.45),
+    0 80px 120px -30px rgba(23, 32, 34, 0.35);
+}
+.phone-buttons .pb {
+  position: absolute;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #26272b, #4c4e55 45%, #26272b);
+}
+.pb-action  { left: -2.5px; top: 178px; width: 3px; height: 34px; }
+.pb-volup   { left: -2.5px; top: 244px; width: 3px; height: 62px; }
+.pb-voldown { left: -2.5px; top: 320px; width: 3px; height: 62px; }
+.pb-power   { right: -2.5px; top: 274px; width: 3px; height: 100px; }
+
+.phone-screen {
+  position: relative;
+  width: 393px;
+  height: 852px;
+  overflow: hidden;
+  border-radius: 54px;
+  background: #fff;
+  box-shadow: 0 0 0 6px #000;
+}
+.phone-screen iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #fff;
+  opacity: 0;
+  transition: opacity 0.22s ease;
+}
+.phone-screen iframe.ready { opacity: 1; }
+
+/* Empty stage — only reachable if the list is empty */
+.stage-empty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+  color: var(--n5);
+}
+
+/* ── Stage chrome (desktop only) ── */
+
+.stage-bar {
+  position: absolute;
+  bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: calc(50% - 24px);
+}
+.stage-bar-left { left: 20px; }
+.stage-bar-right { right: 20px; }
+
+.stage-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  padding: 6px 14px;
+  border: 0.5px solid rgba(23, 32, 34, 0.12);
+  border-radius: 960px;
+  background: rgba(255, 255, 255, 0.62);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  color: rgba(23, 32, 34, 0.55);
+  font-size: 12px;
+  line-height: 18px;
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+.stage-pill:hover { color: var(--m1); border-color: var(--m1); }
+.pill-ico { flex: none; opacity: 0.6; }
+
+/* ─────────────────────────────────────────────
+   Two-view layout — list ⇄ prototype
+   ───────────────────────────────────────────── */
+
+@media (max-width: 899px) {
+
+  .shell { grid-template-columns: minmax(0, 1fr); }
+
+  /* only one view is mounted at a time, so a phone never pays for
+     the prototype's iframe while it is reading the list */
+  [data-view='list'] .stage { display: none; }
+  [data-view='demo'] .sidebar { display: none; }
+
+  /* ── List view: back to full-width cards ── */
+
+  .sidebar {
+    border-right: 0;
+    background:
+      radial-gradient(1100px 720px at 86% 6%, rgba(73, 163, 166, 0.20), transparent 62%),
+      radial-gradient(820px 640px at 2% 98%, rgba(73, 163, 166, 0.13), transparent 58%),
+      linear-gradient(180deg, #f2f5f5 0%, #e5eaeb 100%);
+  }
+  .sidebar-scroll {
+    padding: 56px 20px calc(48px + env(safe-area-inset-bottom));
+    max-width: 620px;
+    margin: 0 auto;
+  }
+  .sb-head { margin-bottom: 32px; }
+  .sb-head h1 { font-size: 28px; line-height: 38px; }
+  .sb-sub { font-size: 14px; line-height: 22px; max-width: 42ch; }
+
+  .proto-list { gap: 12px; }
+
+  .proto-item {
+    gap: 14px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.78);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border-color: var(--l12);
+    box-shadow: 0 1px 2px rgba(23, 32, 34, 0.03);
+  }
+  .proto-item[aria-current='true'] { background: rgba(255, 255, 255, 0.78); }
+  .pi-title { font-size: 18px; line-height: 28px; }
+  .pi-sub { font-size: 14px; line-height: 22px; -webkit-line-clamp: 3; }
+  .pi-meta { margin-top: 10px; font-size: 12px; line-height: 20px; }
+
+  .pi-go {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 960px;
+    background: rgba(73, 163, 166, 0.10);
+  }
+  .pi-go img { width: 9px; height: 9px; transform: rotate(135deg) scaleX(-1); }
+
+  .sb-foot { margin-top: 28px; font-size: 12px; line-height: 20px; }
+
+  /* ── Prototype view: it is already running on a phone.
+        No bezel, no stage chrome, nothing but the prototype. ── */
+
+  .stage { padding: 0; }
+  .stage-fit {
+    width: 100%;
+    height: 100%;
+    transform: none;
+  }
+  .phone {
+    padding: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+  }
+  .phone-buttons,
+  .stage-bar { display: none; }
+  .phone-screen {
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+    box-shadow: none;
+  }
+}
+
+/* Wide-but-single-view (a narrow desktop window, a tablet in portrait):
+   a phone UI stretched to 800px reads as broken, so the screen keeps its
+   own width and the stage shows through around it. */
+@media (min-width: 560px) and (max-width: 899px) {
+  .stage { background: var(--stage-bg); }
+  .phone { width: 393px; margin: 0 auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

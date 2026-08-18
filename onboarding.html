@@ -12,7 +12,11 @@
 <link rel="preload" href="assets/ascii-texture.webp" as="image">
 <link rel="preload" href="assets/wordmark-symbol.svg" as="image">
 <link rel="preload" href="assets/wordmark-text.svg" as="image">
-<link rel="stylesheet" href="styles.css?v=5">
+<!-- Embedded in the prototypes shell? The shell draws the bezel and owns the
+     stage chrome, so the page renders as a bare full-screen app. Set before
+     the stylesheet loads so no mockup is ever painted. -->
+<script>if (window.self !== window.top) document.documentElement.classList.add('embedded');</script>
+<link rel="stylesheet" href="styles.css?v=6">
 </head>
 <body>
 
@@ -330,7 +334,7 @@
 </div>
 
 <div class="stage-controls stage-controls-left">
-  <a class="stage-pill" href="index.html">←&nbsp; All prototypes</a>
+  <a class="stage-pill" href="index.html#/onboarding">←&nbsp; All prototypes</a>
 </div>
 <div class="stage-controls">
   <button class="stage-pill" id="replayPill">↺&nbsp; Replay</button>
