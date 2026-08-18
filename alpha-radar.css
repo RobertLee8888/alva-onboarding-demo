@@ -273,7 +273,11 @@ img { display: block; pointer-events: none; -webkit-user-drag: none; }
   bottom: 0;
   left: 0;
   height: var(--home-h);
-  background: #fff;
+  /* No fill. It used to be opaque white, and since it sits above the member
+     sheet (z 25 vs 18) it cut that sheet's button shadow off at a hard line
+     34px up. Nothing needs the fill: every screen pads its scroll area
+     34 + 92 off the bottom, so no content passes behind this band, and the
+     surface underneath (screen or sheet) is already white. */
   pointer-events: none;
 }
 .home-indicator span {
@@ -1100,8 +1104,18 @@ img { display: block; pointer-events: none; -webkit-user-drag: none; }
   z-index: 18;
   inset: 0;
   visibility: hidden;
+  pointer-events: none;
+  /* visibility cannot tween, so hold it until the slide-down has finished —
+     otherwise removing .open hides the sheet on the spot and the closing
+     animation never runs. This is what makes the dismissal mirror the
+     entrance: same 0.38s travel, same easing, same scrim fade. */
+  transition: visibility 0s linear .38s;
 }
-.member-layer.open { visibility: visible; }
+.member-layer.open {
+  visibility: visible;
+  pointer-events: auto;
+  transition: visibility 0s;   /* on the way in, appear at once */
+}
 
 .member-scrim {
   position: absolute;
@@ -1125,9 +1139,17 @@ img { display: block; pointer-events: none; -webkit-user-drag: none; }
   border-radius: 12px 12px 0 0;
   background: #fff;
   transform: translateY(103%);
+  /* Leaving uses the time-reverse of --ease, cubic-bezier(0.32,.72,0,1) mirrored
+     about the diagonal. Reusing the entrance curve on the way out puts 92% of
+     the travel in the first 37% of the time — it reads as a snap, not as the
+     reverse of the entrance. Same 0.38s, mirrored shape, so the dismissal is
+     the entrance played backwards. */
+  transition: transform .38s cubic-bezier(1, 0, .68, .28);
+}
+.member-layer.open .member-sheet {
+  transform: translateY(0);
   transition: transform .38s var(--ease);
 }
-.member-layer.open .member-sheet { transform: translateY(0); }
 
 .member-grabber {
   display: grid;
@@ -1271,6 +1293,7 @@ html.embedded .phone-screen {
   *, *::before, *::after {
     scroll-behavior: auto !important;
     transition-duration: .01ms !important;
+    transition-delay: 0s !important;   /* or the sheet's visibility lingers */
     animation-duration: .01ms !important;
   }
 }

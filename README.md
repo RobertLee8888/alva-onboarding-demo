@@ -32,11 +32,11 @@ The selection-screen footer says it in words (Regular/12, centred, `text/n5`):
 | Collection only — **the default** | `Win Rate Top 50 selected` |
 | Both | `Win Rate Top 50 + 12 accounts selected` |
 | Individuals only | `12 accounts selected` |
-| Nothing | `Select at least one` |
+| Nothing | `0 accounts selected` |
 
 Naming the collection instead of adding its 50 also settles the old double-counting question: someone who is both a collection member and checked in the grid is counted once, as an individual, never twice.
 
-**Skip is the "none of these" exit, so it only appears once the page is empty.** With the collection still checked there is nothing to skip; clear everything and Skip appears as the way forward (Next is disabled at that point, so the two rules meet rather than fight).
+**Skip is the "none of these" exit, so it only appears once the page is empty.** With the collection still checked there is nothing to skip; clear everything and Skip appears as the way forward (Next is disabled at that point, so the two rules meet rather than fight). An empty page therefore reads as a count — `0 accounts selected` — not as an instruction: Skip is already on screen, so the footer has no one left to instruct.
 
 **Each picker opens with only its collection card checked.** The curated collection is the default; every individual is the user's own addition, so the `+ N accounts` half of the read-out counts what they actually did rather than a number the demo pre-filled. The design file's `12 accounts` / `8 key figures` / `5 podcasts` are therefore a demo state you reach by checking people, not the state the screen opens in.
 
@@ -67,7 +67,9 @@ Tapping now works by card type:
 
 The sheet follows the finalized frames ([⑥ unselected](https://www.figma.com/design/DJ9Acp13FruTilsTdrE0id/Draft?node-id=14144-48617) / [⑦ selected](https://www.figma.com/design/DJ9Acp13FruTilsTdrE0id/Draft?node-id=14144-48781)): scrim over the app (never over the status bar or home indicator), sheet from y 106 with a grabber, **close on the left** of the header next to the title, and the collection's inclusion rule ("Highest prediction win rate over the past 90 days · Updated 3 hours ago") as the first line of the scroll area — Regular/14 in `text/n7` — so it scrolls away with the list. Members render as the page grid's own 3-up card molecule and are read-only — the collection is atomic, so the only action is the floating dual-state button: **Follow all** (primary) ⇄ **✓ Following** (white, hairline, check). It toggles in place, and the card's checkmark and the selection count behind the scrim stay in sync live — then the sheet dismisses itself 0.5s later, since the choice is made and holding it open only asks for a second dismissal. Tapping twice re-arms that timer, so nobody gets closed mid-decision. Esc, the ✕, or tapping the scrim closes it immediately.
 
-The sheet's button sits at the same height as every other screen's bottom button (34px home indicator + 16px), which also leaves its shadow room to finish inside the sheet rather than being cut off at the screen edge.
+The sheet's button sits at the same height as every other screen's bottom button (34px home indicator + 16px). Its shadow used to be cut off at a hard line 34px up — not by the sheet, but by the home indicator, which was an opaque white bar sitting above it (z 25 vs 18). That bar has no fill now: every screen already pads its scroll area 34 + 92 off the bottom, so nothing passes behind that band, and the surface underneath is white anyway.
+
+Dismissal is the entrance played backwards. `visibility` cannot tween, so it is held for the 0.38s of the slide — otherwise dropping the `open` class hides the sheet on the spot and the exit animation never runs. The easing is the *mirror* of the entrance curve (`cubic-bezier(1, 0, .68, .28)` against `cubic-bezier(0.32, .72, 0, 1)`): reusing the entrance's ease-out on the way out put 92% of the travel in the first 37% of the time, which read as a snap rather than a reversal.
 
 In the demo, members are drawn from the screen's own account list (Win Rate Top 50 really is the 50 highest win rates), rather than the design file's placeholder loop of 7 mock accounts.
 

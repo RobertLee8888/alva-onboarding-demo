@@ -467,7 +467,10 @@
     const singles = selectedSingles(index).length;
     const parts = selectedCollections(index).map(item => item.name);
     if (singles) parts.push(`${singles} ${singles === 1 ? one : many}`);
-    if (!parts.length) return '';
+    /* An empty page reads as a count too — "0 accounts selected" — not as an
+       instruction. Skip is already on screen by then as the way out, so the
+       footer has no one to instruct (Robert 2026-08-18). */
+    if (!parts.length) parts.push(`0 ${many}`);
     return parts.join(' + ') + (suffix ? ' selected' : '');
   }
 
@@ -538,7 +541,7 @@
     if (sourceStep) {
       const screen = screens[index];
       const selectionCount = screen.querySelector('.selection-count');
-      selectionCount.textContent = selectionLabel(index, true) || 'Select at least one';
+      selectionCount.textContent = selectionLabel(index, true);
       selectionCount.hidden = !loadedSteps.has(index);
       screen.querySelector('[data-primary-action]').textContent = editingSource ? 'Confirm' : 'Next';
       /* Walking forward, a step still needs at least one source — a radar that
@@ -689,10 +692,6 @@
     if (primary) {
       primary.blur();
       if (primary.disabled) return;
-      if (current >= 1 && current <= 3 && editingStep !== current && !hasSelection(current)) {
-        showToast('Select at least one source, or use Skip.');
-        return;
-      }
       if (editingStep === current) {
         editingStep = null;
         navigate(5, 'back');
