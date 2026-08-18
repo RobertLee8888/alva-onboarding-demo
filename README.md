@@ -30,13 +30,15 @@ The selection-screen footer says it in words (Regular/12, centred, `text/n5`):
 | | |
 | --- | --- |
 | Collection only — **the default** | `Win Rate Top 50 selected` |
-| Both | `Win Rate Top 50 + 12 accounts selected` |
-| Individuals only | `12 accounts selected` |
-| Nothing | `0 accounts selected` |
+| Both | `Win Rate Top 50 + 12 FinTwits selected` |
+| Individuals only | `12 FinTwits selected` |
+| Nothing | `0 FinTwits selected` |
+
+The individuals on the first screen are counted as **FinTwits**, not accounts. The screen's own title, description and the collection's `50 accounts` meta still say "account" — that is what the design file has, so it is what the demo has.
 
 Naming the collection instead of adding its 50 also settles the old double-counting question: someone who is both a collection member and checked in the grid is counted once, as an individual, never twice.
 
-**Skip is the "none of these" exit, so it only appears once the page is empty.** With the collection still checked there is nothing to skip; clear everything and Skip appears as the way forward (Next is disabled at that point, so the two rules meet rather than fight). An empty page therefore reads as a count — `0 accounts selected` — not as an instruction: Skip is already on screen, so the footer has no one left to instruct.
+**Skip is a permanent fixture in the top right** of all three source steps, selected or not; only the editing pass hides it, because Confirm is the exit from that. An empty page reads as a count — `0 FinTwits selected` — rather than an instruction, since Skip is right there as the way out.
 
 **Each picker opens with only its collection card checked.** The curated collection is the default; every individual is the user's own addition, so the `+ N accounts` half of the read-out counts what they actually did rather than a number the demo pre-filled. The design file's `12 accounts` / `8 key figures` / `5 podcasts` are therefore a demo state you reach by checking people, not the state the screen opens in.
 
@@ -54,7 +56,7 @@ The file draws two of the four states. The one-sided ones are inferred, on the r
 
 ### Ready screen empty row
 
-A category with nothing selected goes grey (`text/n3`) and swaps the pencil for an explicit way in — a teal `+ Add podcasts` pill ([14159:48746](https://www.figma.com/design/DJ9Acp13FruTilsTdrE0id/Draft?node-id=14159-48746)). The row grows to 60 on the 28px button. Tapping anywhere in the row, pill included, opens that picker.
+A category with nothing selected stops being a row-with-an-action and becomes the action ([14159:48746](https://www.figma.com/design/DJ9Acp13FruTilsTdrE0id/Draft?node-id=14159-48746)): the grey label and the pencil both go, and one centred text button carries the row — `＋ Add podcasts`, Medium/12 in `main/m1`, `add-l1` at 16px, gap 8, no fill and no pill. 16 + 20 + 16 makes it 52 tall, a little tighter than the 56 of a filled row. Tapping anywhere in the row still opens that picker.
 
 Reaching that state needed a rule the design file does not state. Walking **forward**, a step still requires at least one source, as before — a radar that reads nothing is not a radar. But coming back from Ready via the pencil, **Confirm accepts whatever you chose, including nothing**: clearing a category is a legitimate edit, and it is the only path to the empty row that does not change what Skip means.
 
@@ -65,7 +67,7 @@ Tapping now works by card type:
 - **Single card** — whole card = select / deselect, unchanged.
 - **Collection card** (the 2×2 collage) — whole card = open a **member bottom sheet**; it no longer toggles.
 
-The sheet follows the finalized frames ([⑥ unselected](https://www.figma.com/design/DJ9Acp13FruTilsTdrE0id/Draft?node-id=14144-48617) / [⑦ selected](https://www.figma.com/design/DJ9Acp13FruTilsTdrE0id/Draft?node-id=14144-48781)): scrim over the app (never over the status bar or home indicator), sheet from y 106 with a grabber, **close on the left** of the header next to the title, and the collection's inclusion rule ("Highest prediction win rate over the past 90 days · Updated 3 hours ago") as the first line of the scroll area — Regular/14 in `text/n7` — so it scrolls away with the list. Members render as the page grid's own 3-up card molecule and are read-only — the collection is atomic, so the only action is the floating dual-state button: **Follow all** (primary) ⇄ **✓ Following** (white, hairline, check). It toggles in place, and the card's checkmark and the selection count behind the scrim stay in sync live — then the sheet dismisses itself 0.5s later, since the choice is made and holding it open only asks for a second dismissal. Tapping twice re-arms that timer, so nobody gets closed mid-decision. Esc, the ✕, or tapping the scrim closes it immediately.
+The sheet follows the finalized frames ([⑥ unselected](https://www.figma.com/design/DJ9Acp13FruTilsTdrE0id/Draft?node-id=14144-48617) / [⑦ selected](https://www.figma.com/design/DJ9Acp13FruTilsTdrE0id/Draft?node-id=14144-48781)): scrim over the app (never over the status bar or home indicator), sheet from y 106 with a grabber, **close on the left** of the header next to the title, and the collection's inclusion rule ("Highest prediction win rate over the past 90 days · Updated 3 hours ago") as the first line of the scroll area — Regular/14 in `text/n7` — so it scrolls away with the list. Members render as the page grid's own 3-up card molecule and are read-only — the collection is atomic, so the only action is the floating dual-state button: **Follow all** (primary) ⇄ **Following** — white body, a 0.5px `main/m3` hairline, a `main/m3` label and a filled `check-f2`, per [14157:212995](https://www.figma.com/design/DJ9Acp13FruTilsTdrE0id/Draft?node-id=14144-48781). The hairline is an inset shadow rather than a border so the button stays exactly 48 tall. It toggles in place and the card's checkmark and the selection count behind the scrim stay in sync live; the sheet itself stays put, so you can read the list after deciding. Dismissing is the ✕, the scrim or Esc — never the button.
 
 The sheet's button sits at the same height as every other screen's bottom button (34px home indicator + 16px). Its shadow used to be cut off at a hard line 34px up — not by the sheet, but by the home indicator, which was an opaque white bar sitting above it (z 25 vs 18). That bar has no fill now: every screen already pads its scroll area 34 + 92 off the bottom, so nothing passes behind that band, and the surface underneath is white anyway.
 

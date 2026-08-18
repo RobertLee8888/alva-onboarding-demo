@@ -778,24 +778,25 @@ img { display: block; pointer-events: none; -webkit-user-drag: none; }
   line-height: 22px;
 }
 
-/* Nothing selected (14159:48781): the words go grey and the pencil is
-   replaced by an explicit way in. Row grows to 60 on the 28px button. */
-.summary-row.is-empty .summary-label { color: var(--n3); }
+/* Nothing selected (14159:48781): the row stops being a row-with-an-action and
+   becomes the action — the grey label is dropped and a single centred text
+   button carries it. 16 + 20 + 16 = 52 tall, so it sits a little tighter than
+   the 56 of a filled row. */
+.summary-row.is-empty {
+  justify-content: center;
+  min-height: 52px;
+}
 .summary-add {
   display: flex;
-  flex: none;
   align-items: center;
-  gap: 4px;
-  padding: 4px 12px;
-  border-radius: 4px;
-  background: var(--m1);
-  color: #fff;
+  gap: 8px;
+  color: var(--m1);
   font-size: 12px;
   font-weight: 500;
   line-height: 20px;
   white-space: nowrap;
 }
-.summary-add img { width: 14px; height: 14px; }
+.summary-add img { width: 16px; height: 16px; }
 /* alpha-edit.svg is the exported Union glyph at its own 11.63 × 12.07, not a
    padded 16 box — forcing it to 16×16 blew it up 37% and, because the asset
    carries preserveAspectRatio="none", stretched it unevenly. Render it at its
@@ -1249,11 +1250,14 @@ img { display: block; pointer-events: none; -webkit-user-drag: none; }
   width: 20px;
   height: 20px;
 }
-/* selected state — Primary_Reverse: white pill, hairline, ink text, check */
+/* Selected state (14157:212995): white body, 0.5px main/m3 hairline, main/m3
+   label, and a filled check-f2 rather than the outline one. The hairline is an
+   inset shadow, not a border, so the button stays exactly 48 tall. */
 .member-follow.following {
-  background: #fff;
-  box-shadow: inset 0 0 0 .5px var(--l12), 0 10px 20px rgba(0, 0, 0, .08);
-  color: var(--n9);
+  gap: 8px;
+  background: #fff;                                   /* button/b-btn-primary-reverse */
+  box-shadow: inset 0 0 0 .5px var(--m3), 0 10px 20px rgba(0, 0, 0, .08);
+  color: var(--m3);
 }
 .member-follow.following .follow-check { display: block; }
 

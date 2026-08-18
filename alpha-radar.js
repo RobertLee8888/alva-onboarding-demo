@@ -27,7 +27,7 @@
       title: 'Choose FinTwit accounts',
       description: 'Accounts whose posts can move markets. You can adjust this list later.',
       placeholder: 'Search by handle, name, or focus',
-      count: '100 accounts selected',
+      count: '100 FinTwits selected',
       skip: true,
       items: [
         { name: 'Win Rate Top 50', meta: '50 accounts', collage: [0, 1, 2, 3], selected: true, rule: 'Highest prediction win rate over the past 90 days', ranked: true },
@@ -154,7 +154,7 @@
   ];
 
   const BUILD_STEPS = [
-    'Linked 100 FinTwit accounts',
+    'Linked 100 FinTwits',
     'Linked 100 key figures',
     'Indexed 100 podcast feeds',
     'Mapped market news to companies',
@@ -246,7 +246,6 @@
   let buildingStep = 4;
   let buildingTimer = null;
   let memberOpen = null;   // { step, index } of the collection in the sheet
-  let memberCloseTimer = null;
 
   function avatar(type, index) {
     return ASSET + AVATARS[type][index % AVATARS[type].length];
@@ -443,7 +442,7 @@
      ────────────────────────────── */
 
   const NOUNS = {
-    1: ['account', 'accounts'],
+    1: ['FinTwit', 'FinTwits'],
     2: ['key figure', 'key figures'],
     3: ['podcast', 'podcasts'],
   };
@@ -494,9 +493,7 @@
     const [one, many] = NOUNS[index];
 
     if (!collection && !singles.length) {
-      return `
-        <span class="summary-label">No ${many} selected</span>
-        <span class="summary-add"><img src="${ASSET}add-l1-reverse.svg" alt="">Add ${many}</span>`;
+      return `<span class="summary-add"><img src="${ASSET}add-l1-m1.svg" alt="">Add ${many}</span>`;
     }
 
     const collage = collection
@@ -529,11 +526,10 @@
     app.classList.toggle('post-onboarding', index >= 6);
     app.classList.toggle('editing-selection', editingSource);
     topbar.setAttribute('aria-hidden', String(!inFlow));
-    /* Skip is the "none of these" exit, so it only appears once the page is
-       empty — with the collection still checked there is nothing to skip
-       (Robert 2026-08-18). Order matters: step.skip short-circuits before
-       hasSelection, which only the source steps can answer. */
-    skipButton.hidden = !inFlow || !step.skip || editingSource || hasSelection(index);
+    /* Skip is a permanent fixture in the top right of every source step — it is
+       there whether or not anything is selected (Robert 2026-08-18). Only the
+       editing pass hides it, because Confirm is the exit from that. */
+    skipButton.hidden = !inFlow || !step.skip || editingSource;
     progress.querySelectorAll('.progress-segment').forEach((segment, i) => {
       segment.classList.toggle('done', i < index);
     });
@@ -782,7 +778,7 @@
   function paintFollowButton(item) {
     memberFollow.classList.toggle('following', !!item.selected);
     memberFollow.innerHTML = item.selected
-      ? `<img class="follow-check" src="${ASSET}check-l1.svg" alt="">Following`
+      ? `<img class="follow-check" src="${ASSET}check-f2-m3.svg" alt="">Following`
       : 'Follow all';
   }
 
@@ -807,14 +803,12 @@
     }).join('');
 
     paintFollowButton(item);
-    clearTimeout(memberCloseTimer);
     memberScroll.scrollTop = 0;
     memberLayer.classList.add('open');
     memberLayer.setAttribute('aria-hidden', 'false');
   }
 
   function closeMemberSheet() {
-    clearTimeout(memberCloseTimer);
     if (!memberOpen) return;
     memberOpen = null;
     memberLayer.classList.remove('open');
@@ -830,12 +824,8 @@
     const card = screens[memberOpen.step].querySelector(`[data-source-index="${memberOpen.index}"]`);
     if (card) card.classList.toggle('selected', item.selected);
     updateChrome(memberOpen.step);
-
-    /* Let the new button state land, then dismiss — the choice is made, so
-       holding the sheet open just asks for a second dismissal. Re-armed on
-       every tap so someone toggling twice is not closed mid-decision. */
-    clearTimeout(memberCloseTimer);
-    memberCloseTimer = window.setTimeout(closeMemberSheet, 500);
+    /* The sheet stays put — dismissing is the ✕, the scrim or Esc, never the
+       button (Robert 2026-08-18), so you can read the list after deciding. */
   });
 
   memberLayer.addEventListener('click', event => {
