@@ -725,6 +725,20 @@ img { display: block; pointer-events: none; -webkit-user-drag: none; }
   text-align: left;
 }
 .summary-row + .summary-row { border-top: .5px solid var(--l2); }
+/* The whole row opens its picker, so it needs to feel like a row-sized target.
+   The tint is painted by a layer that reaches out to the card's inner edges and
+   takes no space, so nothing shifts on press. */
+.summary-row { position: relative; isolation: isolate; }
+.summary-row::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 0 -16px;
+  background: var(--br03);
+  opacity: 0;
+  transition: opacity .16s ease;
+}
+.summary-row:active::after { opacity: 1; }
 .avatar-stack { display: flex; padding-left: 1px; }
 .avatar-stack img {
   width: 24px;
@@ -778,10 +792,16 @@ img { display: block; pointer-events: none; -webkit-user-drag: none; }
   white-space: nowrap;
 }
 .summary-add img { width: 14px; height: 14px; }
+/* alpha-edit.svg is the exported Union glyph at its own 11.63 × 12.07, not a
+   padded 16 box — forcing it to 16×16 blew it up 37% and, because the asset
+   carries preserveAspectRatio="none", stretched it unevenly. Render it at its
+   real size and express the design's 16px icon box as the margins either side
+   (edit-l1 in 13718:47652 / 14159:48769: glyph inset ~13.9% / 11.0%). */
 .edit-icon {
-  flex: 0 0 16px;
-  width: 16px;
-  height: 16px;
+  flex: none;
+  width: 11.63px;
+  height: 12.07px;
+  margin: 0 2.19px;
 }
 .watch-summary {
   display: grid;
@@ -1156,8 +1176,8 @@ img { display: block; pointer-events: none; -webkit-user-drag: none; }
   overflow-y: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
-  /* clears the floating footer (94) so the last row can scroll above it */
-  padding: 0 16px 106px;
+  /* clears the floating footer (110) so the last row can scroll above it */
+  padding: 0 16px 122px;
 }
 .member-rule {
   /* Regular/14 · text/n7 (14157:212843) */
@@ -1176,7 +1196,11 @@ img { display: block; pointer-events: none; -webkit-user-drag: none; }
   right: 0;
   bottom: 0;
   left: 0;
-  padding: 12px 16px 34px;
+  /* 50 = home indicator 34 + the 16 every other screen's action bar leaves under
+     its button, so the sheet's button lands at the same height as the rest of the
+     flow. It also gives the button's 0/10/20 shadow room to finish inside the
+     sheet instead of being cut off at the screen edge. */
+  padding: 12px 16px 50px;
   pointer-events: none;   /* the list scrolls under it; only the button is real */
 }
 .member-follow {

@@ -246,6 +246,7 @@
   let buildingStep = 4;
   let buildingTimer = null;
   let memberOpen = null;   // { step, index } of the collection in the sheet
+  let memberCloseTimer = null;
 
   function avatar(type, index) {
     return ASSET + AVATARS[type][index % AVATARS[type].length];
@@ -525,7 +526,11 @@
     app.classList.toggle('post-onboarding', index >= 6);
     app.classList.toggle('editing-selection', editingSource);
     topbar.setAttribute('aria-hidden', String(!inFlow));
-    skipButton.hidden = !inFlow || !step.skip || editingSource;
+    /* Skip is the "none of these" exit, so it only appears once the page is
+       empty — with the collection still checked there is nothing to skip
+       (Robert 2026-08-18). Order matters: step.skip short-circuits before
+       hasSelection, which only the source steps can answer. */
+    skipButton.hidden = !inFlow || !step.skip || editingSource || hasSelection(index);
     progress.querySelectorAll('.progress-segment').forEach((segment, i) => {
       segment.classList.toggle('done', i < index);
     });
@@ -803,12 +808,14 @@
     }).join('');
 
     paintFollowButton(item);
+    clearTimeout(memberCloseTimer);
     memberScroll.scrollTop = 0;
     memberLayer.classList.add('open');
     memberLayer.setAttribute('aria-hidden', 'false');
   }
 
   function closeMemberSheet() {
+    clearTimeout(memberCloseTimer);
     if (!memberOpen) return;
     memberOpen = null;
     memberLayer.classList.remove('open');
@@ -824,6 +831,12 @@
     const card = screens[memberOpen.step].querySelector(`[data-source-index="${memberOpen.index}"]`);
     if (card) card.classList.toggle('selected', item.selected);
     updateChrome(memberOpen.step);
+
+    /* Let the new button state land, then dismiss — the choice is made, so
+       holding the sheet open just asks for a second dismissal. Re-armed on
+       every tap so someone toggling twice is not closed mid-decision. */
+    clearTimeout(memberCloseTimer);
+    memberCloseTimer = window.setTimeout(closeMemberSheet, 500);
   });
 
   memberLayer.addEventListener('click', event => {

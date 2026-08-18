@@ -36,6 +36,8 @@ The selection-screen footer says it in words (Regular/12, centred, `text/n5`):
 
 Naming the collection instead of adding its 50 also settles the old double-counting question: someone who is both a collection member and checked in the grid is counted once, as an individual, never twice.
 
+**Skip is the "none of these" exit, so it only appears once the page is empty.** With the collection still checked there is nothing to skip; clear everything and Skip appears as the way forward (Next is disabled at that point, so the two rules meet rather than fight).
+
 **Each picker opens with only its collection card checked.** The curated collection is the default; every individual is the user's own addition, so the `+ N accounts` half of the read-out counts what they actually did rather than a number the demo pre-filled. The design file's `12 accounts` / `8 key figures` / `5 podcasts` are therefore a demo state you reach by checking people, not the state the screen opens in.
 
 The design file adds filler cards so no grid row is left holding two stretched cards. That is an artifact of Figma auto-layout, where the cards are FILL children — this grid is `repeat(3, minmax(0, 1fr))`, so a short last row keeps its column width and no filler is needed.
@@ -44,7 +46,9 @@ The design file adds filler cards so no grid row is left holding two stretched c
 
 On the Ready screen the plus moved out of the sentence and into the row ([13223:47199](https://www.figma.com/design/DJ9Acp13FruTilsTdrE0id/Draft?node-id=13223-47199)). The row is `collection collage avatar` · `+` · `individuals' avatar stack` · `count` · pencil — gap 8, 24px content, 56 tall — so the collection is carried by its avatar and the words are only the count. Straight out of onboarding, with only the collections checked, each row is the collage plus the collection's name; the plus and the stack appear as soon as you add people.
 
-Both avatar groups are live: the collage is the collection's own four images, and the stack is the first four individuals you actually picked, so the row keeps up as you edit.
+Both avatar groups are live: the collage is the collection's own four images, and the stack is the first four individuals you actually picked, in the order the list holds them, so the row keeps up as you edit.
+
+The whole row opens its picker — the pencil is a cue, not the target — and it has row-sized press feedback to say so, painted by a layer that reaches the card's inner edges and takes no space so nothing shifts on press. The pencil renders `alpha-edit.svg` at the glyph's own 11.63 × 12.07 with the design's 16px icon box expressed as the margins either side; forcing the glyph itself to 16×16 blew it up 37% and stretched it unevenly, since that asset carries `preserveAspectRatio="none"`.
 
 The file draws two of the four states. The one-sided ones are inferred, on the rule that the words say whatever the avatars cannot — with a collection alone the words become its name, with individuals alone they stay the count. Note that "collection alone" is now the opening state, so it is on screen more than the file's drawn one.
 
@@ -61,7 +65,9 @@ Tapping now works by card type:
 - **Single card** — whole card = select / deselect, unchanged.
 - **Collection card** (the 2×2 collage) — whole card = open a **member bottom sheet**; it no longer toggles.
 
-The sheet follows the finalized frames ([⑥ unselected](https://www.figma.com/design/DJ9Acp13FruTilsTdrE0id/Draft?node-id=14144-48617) / [⑦ selected](https://www.figma.com/design/DJ9Acp13FruTilsTdrE0id/Draft?node-id=14144-48781)): scrim over the app (never over the status bar or home indicator), sheet from y 106 with a grabber, **close on the left** of the header next to the title, and the collection's inclusion rule ("Highest prediction win rate over the past 90 days · Updated 3 hours ago") as the first line of the scroll area — Regular/14 in `text/n7` — so it scrolls away with the list. Members render as the page grid's own 3-up card molecule and are read-only — the collection is atomic, so the only action is the floating dual-state button: **Follow all** (primary) ⇄ **✓ Following** (white, hairline, check). It toggles in place, and the card's checkmark and the selection count behind the scrim stay in sync live. Esc, the ✕, or tapping the scrim closes it.
+The sheet follows the finalized frames ([⑥ unselected](https://www.figma.com/design/DJ9Acp13FruTilsTdrE0id/Draft?node-id=14144-48617) / [⑦ selected](https://www.figma.com/design/DJ9Acp13FruTilsTdrE0id/Draft?node-id=14144-48781)): scrim over the app (never over the status bar or home indicator), sheet from y 106 with a grabber, **close on the left** of the header next to the title, and the collection's inclusion rule ("Highest prediction win rate over the past 90 days · Updated 3 hours ago") as the first line of the scroll area — Regular/14 in `text/n7` — so it scrolls away with the list. Members render as the page grid's own 3-up card molecule and are read-only — the collection is atomic, so the only action is the floating dual-state button: **Follow all** (primary) ⇄ **✓ Following** (white, hairline, check). It toggles in place, and the card's checkmark and the selection count behind the scrim stay in sync live — then the sheet dismisses itself 0.5s later, since the choice is made and holding it open only asks for a second dismissal. Tapping twice re-arms that timer, so nobody gets closed mid-decision. Esc, the ✕, or tapping the scrim closes it immediately.
+
+The sheet's button sits at the same height as every other screen's bottom button (34px home indicator + 16px), which also leaves its shadow room to finish inside the sheet rather than being cut off at the screen edge.
 
 In the demo, members are drawn from the screen's own account list (Win Rate Top 50 really is the 50 highest win rates), rather than the design file's placeholder loop of 7 mock accounts.
 
