@@ -537,13 +537,22 @@ img { display: block; pointer-events: none; -webkit-user-drag: none; }
   padding: 112px 16px 0;
   background: var(--m1);
 }
+/* The card's top inset is NOT its own padding: the design gives it
+   pad [0, 16, 16, 16] and lets 涨幅信息's 4 plus Identity/Payoff's 12 add up to
+   the 16 (13241:205621 and every later instance agree). Paying 16 here too
+   pushed $AMD down to 32 off the top edge. */
 .record-card {
   height: 382px;
-  padding: 16px;
+  padding: 0 16px 16px;
   overflow: hidden;
-  border: .5px solid var(--l2);
-  border-bottom: 0;
   border-radius: 8px 8px 0 0;
+  /* The hairline is an inset shadow, not a border: the design's stroke is
+     INSIDE-aligned, so Figma still seats the first child at 16 from the outer
+     edge, while a CSS border would push it to 17 and shave 2 off the quote
+     block's width. Three shadows because the design has no bottom edge. */
+  box-shadow: inset 0 .5px 0 0 var(--l2),
+              inset .5px 0 0 0 var(--l2),
+              inset -.5px 0 0 0 var(--l2);
   background: #fff;
 }
 .record-head {
@@ -556,9 +565,10 @@ img { display: block; pointer-events: none; -webkit-user-drag: none; }
 .record-identity,
 .profit {
   display: flex;
-  height: 68px;
   flex-direction: column;
-  padding-top: 12px;
+  padding-top: 12px;   /* 12 + 26 + 4 + 38 = the design's 80; no fixed height,
+                          which used to cut the box 12 short and let the quote
+                          block ride up under the text */
 }
 .record-identity { min-width: 0; flex: 1; gap: 4px; }
 .record-id { display: flex; align-items: center; gap: 8px; }
@@ -586,8 +596,8 @@ img { display: block; pointer-events: none; -webkit-user-drag: none; }
 .profit small { color: var(--n7); font-size: 12px; line-height: 20px; }
 .quote {
   position: relative;
-  margin-top: 14px;
-  padding: 12px 16px 12px 28px;
+  margin-top: 12px;                    /* the card's gap */
+  padding: 12px 16px 12px 30px;        /* 16 to the rule + 2 rule + 12 gap */
   border-radius: 6px;
   background: var(--br03);
   font-size: 12px;
