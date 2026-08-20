@@ -226,7 +226,7 @@
 
   const groupEl = document.getElementById('deviceGroup');
   const readoutEl = document.getElementById('deviceReadout');
-  const segs = new Map();
+  const segs = new Map();   /* one toolbar cell per device */
 
   let device = readStoredDevice();
 
@@ -296,7 +296,7 @@
   DEVICES.forEach(d => {
     const btn = document.createElement('button');
     btn.type = 'button';
-    btn.className = 'dg-seg';
+    btn.className = 'tb-seg';
     btn.setAttribute('role', 'radio');
     btn.setAttribute('aria-checked', 'false');
     /* the visible label is short enough to fit the bar; the spoken and
@@ -395,41 +395,6 @@
      ────────────────────────────── */
 
   const fitEl = document.getElementById('stageFit');
-  const barEls = [...document.querySelectorAll('.stage-bar')];
-
-  /* The reserved band is whatever the chrome actually needs. The bars are
-     absolutely positioned, so their height depends on the stage's width
-     (a narrow one wraps the row) but never on this padding — which is what
-     lets it be written back without oscillating. The write is guarded on
-     change so the ResizeObserver below settles after one pass. */
-  let chromeH = null;
-
-  const leftBar = document.querySelector('.stage-bar-left');
-  const rightBar = document.querySelector('.stage-bar-right');
-
-  function reserveChrome() {
-    if (!wide.matches) {
-      chromeH = null;
-      stage.style.removeProperty('--chrome-h');
-      rightBar.style.removeProperty('--bar-max');
-      return;
-    }
-
-    /* Give the right bar everything the left one is not using, so it stays
-       one line for as long as it can. 20px inset on each side, 16px of
-       clear air between the two. Written before the height is measured —
-       this is what decides whether the row wraps. */
-    const room = stage.clientWidth - leftBar.offsetWidth - 56;
-    rightBar.style.setProperty('--bar-max', Math.max(160, room) + 'px');
-
-    const tallest = barEls.reduce((m, b) => Math.max(m, b.offsetHeight), 0);
-    /* 18px sits the bar off the bottom edge, and the same gap again keeps
-       the phone from touching it */
-    const next = Math.max(62, tallest + 36);
-    if (next === chromeH) return;
-    chromeH = next;
-    stage.style.setProperty('--chrome-h', next + 'px');
-  }
 
   /* Crossing 900px turns the simulation on or off, and route() does not
      remount when only the width changed — so the insets have to be
@@ -448,7 +413,6 @@
 
   function fit() {
     syncSimulation();
-    reserveChrome();
     if (!wide.matches) { stage.style.removeProperty('--fit'); return; }
     const cs = getComputedStyle(stage);
     const w = stage.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);

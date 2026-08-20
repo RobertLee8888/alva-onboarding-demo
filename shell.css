@@ -56,6 +56,11 @@
      every model in a generation, so this is a constant, not a per-device
      number — the phone box is only ever the screen plus that border. */
   --bezel: 16px;
+
+  /* The toolbar's height, and therefore the band the stage reserves for it.
+     A constant now — the bar is one row of cells that cannot wrap, so there
+     is nothing left to measure. */
+  --chrome-h: 44px;
   --phone-w: calc(var(--screen-w) + 2 * var(--bezel));
   --phone-h: calc(var(--screen-h) + 2 * var(--bezel));
 
@@ -111,14 +116,17 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   height: 100%;
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding: 40px 20px 28px;
+  /* No horizontal inset here. The gutter belongs to each block, so a row's
+     fill and its divider both reach the sidebar's edges — otherwise the row
+     is a card floating in a container, which is the shape being removed. */
+  padding: 40px 0 28px;
 }
 
 /* The header, the list and the footer are three bands, and a line is what
    says so. */
 .sb-head {
-  padding: 0 4px 20px;
-  margin-bottom: 4px;
+  padding: 0 20px 20px;
+  margin-bottom: 0;
   border-bottom: 0.5px solid var(--l07);
 }
 .wordmark {
@@ -158,14 +166,14 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 14px 10px 15px;
+  padding: 16px 20px;
   border: 0;
   border-bottom: 0.5px solid var(--l07);
+  border-radius: 0;
   text-decoration: none;
   color: inherit;
-  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+  transition: background 0.15s ease, color 0.15s ease;
 }
-.proto-item:last-child { border-bottom: 0; }
 
 /* An unselected row sits back a step and brightens on hover, so the state is
    carried by text contrast rather than by a surface appearing under the
@@ -177,11 +185,10 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 .proto-item:hover .pi-title { color: var(--n9); }
 .proto-item:focus-visible { outline: 2px solid var(--m1); outline-offset: -2px; }
 
-/* Selected: a 2px rule on the leading edge and full-strength text. The rule
-   is an inset shadow, so it costs no layout and nothing shifts. */
+/* Selected: the cell fills, one step darker than hover. No edge marker and
+   no rule — those were extra chrome for something a fill already says. */
 .proto-item[aria-current='true'] {
-  background: var(--br03);
-  box-shadow: inset 2px 0 0 0 var(--m1);
+  background: var(--l07);
 }
 .proto-item[aria-current='true'] .pi-title { color: var(--n9); }
 .proto-item[aria-current='true'] .pi-sub { color: var(--n7); }
@@ -217,8 +224,8 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 .pi-go { display: none; }
 
 .sb-foot {
-  margin-top: 4px;
-  padding: 16px 4px 0;
+  margin-top: 0;
+  padding: 16px 20px 0;
   border-top: 0.5px solid var(--l07);
   font-size: 11px;
   line-height: 18px;
@@ -244,7 +251,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
      taller of the two bars. A fixed number was right only for the row that
      happened to be there when it was written, and a narrow window wraps
      that row onto a second line. */
-  padding: 24px 28px var(--chrome-h, 62px);
+  padding: 24px 28px calc(var(--chrome-h) + 24px);
 }
 
 /* scaled by shell.js so the phone always fits, never blown up past 1:1 */
@@ -313,159 +320,100 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   color: var(--n5);
 }
 
-/* ── Stage chrome (desktop only) ── */
+/* ── Stage chrome: one toolbar of cells ──
 
-/* One line across the reserved band, so the two clusters of controls read as
-   a single toolbar rather than as pills floating in the corners — and so the
-   mockup has a floor to sit above rather than ending in mid-air. */
-.stage::after {
-  content: '';
+   The reference is aspensearch.com: a hard grid of full-bleed cells divided
+   by hairlines, zero radius, no border on the target itself, no shadow, and
+   — the rule that drives all of it — **the cell IS the control**. There is
+   never a small button sitting inside a larger container, because the
+   container would then be decoration with a target hidden in it.
+
+   This replaces two clusters of rounded pills floating in the corners. It
+   also deletes machinery: a single flex row whose first cell grows cannot
+   wrap, so the bar-width measuring and the wrap handling are both gone. */
+
+.toolbar {
   position: absolute;
   right: 0;
-  bottom: var(--chrome-h, 62px);
+  bottom: 0;
   left: 0;
-  height: 0.5px;
-  background: var(--l07);
-  pointer-events: none;
-}
-
-.stage-bar {
-  position: absolute;
-  bottom: 18px;
   display: flex;
-  align-items: center;
-  gap: 8px;
-  /* Half the stage each was right while both bars held one pill. The
-     right one now carries the device switcher too, and an even split
-     wraps it onto a second line on any laptop — so the ceiling is the
-     room the other bar is not using, measured by shell.js. The 50% here
-     is only the pre-script fallback. */
-  max-width: var(--bar-max, calc(50% - 24px));
-}
-.stage-bar-left { left: 20px; }
-.stage-bar-right {
-  right: 20px;
-  /* The device switcher shares this bar with the action pills. Wrapping
-     rather than clipping is the narrow-window behaviour: every pill has
-     overflow:hidden, so a row that overflows would silently eat a label
-     instead of showing there is more. Anchored at the bottom, so it
-     grows upward into the stage's own reserved band. */
-  flex-wrap: wrap;
-  justify-content: flex-end;
+  align-items: stretch;
+  height: var(--chrome-h);
+  border-top: 0.5px solid var(--l12);
+  background: #fff;
 }
 
-/* The two actions are one object as far as wrapping is concerned, so a
-   narrow window breaks the bar between what you are looking at and what
-   you can do to it — never through the middle of the action pair, which
-   reads as a broken row rather than two tiers. */
-.stage-actions {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  flex: none;
-}
-
-.stage-pill {
+.tb-cell,
+.tb-readout,
+.tb-seg {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  max-width: 100%;
-  padding: 6px 12px;
-  border: 0.5px solid var(--l12);
-  border-radius: var(--r-btn-m);
-  background: #fff;
-  /* Translucency + blur is a way of belonging to a busy ground. The ground
-     is flat now, so the pill can simply be a pill: solid fill, hairline,
-     square-ish corners. Dropping the blur also lets the text be a token —
-     the old rgba(23,32,34,.55) measured 3.7:1, under AA. */
-  color: var(--n7);
-  font-size: 12px;
-  line-height: 18px;
-  text-decoration: none;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  transition: color 0.2s ease, border-color 0.2s ease;
-}
-.stage-pill:hover { color: var(--m1); border-color: var(--m1); }
-.pill-ico { flex: none; opacity: 0.6; }
-
-/* ── Device switcher ──
-   A segmented control, so all three sizes are on screen at once and
-   switching is one click — the point of the control is comparing them,
-   and a dropdown or a cycling button would hide the alternatives at
-   exactly the moment you want to see them.
-
-   It reads as a single object rather than three more pills, so the bar
-   keeps its two levels: what you are looking at (this group) and what
-   you can do to it (Restart, Open standalone). */
-
-.device-group {
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
   flex: none;
-  padding: 3px;
-  border: 0.5px solid var(--l12);
-  border-radius: var(--r-btn-m);
-  /* Grey track, white thumb. Inverted — white group, grey thumb — the
-     selected segment is the darkest thing in the control and reads as the
-     disabled one. */
-  background: var(--br03);
-}
-
-.dg-readout {
-  padding: 0 10px 0 8px;
-  border-right: 0.5px solid var(--l07);
-  margin-right: 3px;
-  /* n5 measured 3.9:1 here — under AA on 11px text, which is exactly the
-     size that cannot afford it. The readout stays subordinate to the
-     segments by being smaller and set behind a divider, not by being
-     harder to read. */
+  padding: 0 16px;
+  border: 0;
+  border-left: 0.5px solid var(--l07);
+  border-radius: 0;
+  background: none;
+  /* The micro-label register of the reference: uppercase, 11px, tight. It
+     reads as a toolbar rather than as a row of buttons. */
   color: var(--n7);
   font-size: 11px;
-  line-height: 24px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-decoration: none;
   white-space: nowrap;
-  /* all three sizes are three digits by three digits, so tabular figures
-     make the readout a fixed width — it states the size without the bar
-     twitching every time you switch */
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.toolbar > :first-child { border-left: 0; }
+
+/* The Figma cell takes the slack, so the bar is always full and the actions
+   stay hard against the right edge. Its label is the only thing here long
+   enough to need truncating. */
+.tb-grow {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+}
+.tb-grow > span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tb-cell:hover { background: var(--br03); color: var(--n9); }
+.tb-cell:focus-visible { outline: 2px solid var(--m1); outline-offset: -2px; }
+.tb-ico { flex: none; opacity: 0.5; text-transform: none; }
+
+/* Device switcher — three cells, same hairlines as everything else. Not a
+   track with a thumb: that was a container with a small button in it. */
+.tb-devices {
+  display: flex;
+  align-items: stretch;
+  flex: none;
+}
+.tb-readout {
+  color: var(--n5);
+  /* every size is three digits by three digits, so tabular figures keep the
+     bar from twitching on switch */
   font-variant-numeric: tabular-nums;
 }
-
-/* Nested radius is the outer minus its padding: 6 − 3 = 4, per the Alva
-   nesting rule, so the segment's corner sits concentric inside the group's. */
-.dg-seg {
-  padding: 3px 10px;
-  border-radius: 4px;
-  /* System tokens, and the darker end of them: these are labels you have
-     to read to choose, not decoration. The surrounding pills' own
-     rgba(23,32,34,.55) measures 3.3:1, under AA — copying it here would
-     have carried that into the one control whose whole job is to be
-     read. */
-  color: var(--n7);
-  font-size: 12px;
-  line-height: 18px;
-  white-space: nowrap;
-  transition: color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+.tb-seg {
+  padding: 0 14px;
+  cursor: pointer;
 }
-.dg-seg:hover { color: var(--m1); }
-.dg-seg:focus-visible { outline: 2px solid var(--m1); outline-offset: 1px; }
-
-.dg-seg[aria-checked='true'] {
-  background: #fff;
-  /* The white fill and the shadow are what say "selected" — so the text
-     can be the most legible thing in the bar rather than the brand teal,
-     which is only 3.0:1 on white. Selection is not carried by colour
-     alone either way. */
+.tb-seg:hover { background: var(--br03); color: var(--n9); }
+.tb-seg:focus-visible { outline: 2px solid var(--m1); outline-offset: -2px; }
+.tb-seg[aria-checked='true'] {
+  background: var(--l07);
   color: var(--n9);
-  box-shadow: inset 0 0 0 0.5px var(--l07);
 }
 
-/* Below roughly 1150px the bar would rather wrap than keep the readout,
-   and the selected segment already answers "which device" — the exact
-   point size is the part you can afford to lose first. */
-@media (max-width: 1149px) {
-  .dg-readout { display: none; }
+/* Below roughly 1080px the readout is the first thing to go — the selected
+   cell already answers "which device", and the exact point size is the
+   affordable loss. */
+@media (max-width: 1079px) {
+  .tb-readout { display: none; }
 }
 
 /* ─────────────────────────────────────────────
@@ -488,11 +436,11 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
     background: #fff;
   }
   .sidebar-scroll {
-    padding: 56px 20px calc(48px + env(safe-area-inset-bottom));
+    padding: 56px 0 calc(48px + env(safe-area-inset-bottom));
     max-width: 620px;
     margin: 0 auto;
   }
-  .sb-head { padding-bottom: 24px; margin-bottom: 4px; }
+  .sb-head { padding: 0 20px 24px; margin-bottom: 0; }
   .sb-head h1 { font-size: 28px; line-height: 38px; }
   .sb-sub { font-size: 14px; line-height: 22px; max-width: 42ch; }
 
@@ -502,7 +450,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
      a list rather than as cards that happen to be touching. */
   .proto-item {
     gap: 14px;
-    padding: 20px 4px;
+    padding: 20px;
     background: none;
     border-bottom: 0.5px solid var(--l07);
   }
@@ -527,7 +475,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   }
   .pi-go img { width: 9px; height: 9px; transform: rotate(135deg) scaleX(-1); }
 
-  .sb-foot { margin-top: 4px; padding-top: 20px; font-size: 12px; line-height: 20px; }
+  .sb-foot { margin-top: 0; padding: 20px 20px 0; font-size: 12px; line-height: 20px; }
 
   /* ── Prototype view: it is already running on a phone.
         No bezel, no stage chrome, nothing but the prototype. ── */
@@ -545,8 +493,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
     box-shadow: none;
   }
   .phone-buttons,
-  .stage-bar { display: none; }
-  .stage::after { display: none; }
+  .toolbar { display: none; }
   .phone-screen {
     width: 100%;
     height: 100%;

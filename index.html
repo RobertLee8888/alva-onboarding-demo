@@ -9,7 +9,7 @@
 <link rel="icon" href="assets/logo-portrait2.svg" type="image/svg+xml">
 <link rel="preload" href="assets/fonts/Delight-Regular.ttf" as="font" type="font/ttf" crossorigin>
 <link rel="preload" href="assets/fonts/Delight-Medium.ttf" as="font" type="font/ttf" crossorigin>
-<link rel="stylesheet" href="shell.css?v=12">
+<link rel="stylesheet" href="shell.css?v=13">
 </head>
 <body>
 
@@ -66,27 +66,25 @@
       </div>
     </div>
 
-    <!-- Desktop-only stage chrome, outside the phone -->
-    <div class="stage-bar stage-bar-left">
-      <a class="stage-pill" id="figmaPill" href="#" target="_blank" rel="noopener" hidden>
-        <span id="figmaPillText">Figma source</span><span class="pill-ico">↗</span>
+    <!-- Desktop-only stage chrome: one bar of cells, hairline-divided.
+         Every cell is its own target, edge to edge — no control is a small
+         thing floating inside a bigger container. -->
+    <div class="toolbar">
+      <a class="tb-cell tb-grow" id="figmaPill" href="#" target="_blank" rel="noopener" hidden>
+        <span id="figmaPillText">Figma source</span><span class="tb-ico">↗</span>
       </a>
-    </div>
-    <div class="stage-bar stage-bar-right">
-      <div class="device-group" role="radiogroup" aria-label="Phone size" id="deviceGroup">
-        <span class="dg-readout" id="deviceReadout"></span>
-        <!-- shell.js renders one segment per entry in DEVICES -->
+      <div class="tb-devices" role="radiogroup" aria-label="Phone size" id="deviceGroup">
+        <span class="tb-readout" id="deviceReadout"></span>
+        <!-- shell.js renders one cell per entry in DEVICES -->
       </div>
-      <div class="stage-actions">
-        <button class="stage-pill" id="restartPill">↺&nbsp; Restart</button>
-        <a class="stage-pill" id="standalonePill" href="#" target="_blank" rel="noopener">Open standalone&nbsp; ↗</a>
-      </div>
+      <button class="tb-cell" id="restartPill">Restart</button>
+      <a class="tb-cell" id="standalonePill" href="#" target="_blank" rel="noopener">Open standalone<span class="tb-ico">↗</span></a>
     </div>
 
   </main>
 
 </div>
 
-<script src="shell.js?v=12"></script>
+<script src="shell.js?v=13"></script>
 </body>
 </html>

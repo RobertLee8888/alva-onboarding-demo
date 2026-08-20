@@ -172,16 +172,36 @@ list and translucent blurred pills in the chrome. All of it was atmosphere,
 and atmosphere everywhere is the same as atmosphere nowhere: the phone had
 nothing to stand out against.
 
+The reference for the shape of it is [aspensearch.com](https://www.aspensearch.com):
+a hard grid of full-bleed cells divided by hairlines, zero radius, and — the
+rule that drives the rest — **the cell IS the control.**
+
+- **A target fills its container.** A list row is the row, edge to edge, not
+  a card inset inside one. A toolbar control is a full-height cell, not a
+  pill floating in a band.
+- **Never a small button inside a container that has nothing else in it.**
+  If the container holds only the control, the container *is* the control;
+  otherwise you have drawn decoration with a target hidden somewhere in it.
+  This is the single easiest thing to get wrong here and it was wrong twice
+  before it was written down.
+- **Radius 0 on chrome.** The phone keeps its radii — it is a device, not
+  chrome.
+- **The target carries no border of its own.** Hairlines belong to the grid:
+  a row's divider, a cell's leading edge. A border on the control itself
+  makes it a box inside a box.
+
 So, if you add chrome here:
 
 - **Surfaces are flat.** `#fff` for the sidebar, `var(--br03)` (which lands on
   `#f7f7f7`) for the stage. No gradient, no blur, no translucency.
 - **Hairlines separate things**, not gaps plus borders plus shadows plus radii.
   `var(--l07)` inside a region, `var(--l12)` between regions.
-- **State is carried by text contrast**, not by a surface appearing. An
-  unselected list row is `--n7` / `--n5` and goes `--n9` on hover; the selected
-  one adds a 2px `--m1` rule on its leading edge, drawn as an inset shadow so
-  it costs no layout.
+- **State is carried by fill and text contrast**, not by added chrome. An
+  unselected row is `--n7` / `--n5` and goes `--n9` on hover over `--br03`;
+  the selected one fills with `--l07`. Two steps of one token family — no
+  edge marker, no rule, no border.
+- **Chrome type is the micro-label register**: uppercase, 11px, `0.04em`
+  tracking. It reads as a toolbar rather than as a row of buttons.
 - **The one shadow left is the phone's**, and it is one soft drop rather than
   the two atmospheric ones it had. On a flat ground a single shadow reads as
   "this floats"; a stack of them reads as "this page is glossy".
