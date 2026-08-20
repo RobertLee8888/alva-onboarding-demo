@@ -153,9 +153,10 @@ img { display: block; pointer-events: none; -webkit-user-drag: none; }
    So the stage is the only elastic part, and where its surplus goes is the
    whole design.
 
-   The gap above the card is at minimum **the status bar's height plus 16**,
-   which is what keeps the white card from ever ending up under the OS clock.
-   At a 62pt bar that minimum is 78, putting the critical viewport at
+   Above the card sit two blocks: the status bar's own space (minimum = the
+   bar's height, and the one that grows) and a fixed 16 below it. Together
+   they are what keeps the white card from ever ending up under the OS clock.
+   At a 62pt bar that is 78, putting the critical viewport at
    78 + 380 + 384 = 842:
 
      H ≥ 842   完整档 — stage = H − 384, and the surplus opens up ABOVE
@@ -594,20 +595,37 @@ img { display: block; pointer-events: none; -webkit-user-drag: none; }
   background: var(--m1);
 }
 
-/* Where the surplus goes, and the guard on the card's top edge.
+/* Two blocks above the card, because they are two different things.
 
-   basis 0, grow 1, and NO shrink: it opens above the card on a tall screen
-   and holds its minimum on a short one. That minimum is the status bar's own
-   height plus 16 — the bar's height so the card starts below the OS chrome
-   instead of under it, and 16 more so it clears it rather than sits flush.
+   `.intro-safe` is the status bar's own space. Its minimum IS the bar's
+   height — this is a full-screen app and the bar does not push content down,
+   it sits on top of it (`position: absolute; top: 0; z-index: 20`), so
+   anything the layout does not reserve, the bar covers.
 
-   It has to be `var(--status-h)`, never 62: the shell writes the mounted
-   device's real inset in here, and on a real phone the prototype's own value
-   applies. A literal would be right for one device and wrong for the rest —
-   the same defect this screen already shipped once. */
-.intro-gap {
+   That is measured, not assumed. With this minimum at 0 the card's top edge
+   goes under the clock on any device shorter than about 826: at 393 × 812 —
+   a 13 mini — by 14px, at 780 by 46, and at 764 and below by the bar's full
+   62. It is only invisible on the tall devices because their surplus happens
+   to exceed 62 anyway.
+
+   It is also the block that grows, so on a tall screen the surplus opens up
+   here, above the card.
+
+   `.intro-gap` is the 16 between the bar's space and the card, so the card
+   clears the chrome rather than sitting flush against it. Fixed, because it
+   is a gap and not slack.
+
+   Both read `var(--status-h)`, never 62: the shell writes the mounted
+   device's real inset into the prototype, and on a real phone the
+   prototype's own value applies. A literal would be right for one device and
+   wrong for every other — the defect this screen already shipped once. */
+.intro-safe {
   flex: 1 0 0;
-  min-height: calc(var(--status-h) + 16px);
+  min-height: var(--status-h);
+}
+.intro-gap {
+  flex: none;
+  height: 16px;
 }
 /* The card's top inset is NOT its own padding: the design gives it
    pad [0, 16, 16, 16] and lets 涨幅信息's 4 plus Identity/Payoff's 12 add up to

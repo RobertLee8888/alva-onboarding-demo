@@ -274,6 +274,7 @@
     return `
       <section class="screen intro" data-step="0">
         <div class="intro-stage">
+          <span class="intro-safe" aria-hidden="true"></span>
           <span class="intro-gap" aria-hidden="true"></span>
           <article class="record-card">
             <div class="record-head">
