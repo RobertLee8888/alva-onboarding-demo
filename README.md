@@ -141,17 +141,45 @@ Selecting a prototype mounts a **fresh** iframe element rather than reassigning 
 
 ## Adding a prototype
 
-1. Drop `your-prototype.html` (plus its own CSS/JS) into this folder.
-2. Give it the two lines every prototype needs, so it renders bare inside the shell and keeps its mockup when opened directly:
+Three things to write, and one contract to keep. The three things are
+mechanical. The contract is the part that is easy to get wrong, so it has its
+own section below — read it before you draw anything.
 
-   In `<head>`, **before** the stylesheet:
+### 1. The files
 
-   ```html
-   <script>if (window.self !== window.top) document.documentElement.classList.add('embedded');</script>
-   ```
+Drop `your-prototype.html` plus its own CSS and JS into this folder. It keeps
+its own document, so it can use any class names and any globals it likes —
+including the same ones another prototype already uses.
 
-   And in its CSS — copy the `html.embedded` block from `alpha-radar.css`.
-3. Append one entry to `PROTOTYPES` in `shell.js`:
+### 2. Two lines, so the shell can own the mockup
+
+In `<head>`, **before** the stylesheet:
+
+```html
+<script>if (window.self !== window.top) document.documentElement.classList.add('embedded');</script>
+```
+
+And in its CSS, an `html.embedded` block that strips its own mockup — copy the
+one at the bottom of `alpha-radar.css`. It sets the bezel wrapper to
+`width/height: 100%`, no padding, no radius, no shadow, and hides the phone
+buttons and the standalone pills.
+
+**Why both this and a `max-width: 520px` media query?** They cover different
+situations, and a prototype needs both:
+
+| | Fires when | Covers |
+| --- | --- | --- |
+| `html.embedded` | the page is in an iframe | running inside this shell, at any device size |
+| `@media (max-width: 520px)` | the viewport is phone-narrow | opened directly on a real phone |
+
+The media query alone *looks* sufficient today, because every device in the
+switcher is 402–440 wide and so passes 520. That is a coincidence, not a
+design: add a wider device — an iPad, a landscape phone — and the media query
+stops firing while the page is still embedded, and the prototype starts
+drawing a phone mockup *inside* the shell's phone mockup. `html.embedded` is
+what makes that impossible.
+
+### 3. One entry in `PROTOTYPES` in `shell.js`
 
 ```js
 {
@@ -164,14 +192,94 @@ Selecting a prototype mounts a **fresh** iframe element rather than reassigning 
 }
 ```
 
-The route slug is derived from `href`, so `your-prototype.html` is reachable at `#/your-prototype`. The list sorts by `edited` (newest first) and renders the time as `Edited today` / `Edited 3 days ago` / `Edited Aug 12`, the way design tools phrase it. Nothing else needs to change.
+The route slug comes from `href`, so `your-prototype.html` is reachable at
+`#/your-prototype`. The list sorts by `edited`, newest first, and renders the
+time the way design tools phrase it (`Edited today` / `Edited 3 days ago` /
+`Edited Aug 12`). Nothing else needs to change, and nothing you add here can
+affect a prototype that already works.
+
+## The contract: no length may be a slice of the screen
+
+This is the one rule that is not obvious, and the one the device switcher will
+catch you on.
+
+A prototype here does not run at one size. It runs at 402 × 874, 420 × 912 and
+440 × 956 inside the shell, and at whatever a real phone gives it when opened
+directly. **So no length in your CSS may be a number you measured off the
+Figma frame's height.** Concretely:
+
+**Never write a height that means "this much of the screen".** Let the
+container flex, or anchor with `top`/`bottom` insets, and let the content
+decide. A `height: 469px` lifted from an 852-tall frame is correct at exactly
+one viewport and silently wrong at every other — and the failure is not a
+crash, it is a band of dead space that grows linearly with the viewport, which
+is exactly the kind of thing that survives review because every individual
+number in the file is the number the design file says.
+
+```css
+/* wrong — 469 is a slice of an 852-tall frame */
+.intro-stage { height: 469px; padding-top: 112px; }
+
+/* right — the stage takes what is left, and the card is anchored in it */
+.intro-stage { flex: 1 0 0; min-height: 0; overflow: hidden; }
+.intro-spacer { flex: 1 0 0; min-height: 16px; }
+.record-card  { height: 380px; }   /* the card's own size, not the screen's */
+```
+
+A fixed height is fine when it is **the drawn object's own size** — a 380px
+record card, a 272 × 560 product-proof mini phone, a 1981 × 580 background
+texture. It is not fine when it is a share of the viewport. The test is one
+question: *if the phone got 80px taller, should this number change?* If yes,
+it must not be a literal.
+
+**Name your safe-area insets as custom properties on `:root`.** The shell
+writes the mounted device's real insets onto your document, and it can only do
+that if the value has a name to override:
+
+```css
+:root {
+  --status-h: 59px;   /* or --sb-h — the shell sets both */
+  --home-h: 34px;
+}
+```
+
+Use `var(--status-h)` / `var(--home-h)` everywhere the OS chrome takes space —
+never the literal. Every device in the switcher is a 62pt-inset one, so a
+prototype that hardcodes 59 renders every screen 3px high and no amount of
+resizing will fix it. (If you need a third name, add it to `SAFE_TOP_VARS` /
+`SAFE_BOTTOM_VARS` in `shell.js`; below 900px the shell removes the overrides
+instead, so your own `:root` value is what a real phone gets.)
+
+**Check yourself before shipping:**
+
+```bash
+grep -nE '^[[:space:]]*(height|min-height|max-height):[[:space:]]*[0-9]{3,4}px' your-prototype.css
+```
+
+Every hit has to be a drawn object's own size. Then open the prototype in the
+shell and click through all three devices on one screen — not three screens at
+one device. The bug you are looking for is a gap that grows.
+
+**Known violation, for reference:** `.intro-stage` in `alpha-radar.css` is
+still `height: 469px`, which is why the Alpha Radar intro screen shows 49px of
+dead space above its CTA on an iPhone 17 and 131px on a 17 Pro Max. Its
+replacement logic is drawn in Figma at
+[14207:212889](https://www.figma.com/design/DJ9Acp13FruTilsTdrE0id/Draft?node-id=14207-212889)
+and is not implemented yet. Do not copy that file's intro screen as a pattern.
 
 ## Run locally
+
+Any static server over this folder works; the shell needs same-origin so the
+device switcher can reach into the iframes, so `file://` will not do.
 
 ```bash
 python3 -m http.server 8000
 # open http://localhost:8000
 ```
+
+Under an agent sandbox `python3 -m http.server` can fail on `os.getcwd()`; use
+the `onboarding-demo` entry in `alva-freshman/.claude/launch.json`, which runs
+a small node static server instead.
 
 ---
 
