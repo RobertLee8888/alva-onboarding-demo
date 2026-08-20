@@ -39,6 +39,12 @@
   --n3: rgba(0, 0, 0, 0.3);
   --n10: #000;
   --l07: rgba(0, 0, 0, 0.07);
+  /* ONE stroke colour for the whole frame. It used to be two — l07 inside a
+     region, l12 between regions — which read as some lines mattering more
+     than others when in fact they all do the same job: they are the only
+     thing separating anything on a page with a single ground. Unified on the
+     darker of the two, so every divider that was l07 comes up a step. */
+  --line: var(--l12);
   --l12: rgba(0, 0, 0, 0.12);
   --br03: rgba(0, 0, 0, 0.03);
   --r-ct-l: 8px;
@@ -119,7 +125,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   position: relative;
   overflow: hidden;
   /* the hairline is the only thing separating it from the stage */
-  border-right: 0.5px solid var(--l12);
+  border-right: 0.5px solid var(--line);
 }
 .sidebar-scroll {
   height: 100%;
@@ -149,40 +155,30 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   align-items: center;
   gap: 12px;
   padding: 0 20px 20px;
-  border-bottom: 0.5px solid var(--l07);
+  border-bottom: 0.5px solid var(--line);
 }
-.wordmark {
+/* The mark is the control. There is no collapse glyph to pick, because a
+   hamburger, a chevron and a panel icon all had to mean "the list" and none
+   of them says it — whereas the thing you click to get the list back is
+   obviously the thing that is still on screen when the list is gone. */
+.brand {
   display: flex;
   align-items: center;
   flex: none;
   height: 18px;
   gap: 3.5px;
-}
-.wm-symbol { height: 17.7px; width: auto; }
-.wm-text { height: 18px; width: auto; }
-
-/* The list's own control, at the top-left where a two-pane layout puts it.
-   24px is the glyph's box, not a button surface — there is no fill and no
-   border, so it is the icon itself that is the target, sized to the row. */
-.sb-toggle {
-  display: grid;
-  place-items: center;
-  flex: none;
-  margin-left: auto;
-  width: 24px;
-  height: 24px;
-  opacity: 0.55;
   transition: opacity 0.15s ease;
 }
-.sb-toggle:hover { opacity: 1; }
-.sb-toggle:focus-visible { outline: 2px solid var(--m1); outline-offset: 2px; }
-.sb-toggle img { width: 15px; height: 13px; }
+.brand:hover { opacity: 0.6; }
+.brand:focus-visible { outline: 2px solid var(--m1); outline-offset: 4px; }
+.wm-symbol { height: 17.7px; width: auto; }
+.wm-text { height: 18px; width: auto; }
 
 /* Sized to sit level with the 18px wordmark rather than to be a page
    heading — the mockup is what the page is about. */
 .sb-head h1 {
   padding-left: 12px;
-  border-left: 0.5px solid var(--l12);
+  border-left: 0.5px solid var(--line);
   color: var(--n9);
   font-size: 16px;
   font-weight: 500;
@@ -206,7 +202,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   gap: 12px;
   padding: 16px 20px;
   border: 0;
-  border-bottom: 0.5px solid var(--l07);
+  border-bottom: 0.5px solid var(--line);
   border-radius: 0;
   text-decoration: none;
   color: inherit;
@@ -269,7 +265,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 .sb-foot {
   margin-top: 0;
   padding: 16px 20px 0;
-  border-top: 0.5px solid var(--l07);
+  border-top: 0.5px solid var(--line);
   font-size: 11px;
   line-height: 18px;
   color: var(--n7);
@@ -280,18 +276,31 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
    toggle — so there is no rail width to keep in sync with its contents. */
 
 @media (min-width: 900px) {
+  /* The column goes to nothing — not to a rail. A rail is still a column,
+     and it would push the stage off-centre by its own width for no content.
+     The mark leaves the flow so it can stay on screen while the column it
+     lives in is zero, which is also why the sidebar stops clipping. */
   html[data-sidebar='collapsed'] .shell {
-    grid-template-columns: max-content minmax(0, 1fr);
+    grid-template-columns: 0 minmax(0, 1fr);
   }
-  html[data-sidebar='collapsed'] .sb-head {
-    gap: 8px;
-    border-bottom: 0;
+  html[data-sidebar='collapsed'] .sidebar {
+    border-right: 0;
+    overflow: visible;
   }
+  html[data-sidebar='collapsed'] .sidebar-scroll { overflow: visible; }
+  html[data-sidebar='collapsed'] .sb-head { border-bottom: 0; }
   html[data-sidebar='collapsed'] .sb-head h1,
-  html[data-sidebar='collapsed'] .wm-text,
   html[data-sidebar='collapsed'] .proto-list,
   html[data-sidebar='collapsed'] .sb-foot { display: none; }
-  html[data-sidebar='collapsed'] .sb-toggle { margin-left: 0; }
+
+  html[data-sidebar='collapsed'] .brand {
+    position: absolute;
+    z-index: 10;
+    /* 20 flat here: out of the flow there is no 24px row centring the 18px
+       mark, so no 3px to subtract. Same optical position either way. */
+    top: 20px;
+    left: 20px;
+  }
 }
 
 /* ─────────────────────────────────────────────
@@ -402,7 +411,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   align-items: stretch;
   height: var(--chrome-h);
   /* same ground as everything else; the hairline is the separation */
-  border-top: 0.5px solid var(--l12);
+  border-top: 0.5px solid var(--line);
 }
 
 .tb-cell {
@@ -412,7 +421,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   flex: none;
   padding: 0 16px;
   border: 0;
-  border-left: 0.5px solid var(--l07);
+  border-left: 0.5px solid var(--line);
   border-radius: 0;
   background: none;
   /* The micro-label register of the reference: uppercase, 11px, tight. It
@@ -430,12 +439,21 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 /* The Figma cell takes the slack, so the bar is always full and the actions
    stay hard against the right edge. Its label is the only thing here long
    enough to need truncating. */
-.tb-grow {
-  flex: 1 1 auto;
+/* Sized to its label, not to the slack. Letting it grow made a 800px cell
+   holding 200px of text — a target four times the size of the thing in it,
+   which is the same shape as a button floating in a container. The leftover
+   width is simply ground now, and the cell gets a right edge because it no
+   longer reaches the cells beside it. */
+.tb-lead {
+  flex: 0 1 auto;
   min-width: 0;
+  max-width: 40%;
+  margin-right: auto;
+  border-right: 0.5px solid var(--line);
   overflow: hidden;
+  text-overflow: ellipsis;
 }
-.tb-grow > span:first-child {
+.tb-lead > span:first-child {
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -505,7 +523,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   z-index: 5;
   display: flex;
   flex-direction: column;
-  border: 0.5px solid var(--l12);
+  border: 0.5px solid var(--line);
   border-bottom: 0;
   /* opaque, or the toolbar reads through it */
   background: var(--ground);
@@ -519,7 +537,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   padding: 0 16px;
   height: 40px;
   border: 0;
-  border-bottom: 0.5px solid var(--l07);
+  border-bottom: 0.5px solid var(--line);
   border-radius: 0;
   background: none;
   color: var(--n7);
@@ -575,7 +593,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
     gap: 14px;
     padding: 20px;
     background: none;
-    border-bottom: 0.5px solid var(--l07);
+    border-bottom: 0.5px solid var(--line);
   }
   .proto-item .pi-title,
   .proto-item[aria-current='true'] .pi-title { color: var(--n9); }
@@ -617,9 +635,11 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   }
   .phone-buttons,
   .toolbar { display: none; }
-  /* nothing to collapse in a one-pane layout, so the control is absent
-     rather than present and inert */
-  .sb-toggle { display: none; }
+  /* Nothing to collapse in a one-pane layout. The mark stays — it is the
+     brand here, not a control — but it stops being pressable, so a tap
+     cannot store a collapsed state that only takes effect the next time
+     this is opened on a desktop. */
+  .brand { pointer-events: none; }
   .phone-screen {
     width: 100%;
     height: 100%;

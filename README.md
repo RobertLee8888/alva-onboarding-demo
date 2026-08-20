@@ -214,6 +214,11 @@ So, if you add chrome here:
 - **The ground is not white, deliberately.** The phone's screen is the only
   white thing on the page; that is what makes it read as the object rather
   than as another panel.
+- **No cell is wider than what is in it.** The Figma cell used to take all
+  the toolbar's slack — an 800px target holding 200px of text, which is the
+  same shape as a small button floating in a big container, just rotated. It
+  sizes to its label now and the leftover width is simply ground, which is
+  why it needs a right edge of its own.
 - **Two backgrounds differ from the ground, and both mean something:** the
   selected list row (`--l07`, landing on `#e6e6e6`) and **Restart**, which is
   solid black. Restart is the only cell in the toolbar you press to change
@@ -229,8 +234,10 @@ So, if you add chrome here:
   menu has to be opaque — an overlay cannot be translucent or the toolbar
   reads through it — and deriving the page and the overlay from two different
   expressions of the same colour is how they drift apart.
-- **Hairlines separate things**, not gaps plus borders plus shadows plus radii.
-  `var(--l07)` inside a region, `var(--l12)` between regions.
+- **Hairlines separate things**, not gaps plus borders plus shadows plus
+  radii — and there is **one** stroke colour, `var(--line)`. Two weights
+  (inner vs structural) read as some dividers mattering more than others,
+  when on a page with a single ground they all do the same and only job.
 - **State is carried by fill and text contrast**, not by added chrome. An
   unselected row is `--n7` / `--n5` and goes `--n9` on hover over `--br03`;
   the selected one fills with `--l07`. Two steps of one token family — no
@@ -247,12 +254,23 @@ fill measured **3.7:1** — under AA. It is `var(--n7)` now, at 8.5:1.
 
 ## Collapsing the list
 
-The toggle beside the wordmark collapses the sidebar to its own contents —
-the mark and the button — so there is no rail width to keep in sync with
-what is left in it (`grid-template-columns: max-content`). The state
-persists, and it only exists above 900px: there is nothing to collapse in a
-one-pane layout, so below the breakpoint the control is absent rather than
-present and inert.
+**The mark is the control.** Clicking the Alva wordmark collapses the list;
+clicking it again brings it back. There is no collapse glyph, because a
+hamburger, a chevron and a panel icon all have to mean "the list" and none of
+them says it — whereas the thing you click to get the list back is obviously
+the thing still on screen once the list is gone.
+
+Collapsed, the column is **zero**, not a rail. A rail is still a column: it
+would push the phone off-centre by its own width in exchange for showing
+nothing. The mark leaves the flow instead (`position: absolute`, which is
+also why the sidebar stops clipping) and stays at exactly 20/20 in both
+states, so it never appears to move. Phone centre and window centre agree to
+the pixel when collapsed.
+
+The state persists. Below 900px there is nothing to collapse, so the mark
+stays as brand but stops being pressable — otherwise a tap there would store
+a collapsed state that only took effect the next time the page was opened on
+a desktop.
 
 It replaced an **Open standalone** cell, which opened the prototype
 full-screen in its own tab. That is not something a gallery whose whole

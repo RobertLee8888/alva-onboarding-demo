@@ -9,7 +9,7 @@
 <link rel="icon" href="assets/logo-portrait2.svg" type="image/svg+xml">
 <link rel="preload" href="assets/fonts/Delight-Regular.ttf" as="font" type="font/ttf" crossorigin>
 <link rel="preload" href="assets/fonts/Delight-Medium.ttf" as="font" type="font/ttf" crossorigin>
-<link rel="stylesheet" href="shell.css?v=19">
+<link rel="stylesheet" href="shell.css?v=21">
 </head>
 <body>
 
@@ -34,15 +34,12 @@
     <div class="sidebar-scroll">
 
       <header class="sb-head">
-        <div class="wordmark">
+        <button class="brand" id="sidebarToggle" aria-expanded="true"
+                aria-controls="sidebar" aria-label="Collapse the list">
           <img src="assets/wordmark-symbol.svg" class="wm-symbol" alt="">
           <img src="assets/wordmark-text.svg" class="wm-text" alt="Alva">
-        </div>
-        <h1>Mobile prototypes</h1>
-        <button class="sb-toggle" id="sidebarToggle" aria-expanded="true"
-                aria-controls="sidebar" aria-label="Collapse the list">
-          <img src="assets/icon-menu.svg" alt="">
         </button>
+        <h1>Mobile prototypes</h1>
       </header>
 
       <nav class="proto-list" id="protoList" aria-label="Prototypes"></nav>
@@ -73,7 +70,7 @@
          Every cell is its own target, edge to edge — no control is a small
          thing floating inside a bigger container. -->
     <div class="toolbar">
-      <a class="tb-cell tb-grow" id="figmaPill" href="#" target="_blank" rel="noopener" hidden>
+      <a class="tb-cell tb-lead" id="figmaPill" href="#" target="_blank" rel="noopener" hidden>
         <span id="figmaPillText">Figma source</span><span class="tb-ico">↗</span>
       </a>
       <div class="tb-select" id="deviceGroup">
@@ -95,6 +92,6 @@
 
 </div>
 
-<script src="shell.js?v=19"></script>
+<script src="shell.js?v=21"></script>
 </body>
 </html>
