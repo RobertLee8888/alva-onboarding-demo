@@ -37,6 +37,7 @@
   --n7: rgba(0, 0, 0, 0.7);
   --n5: rgba(0, 0, 0, 0.5);
   --n3: rgba(0, 0, 0, 0.3);
+  --n10: #000;
   --l07: rgba(0, 0, 0, 0.07);
   --l12: rgba(0, 0, 0, 0.12);
   --br03: rgba(0, 0, 0, 0.03);
@@ -126,8 +127,15 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   overscroll-behavior: contain;
   /* No horizontal inset here. The gutter belongs to each block, so a row's
      fill and its divider both reach the sidebar's edges — otherwise the row
-     is a card floating in a container, which is the shape being removed. */
-  padding: 40px 0 28px;
+     is a card floating in a container, which is the shape being removed.
+
+     17 on top, not 20, to put the MARK 20 from the top — matching the 20
+     each block carries on the left, so it reads as equidistant from both
+     edges. The header row is 24 tall (the toggle, and the title's line box)
+     and centres the 18px mark inside it, which supplies the other 3.
+     Aligning the mark to the row's top instead would fix the number and
+     break what it sits next to: the title's ink would then be 3px below it. */
+  padding: 17px 0 28px;
 }
 
 /* The header, the list and the footer are three bands, and a line is what
@@ -152,6 +160,23 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 }
 .wm-symbol { height: 17.7px; width: auto; }
 .wm-text { height: 18px; width: auto; }
+
+/* The list's own control, at the top-left where a two-pane layout puts it.
+   24px is the glyph's box, not a button surface — there is no fill and no
+   border, so it is the icon itself that is the target, sized to the row. */
+.sb-toggle {
+  display: grid;
+  place-items: center;
+  flex: none;
+  margin-left: auto;
+  width: 24px;
+  height: 24px;
+  opacity: 0.55;
+  transition: opacity 0.15s ease;
+}
+.sb-toggle:hover { opacity: 1; }
+.sb-toggle:focus-visible { outline: 2px solid var(--m1); outline-offset: 2px; }
+.sb-toggle img { width: 15px; height: 13px; }
 
 /* Sized to sit level with the 18px wordmark rather than to be a page
    heading — the mockup is what the page is about. */
@@ -248,6 +273,25 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   font-size: 11px;
   line-height: 18px;
   color: var(--n7);
+}
+
+/* ── Collapsed ──
+   The column becomes as wide as what is left in it — the mark and the
+   toggle — so there is no rail width to keep in sync with its contents. */
+
+@media (min-width: 900px) {
+  html[data-sidebar='collapsed'] .shell {
+    grid-template-columns: max-content minmax(0, 1fr);
+  }
+  html[data-sidebar='collapsed'] .sb-head {
+    gap: 8px;
+    border-bottom: 0;
+  }
+  html[data-sidebar='collapsed'] .sb-head h1,
+  html[data-sidebar='collapsed'] .wm-text,
+  html[data-sidebar='collapsed'] .proto-list,
+  html[data-sidebar='collapsed'] .sb-foot { display: none; }
+  html[data-sidebar='collapsed'] .sb-toggle { margin-left: 0; }
 }
 
 /* ─────────────────────────────────────────────
@@ -397,6 +441,17 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 }
 
 .tb-cell:hover { color: var(--n9); }
+
+/* The primary action, and the only cell that fills. It is the one thing in
+   the toolbar you press to change what is on screen rather than to change
+   what you are looking at, so it is the one thing that looks pressable. No
+   left hairline — the fill already ends the cell beside it. */
+.tb-primary {
+  border-left: 0;
+  background: var(--n10);
+  color: #fff;
+}
+.tb-primary:hover { background: var(--n9); color: #fff; }
 .tb-cell:focus-visible { outline: 2px solid var(--m1); outline-offset: -2px; }
 .tb-ico { flex: none; opacity: 0.5; text-transform: none; }
 
@@ -505,7 +560,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
     border-right: 0;
   }
   .sidebar-scroll {
-    padding: 56px 0 calc(48px + env(safe-area-inset-bottom));
+    padding: 17px 0 calc(48px + env(safe-area-inset-bottom));
     max-width: 620px;
     margin: 0 auto;
   }
@@ -562,6 +617,9 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   }
   .phone-buttons,
   .toolbar { display: none; }
+  /* nothing to collapse in a one-pane layout, so the control is absent
+     rather than present and inert */
+  .sb-toggle { display: none; }
   .phone-screen {
     width: 100%;
     height: 100%;

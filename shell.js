@@ -170,7 +170,6 @@
   const stage = document.getElementById('stage');
   const screenEl = document.getElementById('phoneScreen');
   const restartPill = document.getElementById('restartPill');
-  const standalonePill = document.getElementById('standalonePill');
   const figmaPill = document.getElementById('figmaPill');
   const figmaPillText = document.getElementById('figmaPillText');
 
@@ -360,6 +359,35 @@
   });
 
   /* ──────────────────────────────
+     The list, collapsed
+
+     A sidebar toggle, which is what the top-left of a two-pane layout is for.
+     It replaced an "Open standalone" cell: that opened the prototype
+     full-screen in a new tab, which is not a thing anyone wanted from a
+     gallery whose whole point is the mockup in context.
+
+     Collapsing narrows the sidebar to its own content — the mark and this
+     button — rather than to a chosen width, so there is no rail measurement
+     to keep in sync with what is in it.
+     ────────────────────────────── */
+
+  const SIDEBAR_KEY = 'alva.prototypes.sidebar';
+  const toggleEl = document.getElementById('sidebarToggle');
+
+  function applySidebar(collapsed) {
+    document.documentElement.dataset.sidebar = collapsed ? 'collapsed' : 'expanded';
+    toggleEl.setAttribute('aria-expanded', String(!collapsed));
+    toggleEl.setAttribute('aria-label', collapsed ? 'Expand the list' : 'Collapse the list');
+    fit();
+  }
+
+  toggleEl.addEventListener('click', () => {
+    const collapsed = document.documentElement.dataset.sidebar !== 'collapsed';
+    applySidebar(collapsed);
+    try { localStorage.setItem(SIDEBAR_KEY, collapsed ? '1' : '0'); } catch (e) {}
+  });
+
+  /* ──────────────────────────────
      Routing
      ────────────────────────────── */
 
@@ -395,7 +423,6 @@
     mount(p);
 
     document.title = `${p.title} · Alva prototypes`;
-    standalonePill.href = p.href;
     if (p.figma) {
       figmaPill.href = p.figma.url;
       figmaPillText.textContent = `Figma · ${p.figma.label}`;
@@ -466,6 +493,7 @@
   window.addEventListener('resize', fit);
 
   applyDevice(device);
+  applySidebar((() => { try { return localStorage.getItem(SIDEBAR_KEY) === '1'; } catch (e) { return false; } })());
   route();
   fit();
 })();

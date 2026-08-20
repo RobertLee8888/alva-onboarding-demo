@@ -9,7 +9,7 @@
 <link rel="icon" href="assets/logo-portrait2.svg" type="image/svg+xml">
 <link rel="preload" href="assets/fonts/Delight-Regular.ttf" as="font" type="font/ttf" crossorigin>
 <link rel="preload" href="assets/fonts/Delight-Medium.ttf" as="font" type="font/ttf" crossorigin>
-<link rel="stylesheet" href="shell.css?v=17">
+<link rel="stylesheet" href="shell.css?v=19">
 </head>
 <body>
 
@@ -39,6 +39,10 @@
           <img src="assets/wordmark-text.svg" class="wm-text" alt="Alva">
         </div>
         <h1>Mobile prototypes</h1>
+        <button class="sb-toggle" id="sidebarToggle" aria-expanded="true"
+                aria-controls="sidebar" aria-label="Collapse the list">
+          <img src="assets/icon-menu.svg" alt="">
+        </button>
       </header>
 
       <nav class="proto-list" id="protoList" aria-label="Prototypes"></nav>
@@ -84,14 +88,13 @@
           <!-- shell.js renders one option per entry in DEVICES -->
         </div>
       </div>
-      <button class="tb-cell" id="restartPill">Restart</button>
-      <a class="tb-cell" id="standalonePill" href="#" target="_blank" rel="noopener">Open standalone<span class="tb-ico">↗</span></a>
+      <button class="tb-cell tb-primary" id="restartPill">Restart</button>
     </div>
 
   </main>
 
 </div>
 
-<script src="shell.js?v=17"></script>
+<script src="shell.js?v=19"></script>
 </body>
 </html>

@@ -214,9 +214,12 @@ So, if you add chrome here:
 - **The ground is not white, deliberately.** The phone's screen is the only
   white thing on the page; that is what makes it read as the object rather
   than as another panel.
-- **Exactly one background differs from the ground: the selected list row**
-  (`--l07`, landing on `#e6e6e6`). Nothing else fills — not hover, not an
-  open dropdown trigger, not a hovered toolbar cell. A second fill appearing
+- **Two backgrounds differ from the ground, and both mean something:** the
+  selected list row (`--l07`, landing on `#e6e6e6`) and **Restart**, which is
+  solid black. Restart is the only cell in the toolbar you press to change
+  what is *on screen* rather than what you are *looking at*, so it is the
+  only one that looks pressable. Nothing else fills — not hover, not an open
+  dropdown trigger, not a hovered toolbar cell. A second fill appearing
   under the cursor competes with the one that means something, and reads as
   selection wherever the pointer happens to be. Hover on a row underlines its
   title instead; the rows are links, so that is the honest affordance and it
@@ -241,6 +244,26 @@ So, if you add chrome here:
 Dropping the blur had a second effect worth noting: the chrome's text could go
 back to design-system tokens. The old `rgba(23, 32, 34, 0.55)` on a translucent
 fill measured **3.7:1** — under AA. It is `var(--n7)` now, at 8.5:1.
+
+## Collapsing the list
+
+The toggle beside the wordmark collapses the sidebar to its own contents —
+the mark and the button — so there is no rail width to keep in sync with
+what is left in it (`grid-template-columns: max-content`). The state
+persists, and it only exists above 900px: there is nothing to collapse in a
+one-pane layout, so below the breakpoint the control is absent rather than
+present and inert.
+
+It replaced an **Open standalone** cell, which opened the prototype
+full-screen in its own tab. That is not something a gallery whose whole
+point is the mockup in context has any use for — and the top-left of a
+two-pane layout already has an obvious job.
+
+The wordmark sits 20px from the top and 20px from the left, but the padding
+that produces it is **17**: the header row is 24 tall (the toggle, and the
+title's line box) and centres the 18px mark, which supplies the other 3.
+Aligning the mark to the row's top instead would make the number right and
+put the title's ink 3px below it.
 
 ## The device switcher
 
