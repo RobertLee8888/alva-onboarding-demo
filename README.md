@@ -101,7 +101,32 @@ Each prototype runs in its own `<iframe>`, and the shell mounts exactly one at a
 
 That is deliberate, not a shortcut. The prototypes are full-screen apps that own their document: they set `body { overflow: hidden }`, position themselves `fixed`, and both use the same class names (`.screen`, `.toast`, `.sheet`, `.phone`) and the same element ids. Loading two of them into one document would have them overwrite each other. Giving each its own document means a new prototype can never break an existing one, and each stays openable on its own URL.
 
-**The iframe is laid out at exactly 393 × 852 — one phone screen.** So the prototype always sees a real phone viewport: its own `vh`, its own media queries, its own full-screen mode. The iPhone bezel around it on desktop is drawn by the shell, outside the iframe, and only the bezel is scaled to fit the window — never above 1:1. Inside the iframe the prototype is always in its bare full-screen mode, which is why the phone layout needed nothing removed: there was never a mockup inside it to remove.
+**The iframe is laid out at exactly one phone screen** — see the device switcher below for which. So the prototype always sees a real phone viewport: its own `vh`, its own media queries, its own full-screen mode. The iPhone bezel around it on desktop is drawn by the shell, outside the iframe, and only the bezel is scaled to fit the window — never above 1:1. Inside the iframe the prototype is always in its bare full-screen mode, which is why the phone layout needed nothing removed: there was never a mockup inside it to remove.
+
+## The device switcher
+
+The stage's bottom-right control sets which iPhone the mockup is, so a layout can be read at more than the one size it was drawn at. It is global: the size outlives the prototype you picked it on and survives a reload, because "how does this hold up at 6.9 inches" is a question you ask of the whole gallery, not of one screen.
+
+| | Points | Safe area |
+| --- | --- | --- |
+| **iPhone 17** — the default | 402 × 874 | 62 top · 34 bottom |
+| **iPhone Air** | 420 × 912 | 62 top · 34 bottom |
+| **iPhone 17 Pro Max** | 440 × 956 | 62 top · 34 bottom |
+
+Logical points, portrait — the resolution a layout actually sees, not the pixel count. The 17 and the 17 Pro Max carry the 6.3″ and 6.9″ displays forward unchanged; the Air's 6.5″ is the size that is new this generation.
+
+**The insets are the part that makes this more than a resize.** Both prototypes were built at 393 × 852, whose top inset is 59 — and all three devices here are taller-island ones at 62. A 402-wide frame still padded to 59 would not be an iPhone 17, it would be the old phone stretched, and every screen's content would start 3px too high. So the shell writes the device's insets onto the prototype's own root (same origin, so an inline custom property beats its stylesheet's `:root`). The two prototypes name that variable differently — `--status-h` in Alpha Radar, `--sb-h` in the immersive onboarding — so both are set.
+
+Below 900px none of this applies: there is no mockup and no switcher, the prototype is running on whatever phone is actually in someone's hand, and the overrides are removed so its own values take back over. Handing a real device a chosen device's insets would be worse than not choosing.
+
+**Switching never remounts the iframe.** Remounting would throw away which of the eight screens you are on, and comparing *the same screen* at three sizes is the whole point — so the frame is resized underneath a running prototype and its own layout does the rest. Restart still remounts, and the device survives it.
+
+Two things fell out of building it, both of which had been hardcoded guesses that were only ever right for the row that existed when they were written:
+
+- The stage's reserved bottom band was a flat 62px. It is now measured from the taller of the two chrome bars, because a narrow window wraps the right one onto a second line and the phone was being overlapped.
+- Each bar was capped at `50% - 24px` of the stage. The right bar now takes whatever the left one is not using, which keeps it on one line down to about 1050px instead of wrapping on every laptop.
+
+**Not covered:** a prototype opened standalone still draws its own 393 × 852 mockup. The switcher is shell chrome, and standalone mode is by definition outside the shell.
 
 **Routing is the hash.**
 

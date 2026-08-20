@@ -5,7 +5,9 @@
 
    ≥ 900px   sidebar (the list) + stage (the running prototype).
              The stage draws the iPhone bezel; the iframe inside it is
-             exactly one phone screen, 393 × 852.
+             exactly one phone screen, at whichever iPhone the device
+             switcher is set to. --screen-w / --screen-h are the single
+             source of that size; everything else derives from them.
 
    < 900px   two views, list ⇄ prototype, swapped by [data-view] on
              <html>. The prototype fills the viewport with no bezel and
@@ -42,8 +44,19 @@
   --ease: cubic-bezier(0.32, 0.72, 0, 1);
 
   --sidebar-w: 344px;
-  --phone-w: 425px;   /* 393 + 2×16 bezel */
-  --phone-h: 884px;   /* 852 + 2×16 bezel */
+
+  /* The mounted device. shell.js overwrites this pair from DEVICES; the
+     values here are the default (iPhone 17) so the stage is right on the
+     first paint, before any script has run. */
+  --screen-w: 402px;
+  --screen-h: 874px;
+
+  /* A real iPhone's bezel is a uniform border of the same thickness on
+     every model in a generation, so this is a constant, not a per-device
+     number — the phone box is only ever the screen plus that border. */
+  --bezel: 16px;
+  --phone-w: calc(var(--screen-w) + 2 * var(--bezel));
+  --phone-h: calc(var(--screen-h) + 2 * var(--bezel));
 
   --stage-bg:
     radial-gradient(900px 650px at 80% 0%, rgba(73, 163, 166, 0.15), transparent 60%),
@@ -205,10 +218,15 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   justify-content: center;
   overflow: hidden;
   background: var(--stage-bg);
-  /* The bottom band belongs to the stage chrome. Reserving it here — rather
-     than letting the phone centre on the whole stage — is what keeps a pill
-     from ever landing on top of the phone in a short or narrow window. */
-  padding: 24px 28px 62px;
+  /* The bottom band belongs to the stage chrome. Reserving it — rather than
+     letting the phone centre on the whole stage — is what keeps a pill from
+     ever landing on top of the phone in a short or narrow window.
+
+     Its size is measured, not guessed: shell.js sets --chrome-h from the
+     taller of the two bars. A fixed number was right only for the row that
+     happened to be there when it was written, and a narrow window wraps
+     that row onto a second line. */
+  padding: 24px 28px var(--chrome-h, 62px);
 }
 
 /* scaled by shell.js so the phone always fits, never blown up past 1:1 */
@@ -224,7 +242,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   position: relative;
   width: 100%;
   height: 100%;
-  padding: 16px;
+  padding: var(--bezel);
   border-radius: 68px;
   background: linear-gradient(145deg, #3f4147 0%, #17181c 55%, #3a3c42 100%);
   box-shadow:
@@ -246,8 +264,8 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 
 .phone-screen {
   position: relative;
-  width: 393px;
-  height: 852px;
+  width: var(--screen-w);
+  height: var(--screen-h);
   overflow: hidden;
   border-radius: 54px;
   background: #fff;
@@ -282,10 +300,35 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   display: flex;
   align-items: center;
   gap: 8px;
-  max-width: calc(50% - 24px);
+  /* Half the stage each was right while both bars held one pill. The
+     right one now carries the device switcher too, and an even split
+     wraps it onto a second line on any laptop — so the ceiling is the
+     room the other bar is not using, measured by shell.js. The 50% here
+     is only the pre-script fallback. */
+  max-width: var(--bar-max, calc(50% - 24px));
 }
 .stage-bar-left { left: 20px; }
-.stage-bar-right { right: 20px; }
+.stage-bar-right {
+  right: 20px;
+  /* The device switcher shares this bar with the action pills. Wrapping
+     rather than clipping is the narrow-window behaviour: every pill has
+     overflow:hidden, so a row that overflows would silently eat a label
+     instead of showing there is more. Anchored at the bottom, so it
+     grows upward into the stage's own reserved band. */
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+/* The two actions are one object as far as wrapping is concerned, so a
+   narrow window breaks the bar between what you are looking at and what
+   you can do to it — never through the middle of the action pair, which
+   reads as a broken row rather than two tiers. */
+.stage-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+}
 
 .stage-pill {
   display: inline-flex;
@@ -309,6 +352,81 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 }
 .stage-pill:hover { color: var(--m1); border-color: var(--m1); }
 .pill-ico { flex: none; opacity: 0.6; }
+
+/* ── Device switcher ──
+   A segmented control, so all three sizes are on screen at once and
+   switching is one click — the point of the control is comparing them,
+   and a dropdown or a cycling button would hide the alternatives at
+   exactly the moment you want to see them.
+
+   It reads as a single object rather than three more pills, so the bar
+   keeps its two levels: what you are looking at (this group) and what
+   you can do to it (Restart, Open standalone). */
+
+.device-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  flex: none;
+  padding: 3px;
+  border: 0.5px solid rgba(23, 32, 34, 0.12);
+  border-radius: 960px;
+  background: rgba(255, 255, 255, 0.62);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+.dg-readout {
+  padding: 0 10px 0 8px;
+  border-right: 0.5px solid rgba(23, 32, 34, 0.12);
+  margin-right: 3px;
+  /* n5 measured 3.9:1 here — under AA on 11px text, which is exactly the
+     size that cannot afford it. The readout stays subordinate to the
+     segments by being smaller and set behind a divider, not by being
+     harder to read. */
+  color: var(--n7);
+  font-size: 11px;
+  line-height: 24px;
+  white-space: nowrap;
+  /* all three sizes are three digits by three digits, so tabular figures
+     make the readout a fixed width — it states the size without the bar
+     twitching every time you switch */
+  font-variant-numeric: tabular-nums;
+}
+
+.dg-seg {
+  padding: 3px 10px;
+  border-radius: 960px;
+  /* System tokens, and the darker end of them: these are labels you have
+     to read to choose, not decoration. The surrounding pills' own
+     rgba(23,32,34,.55) measures 3.3:1, under AA — copying it here would
+     have carried that into the one control whose whole job is to be
+     read. */
+  color: var(--n7);
+  font-size: 12px;
+  line-height: 18px;
+  white-space: nowrap;
+  transition: color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+.dg-seg:hover { color: var(--m1); }
+.dg-seg:focus-visible { outline: 2px solid var(--m1); outline-offset: 1px; }
+
+.dg-seg[aria-checked='true'] {
+  background: #fff;
+  /* The white fill and the shadow are what say "selected" — so the text
+     can be the most legible thing in the bar rather than the brand teal,
+     which is only 3.0:1 on white. Selection is not carried by colour
+     alone either way. */
+  color: var(--n9);
+  box-shadow: 0 1px 2px rgba(23, 32, 34, 0.06);
+}
+
+/* Below roughly 1150px the bar would rather wrap than keep the readout,
+   and the selected segment already answers "which device" — the exact
+   point size is the part you can afford to lose first. */
+@media (max-width: 1149px) {
+  .dg-readout { display: none; }
+}
 
 /* ─────────────────────────────────────────────
    Two-view layout — list ⇄ prototype
@@ -400,7 +518,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
    own width and the stage shows through around it. */
 @media (min-width: 560px) and (max-width: 899px) {
   .stage { background: var(--stage-bg); }
-  .phone { width: 393px; margin: 0 auto; }
+  .phone { width: var(--screen-w); margin: 0 auto; }
 }
 
 @media (prefers-reduced-motion: reduce) {
