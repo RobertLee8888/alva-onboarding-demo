@@ -41,6 +41,7 @@
   --l12: rgba(0, 0, 0, 0.12);
   --br03: rgba(0, 0, 0, 0.03);
   --r-ct-l: 8px;
+  --r-btn-m: 6px;
   --ease: cubic-bezier(0.32, 0.72, 0, 1);
 
   --sidebar-w: 344px;
@@ -58,10 +59,13 @@
   --phone-w: calc(var(--screen-w) + 2 * var(--bezel));
   --phone-h: calc(var(--screen-h) + 2 * var(--bezel));
 
-  --stage-bg:
-    radial-gradient(900px 650px at 80% 0%, rgba(73, 163, 166, 0.15), transparent 60%),
-    radial-gradient(800px 600px at 8% 110%, rgba(73, 163, 166, 0.10), transparent 58%),
-    linear-gradient(180deg, #eef1f2 0%, #e3e7e9 100%);
+  /* Flat surfaces. The page used to carry five gradients — two teal radials
+     on the stage, one on the sidebar, and two vertical washes — which put
+     atmosphere everywhere and so left the phone nothing to stand out
+     against. The only depth on the page now is the mockup's own shadow, and
+     separation is hairlines. This is a token over white, not a new colour:
+     br03 lands on #f7f7f7. */
+  --stage-bg: var(--br03);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -72,7 +76,7 @@ body {
   font-family: 'Delight', -apple-system, 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
   letter-spacing: 0.01em;
   color: var(--n9);
-  background: #eef1f2;
+  background: #fff;
   overflow: hidden;
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
@@ -101,9 +105,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   position: relative;
   overflow: hidden;
   border-right: 0.5px solid var(--l12);
-  background:
-    radial-gradient(520px 420px at 100% 0%, rgba(73, 163, 166, 0.10), transparent 62%),
-    linear-gradient(180deg, #f7f9f9 0%, #eef2f2 100%);
+  background: #fff;
 }
 .sidebar-scroll {
   height: 100%;
@@ -112,7 +114,13 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   padding: 40px 20px 28px;
 }
 
-.sb-head { padding: 0 4px; margin-bottom: 24px; }
+/* The header, the list and the footer are three bands, and a line is what
+   says so. */
+.sb-head {
+  padding: 0 4px 20px;
+  margin-bottom: 4px;
+  border-bottom: 0.5px solid var(--l07);
+}
 .wordmark {
   display: flex;
   align-items: center;
@@ -138,34 +146,45 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 
 /* ── List items ── */
 
+/* Rows, not cards. A stack of bordered, shadowed, rounded, gapped cards is
+   four pieces of chrome saying the one thing a single hairline already
+   says. */
 .proto-list {
   display: flex;
   flex-direction: column;
-  gap: 4px;
 }
 
 .proto-item {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 14px 14px 15px;
-  border: 0.5px solid transparent;
-  border-radius: var(--r-ct-l);
+  padding: 14px 10px 15px;
+  border: 0;
+  border-bottom: 0.5px solid var(--l07);
   text-decoration: none;
   color: inherit;
-  transition: background 0.18s ease, border-color 0.18s ease,
-              box-shadow 0.18s ease, transform 0.18s var(--ease);
+  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
 }
-.proto-item:hover { background: rgba(255, 255, 255, 0.72); }
-.proto-item:active { transform: scale(0.995); }
-.proto-item:focus-visible { outline: 2px solid var(--m1); outline-offset: 2px; }
+.proto-item:last-child { border-bottom: 0; }
 
+/* An unselected row sits back a step and brightens on hover, so the state is
+   carried by text contrast rather than by a surface appearing under the
+   cursor. */
+.proto-item .pi-title { color: var(--n7); }
+.proto-item .pi-sub { color: var(--n5); }
+
+.proto-item:hover { background: var(--br03); }
+.proto-item:hover .pi-title { color: var(--n9); }
+.proto-item:focus-visible { outline: 2px solid var(--m1); outline-offset: -2px; }
+
+/* Selected: a 2px rule on the leading edge and full-strength text. The rule
+   is an inset shadow, so it costs no layout and nothing shifts. */
 .proto-item[aria-current='true'] {
-  background: #fff;
-  border-color: rgba(73, 163, 166, 0.45);
-  box-shadow: 0 1px 2px rgba(23, 32, 34, 0.04),
-              0 8px 20px -14px rgba(23, 32, 34, 0.22);
+  background: var(--br03);
+  box-shadow: inset 2px 0 0 0 var(--m1);
 }
+.proto-item[aria-current='true'] .pi-title { color: var(--n9); }
+.proto-item[aria-current='true'] .pi-sub { color: var(--n7); }
 
 /* spans inside an <a> must be blockified to stack */
 .pi-body { display: block; flex: 1; min-width: 0; }
@@ -175,13 +194,11 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   font-weight: 500;
   font-size: 15px;
   line-height: 22px;
-  color: var(--n9);
 }
 .pi-sub {
   margin-top: 1px;
   font-size: 13px;
   line-height: 19px;
-  color: var(--n7);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -200,8 +217,9 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 .pi-go { display: none; }
 
 .sb-foot {
-  margin-top: 20px;
-  padding: 0 4px;
+  margin-top: 4px;
+  padding: 16px 4px 0;
+  border-top: 0.5px solid var(--l07);
   font-size: 11px;
   line-height: 18px;
   color: var(--n5);
@@ -245,12 +263,15 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   padding: var(--bezel);
   border-radius: 68px;
   background: linear-gradient(145deg, #3f4147 0%, #17181c 55%, #3a3c42 100%);
+  /* The one object on the page allowed to have depth — which is the whole
+     point of taking it away from everything else. Two atmospheric drop
+     shadows became one, because on a flat ground a single soft shadow reads
+     as "this floats" and a stack of them reads as "this page is glossy". */
   box-shadow:
     inset 0 0 3px 1px rgba(255, 255, 255, 0.28),
     inset 0 0 2px 5px rgba(255, 255, 255, 0.09),
     0 0 0 1px rgba(0, 0, 0, 0.55),
-    0 30px 60px -12px rgba(23, 32, 34, 0.45),
-    0 80px 120px -30px rgba(23, 32, 34, 0.35);
+    0 24px 60px -16px rgba(23, 32, 34, 0.28);
 }
 .phone-buttons .pb {
   position: absolute;
@@ -294,6 +315,20 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 
 /* ── Stage chrome (desktop only) ── */
 
+/* One line across the reserved band, so the two clusters of controls read as
+   a single toolbar rather than as pills floating in the corners — and so the
+   mockup has a floor to sit above rather than ending in mid-air. */
+.stage::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: var(--chrome-h, 62px);
+  left: 0;
+  height: 0.5px;
+  background: var(--l07);
+  pointer-events: none;
+}
+
 .stage-bar {
   position: absolute;
   bottom: 18px;
@@ -335,13 +370,15 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   align-items: center;
   gap: 6px;
   max-width: 100%;
-  padding: 6px 14px;
-  border: 0.5px solid rgba(23, 32, 34, 0.12);
-  border-radius: 960px;
-  background: rgba(255, 255, 255, 0.62);
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
-  color: rgba(23, 32, 34, 0.55);
+  padding: 6px 12px;
+  border: 0.5px solid var(--l12);
+  border-radius: var(--r-btn-m);
+  background: #fff;
+  /* Translucency + blur is a way of belonging to a busy ground. The ground
+     is flat now, so the pill can simply be a pill: solid fill, hairline,
+     square-ish corners. Dropping the blur also lets the text be a token —
+     the old rgba(23,32,34,.55) measured 3.7:1, under AA. */
+  color: var(--n7);
   font-size: 12px;
   line-height: 18px;
   text-decoration: none;
@@ -369,16 +406,17 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   gap: 2px;
   flex: none;
   padding: 3px;
-  border: 0.5px solid rgba(23, 32, 34, 0.12);
-  border-radius: 960px;
-  background: rgba(255, 255, 255, 0.62);
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
+  border: 0.5px solid var(--l12);
+  border-radius: var(--r-btn-m);
+  /* Grey track, white thumb. Inverted — white group, grey thumb — the
+     selected segment is the darkest thing in the control and reads as the
+     disabled one. */
+  background: var(--br03);
 }
 
 .dg-readout {
   padding: 0 10px 0 8px;
-  border-right: 0.5px solid rgba(23, 32, 34, 0.12);
+  border-right: 0.5px solid var(--l07);
   margin-right: 3px;
   /* n5 measured 3.9:1 here — under AA on 11px text, which is exactly the
      size that cannot afford it. The readout stays subordinate to the
@@ -394,9 +432,11 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   font-variant-numeric: tabular-nums;
 }
 
+/* Nested radius is the outer minus its padding: 6 − 3 = 4, per the Alva
+   nesting rule, so the segment's corner sits concentric inside the group's. */
 .dg-seg {
   padding: 3px 10px;
-  border-radius: 960px;
+  border-radius: 4px;
   /* System tokens, and the darker end of them: these are labels you have
      to read to choose, not decoration. The surrounding pills' own
      rgba(23,32,34,.55) measures 3.3:1, under AA — copying it here would
@@ -418,7 +458,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
      which is only 3.0:1 on white. Selection is not carried by colour
      alone either way. */
   color: var(--n9);
-  box-shadow: 0 1px 2px rgba(23, 32, 34, 0.06);
+  box-shadow: inset 0 0 0 0.5px var(--l07);
 }
 
 /* Below roughly 1150px the bar would rather wrap than keep the readout,
@@ -445,32 +485,34 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 
   .sidebar {
     border-right: 0;
-    background:
-      radial-gradient(1100px 720px at 86% 6%, rgba(73, 163, 166, 0.20), transparent 62%),
-      radial-gradient(820px 640px at 2% 98%, rgba(73, 163, 166, 0.13), transparent 58%),
-      linear-gradient(180deg, #f2f5f5 0%, #e5eaeb 100%);
+    background: #fff;
   }
   .sidebar-scroll {
     padding: 56px 20px calc(48px + env(safe-area-inset-bottom));
     max-width: 620px;
     margin: 0 auto;
   }
-  .sb-head { margin-bottom: 32px; }
+  .sb-head { padding-bottom: 24px; margin-bottom: 4px; }
   .sb-head h1 { font-size: 28px; line-height: 38px; }
   .sb-sub { font-size: 14px; line-height: 22px; max-width: 42ch; }
 
-  .proto-list { gap: 12px; }
+  .proto-list { gap: 0; }
 
+  /* Full-bleed rows on a phone: the divider runs edge to edge, so it reads as
+     a list rather than as cards that happen to be touching. */
   .proto-item {
     gap: 14px;
-    padding: 20px;
-    background: rgba(255, 255, 255, 0.78);
-    -webkit-backdrop-filter: blur(10px);
-    backdrop-filter: blur(10px);
-    border-color: var(--l12);
-    box-shadow: 0 1px 2px rgba(23, 32, 34, 0.03);
+    padding: 20px 4px;
+    background: none;
+    border-bottom: 0.5px solid var(--l07);
   }
-  .proto-item[aria-current='true'] { background: rgba(255, 255, 255, 0.78); }
+  .proto-item .pi-title,
+  .proto-item[aria-current='true'] .pi-title { color: var(--n9); }
+  .proto-item .pi-sub,
+  .proto-item[aria-current='true'] .pi-sub { color: var(--n7); }
+  /* nothing is "current" while you are reading the list on a phone — the
+     selected row only means something when both halves are on screen */
+  .proto-item[aria-current='true'] { background: none; box-shadow: none; }
   .pi-title { font-size: 18px; line-height: 28px; }
   .pi-sub { font-size: 14px; line-height: 22px; -webkit-line-clamp: 3; }
   .pi-meta { margin-top: 10px; font-size: 12px; line-height: 20px; }
@@ -479,14 +521,13 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
     display: grid;
     place-items: center;
     flex: none;
-    width: 28px;
-    height: 28px;
-    border-radius: 960px;
-    background: rgba(73, 163, 166, 0.10);
+    width: 20px;
+    height: 20px;
+    opacity: 0.35;
   }
   .pi-go img { width: 9px; height: 9px; transform: rotate(135deg) scaleX(-1); }
 
-  .sb-foot { margin-top: 28px; font-size: 12px; line-height: 20px; }
+  .sb-foot { margin-top: 4px; padding-top: 20px; font-size: 12px; line-height: 20px; }
 
   /* ── Prototype view: it is already running on a phone.
         No bezel, no stage chrome, nothing but the prototype. ── */
@@ -505,6 +546,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   }
   .phone-buttons,
   .stage-bar { display: none; }
+  .stage::after { display: none; }
   .phone-screen {
     width: 100%;
     height: 100%;

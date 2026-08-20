@@ -160,6 +160,36 @@ That is deliberate, not a shortcut. The prototypes are full-screen apps that own
 
 **The iframe is laid out at exactly one phone screen** — see the device switcher below for which. So the prototype always sees a real phone viewport: its own `vh`, its own media queries, its own full-screen mode. The iPhone bezel around it on desktop is drawn by the shell, outside the iframe, and only the bezel is scaled to fit the window — never above 1:1. Inside the iframe the prototype is always in its bare full-screen mode, which is why the phone layout needed nothing removed: there was never a mockup inside it to remove.
 
+## One object has depth
+
+The shell is deliberately flat, and there is a rule behind it: **the mockup is
+the only thing on the page allowed to have depth.** Everything else is a flat
+surface separated by hairlines.
+
+It used to carry five gradients — two teal radials on the stage, one on the
+sidebar, and two vertical washes — plus shadowed, rounded, gapped cards in the
+list and translucent blurred pills in the chrome. All of it was atmosphere,
+and atmosphere everywhere is the same as atmosphere nowhere: the phone had
+nothing to stand out against.
+
+So, if you add chrome here:
+
+- **Surfaces are flat.** `#fff` for the sidebar, `var(--br03)` (which lands on
+  `#f7f7f7`) for the stage. No gradient, no blur, no translucency.
+- **Hairlines separate things**, not gaps plus borders plus shadows plus radii.
+  `var(--l07)` inside a region, `var(--l12)` between regions.
+- **State is carried by text contrast**, not by a surface appearing. An
+  unselected list row is `--n7` / `--n5` and goes `--n9` on hover; the selected
+  one adds a 2px `--m1` rule on its leading edge, drawn as an inset shadow so
+  it costs no layout.
+- **The one shadow left is the phone's**, and it is one soft drop rather than
+  the two atmospheric ones it had. On a flat ground a single shadow reads as
+  "this floats"; a stack of them reads as "this page is glossy".
+
+Dropping the blur had a second effect worth noting: the chrome's text could go
+back to design-system tokens. The old `rgba(23, 32, 34, 0.55)` on a translucent
+fill measured **3.7:1** — under AA. It is `var(--n7)` now, at 8.5:1.
+
 ## The device switcher
 
 The stage's bottom-right control sets which iPhone the mockup is, so a layout can be read at more than the one size it was drawn at. It is global: the size outlives the prototype you picked it on and survives a reload, because "how does this hold up at 6.9 inches" is a question you ask of the whole gallery, not of one screen.
