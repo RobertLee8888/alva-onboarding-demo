@@ -95,6 +95,63 @@ In the demo, members are drawn from the screen's own account list (Win Rate Top 
 
 **Still open** (carried over from the design file): the file's per-screen individual counts (12 / 8 / 5) no longer describe a default, since the pickers open with the collection alone.
 
+## Intro screen · the three height regimes
+
+The intro screen is the model for an adaptive screen here, so it is worth
+reading before you build one. Everything below its teal stage is fixed —
+Hero 270, CTA 80, home indicator 34, **384** in total — and the record card is
+always 380 and always sits on the stage's bottom edge. That makes the stage
+the only elastic part, and **where its surplus goes is the whole design.**
+
+| Regime | Viewport `H` | Stage | Card | Page |
+| --- | --- | --- | --- | --- |
+| **完整档** | `H ≥ 780` | `H − 384` | whole 380 | — |
+| **临界前** | `762 ≤ H < 780` | `H − 384`, i.e. 378–396 | bottom cropped `780 − H`, so 0–18 | — |
+| **低于临界** | `H < 762` | 378, floored | bottom cropped 18 | scrolls `762 − H` |
+
+Figma: [完整档 430×932](https://www.figma.com/design/DJ9Acp13FruTilsTdrE0id/Draft?node-id=14207-213002)
+· [临界前 393×762](https://www.figma.com/design/DJ9Acp13FruTilsTdrE0id/Draft?node-id=14207-213106)
+· [低于临界 393×660](https://www.figma.com/design/DJ9Acp13FruTilsTdrE0id/Draft?node-id=14207-212889)
+
+Three properties carry it, and each one is load-bearing:
+
+```css
+.intro-stage { flex: 1 1 auto; min-height: 378px; overflow: hidden; }
+.intro-gap   { flex: 1 0 0;    min-height: 16px; }   /* above the card */
+.record-card { flex: none;     height: 380px; }
+```
+
+- **`flex: 1 1 auto` on the stage, not `1 0 auto`.** Shrink has to be on, or
+  the stage never goes below its own 396 of content, the crop regime never
+  happens, and the page starts scrolling 18px early.
+- **`min-height: 378px` is the floor**, and 378 is `16 + 380 − 18`. 18 is as
+  deep as the crop is allowed to go, because that is where it reaches the
+  card's own top padding — one more pixel and it bites into content. Below
+  the floor the page scrolls instead of cropping further.
+- **`flex: 1 0 0` on the gap** (grow, *never* shrink) is what sends the
+  surplus above the card rather than below it. At 430 × 932 that is 168px of
+  teal; at 440 × 956 it is 192.
+
+Two consequences worth knowing:
+
+**The CTA is in flow on this screen**, not the pinned `.action-bar` every
+other screen uses. `CTA · 吸底` means "last in the stack, hugging the bottom",
+not `position: fixed` — below the critical height the *whole page* scrolls,
+CTA included, which is what `整页可滚` says.
+
+**The headline carries no `<br>`.** A forced break is a width-derived literal
+in the same family as a fixed height: 393 breaks after "around" and 430 breaks
+after "what", and both Figma frames reproduce only if the text is allowed to
+wrap. It has to stay two lines at every width, though — the Hero's 270 is what
+the stage's elasticity is measured against, so a third line would move every
+threshold.
+
+**Open, for Robert:** between roughly 780 and 842 the gap is smaller than the
+status bar, so the OS chrome overlaps the card's top edge — at 393 × 812 (a
+13 mini) by 11px. None of the three demo frames draws a status bar, so the
+design does not say what should happen there. No current switcher device is in
+that band; a mini or an SE is.
+
 ## How the single page holds together
 
 Each prototype runs in its own `<iframe>`, and the shell mounts exactly one at a time.
@@ -260,12 +317,10 @@ Every hit has to be a drawn object's own size. Then open the prototype in the
 shell and click through all three devices on one screen — not three screens at
 one device. The bug you are looking for is a gap that grows.
 
-**Known violation, for reference:** `.intro-stage` in `alpha-radar.css` is
-still `height: 469px`, which is why the Alpha Radar intro screen shows 49px of
-dead space above its CTA on an iPhone 17 and 131px on a 17 Pro Max. Its
-replacement logic is drawn in Figma at
-[14207:212889](https://www.figma.com/design/DJ9Acp13FruTilsTdrE0id/Draft?node-id=14207-212889)
-and is not implemented yet. Do not copy that file's intro screen as a pattern.
+**The worked example** is the Alpha Radar intro screen, which used to be
+`height: 469px` — that is 852 − 384, right at exactly one viewport. It now
+implements the three height regimes below; read it if you need a model for an
+adaptive screen.
 
 ## Run locally
 

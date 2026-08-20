@@ -144,9 +144,35 @@ img { display: block; pointer-events: none; -webkit-user-drag: none; }
 }
 .screen.current,
 .screen.animating { visibility: visible; }
+/* ─────────────────────────────────────────────
+   Intro · the three height regimes
+   Figma 14207:212889 / :213106 / :213002
+
+   Everything below the stage is fixed: Hero 270, CTA 80, indicator 34 —
+   384 in total. The card is 380 and always sits on the stage's bottom edge.
+   So the stage is the only elastic part, and where its surplus goes is the
+   whole design:
+
+     H ≥ 780    完整档 — stage = H − 384, and the surplus opens up ABOVE
+                the card (:213002, 430×932 → 168px of it)
+     762 – 780  临界前 — the gap holds at 16 and the stage crops the card's
+                bottom, 0 → 18px (:213106, 393×762 → cropped 18)
+     H < 762    the crop stops at 18 and the PAGE scrolls instead
+                (:212889, 393×660 → 102px of scroll)
+
+   The old build had `height: 469px` on the stage, which is 852 − 384: right
+   at exactly one viewport and silently wrong at every other, because the
+   surplus landed as dead space above the CTA instead of above the card.
+   ───────────────────────────────────────────── */
+
 .screen.intro {
-  padding: 0 0 calc(var(--home-h) + var(--action-h));
+  /* the CTA is in flow on this screen, so only the indicator is reserved */
+  padding: 0 0 var(--home-h);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
 }
+.screen.intro::-webkit-scrollbar { display: none; }
 .screen.source-step {
   padding-bottom: var(--home-h);
 }
@@ -323,6 +349,15 @@ img { display: block; pointer-events: none; -webkit-user-drag: none; }
   line-height: 20px;
   text-align: center;
 }
+/* The intro's CTA is the last block in the stack rather than a pinned bar,
+   so that below the critical height the whole page scrolls and the CTA comes
+   with it. 16 + 48 = 80, the CTA block's height in all three frames. */
+.intro-action {
+  flex: none;
+  padding: 16px;
+  background: #fff;
+}
+
 .primary-button {
   width: 100%;
   height: 48px;
@@ -532,17 +567,36 @@ img { display: block; pointer-events: none; -webkit-user-drag: none; }
 
 .intro-stage {
   position: relative;
-  height: 469px;
+  display: flex;
+  flex-direction: column;
+  /* Grow into the surplus, and shrink into the crop — min-height is what
+     stops it. Shrink must be ON: with `1 0 auto` the stage never goes below
+     its own 396 of content, so the crop regime never happens and the page
+     starts scrolling 18px too early. */
+  flex: 1 1 auto;
+  /* The floor: 16 (the gap that always stays) + 380 (the card) − 18 (the
+     deepest crop the design allows). Below it the page scrolls rather than
+     eating more of the card — 18 is where the crop reaches the card's own
+     top padding, so it never bites into content. */
+  min-height: 378px;
   overflow: hidden;
-  padding: 112px 16px 0;
+  padding: 0 16px;
   background: var(--m1);
+}
+
+/* Where the surplus goes. basis 0, grow 1, and NO shrink: it opens above the
+   card on a tall screen and holds exactly 16 on a short one. */
+.intro-gap {
+  flex: 1 0 0;
+  min-height: 16px;
 }
 /* The card's top inset is NOT its own padding: the design gives it
    pad [0, 16, 16, 16] and lets 涨幅信息's 4 plus Identity/Payoff's 12 add up to
    the 16 (13241:205621 and every later instance agree). Paying 16 here too
    pushed $AMD down to 32 off the top edge. */
 .record-card {
-  height: 382px;
+  flex: none;
+  height: 380px;
   padding: 0 16px 16px;
   overflow: hidden;
   border-radius: 8px 8px 0 0;
@@ -625,18 +679,22 @@ img { display: block; pointer-events: none; -webkit-user-drag: none; }
   height: 24px;
   background: linear-gradient(transparent, rgba(0,0,0,.05));
 }
+/* 48 + 26 + 8 + 68 + 8 + 44 + 8 + 28 + 32 = 270 — the Hero's height in all
+   three frames. Fixed on purpose: it is what the stage's elasticity is
+   measured against. */
 .intro-copy {
   display: flex;
+  flex: none;
   flex-direction: column;
   gap: 8px;
-  padding: 45px 24px 0;
+  padding: 48px 24px 32px;
 }
-.intro-wordmark { display: flex; align-items: center; gap: 3px; height: 22px; margin-bottom: 1px; }
-.intro-wordmark .wm-symbol { width: 20px; height: 20px; }
-.intro-wordmark .wm-text { width: auto; height: 20px; }
+.intro-wordmark { display: flex; align-items: flex-start; gap: 3px; height: 26px; }
+.intro-wordmark .wm-symbol { width: 18px; height: 18px; }
+.intro-wordmark .wm-text { width: auto; height: 18px; }
 .intro-copy h1 { font-size: 24px; font-weight: 500; line-height: 34px; }
 .intro-copy > p { color: var(--n7); font-size: 14px; line-height: 22px; }
-.source-icons { display: flex; gap: 8px; margin-top: 2px; }
+.source-icons { display: flex; gap: 8px; margin-top: 4px; }
 .source-icon {
   width: 24px;
   height: 24px;

@@ -274,6 +274,7 @@
     return `
       <section class="screen intro" data-step="0">
         <div class="intro-stage">
+          <span class="intro-gap" aria-hidden="true"></span>
           <article class="record-card">
             <div class="record-head">
               <div class="record-identity">
@@ -296,8 +297,8 @@
             <img src="assets/wordmark-symbol.svg" class="wm-symbol" alt="">
             <img src="assets/wordmark-text.svg" class="wm-text" alt="Alva">
           </div>
-          <h1>Build an Alpha Radar around<br>what you follow</h1>
-          <p>Choose the voices, podcasts and market sources Alva<br>should read for you every day.</p>
+          <h1>Build an Alpha Radar around what you follow</h1>
+          <p>Choose the voices, podcasts and market sources Alva should read for you every day.</p>
           <div class="source-icons" aria-label="X, Bloomberg, Reuters, and podcasts">
             <span class="source-icon source-x"><img src="assets/alpha-source-x.svg" alt=""></span>
             <img class="source-icon" src="assets/alpha-source-bloomberg.png" alt="">
@@ -305,7 +306,9 @@
             <img class="source-icon" src="assets/alpha-source-podcast.png" alt="">
           </div>
         </div>
-        ${renderAction('Choose my sources')}
+        <footer class="intro-action">
+          <button class="primary-button" data-primary-action>Choose my sources</button>
+        </footer>
       </section>`;
   }
 
