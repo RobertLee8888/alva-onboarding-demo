@@ -158,9 +158,57 @@
     listEl.appendChild(row);
   });
 
-  const n = items.length;
-  document.getElementById('sbFoot').textContent =
-    `${n} prototype${n === 1 ? '' : 's'} · more will appear here as they are built`;
+  /* ──────────────────────────────
+     Filtering
+
+     The query matches the title, the subtitle and the meta line — everything
+     the row actually shows — so what you searched for is visible in what
+     came back, rather than a row matching on something you cannot see.
+
+     Filtering never touches what is mounted. A prototype you are looking at
+     stays on the stage even when the query hides its row: this is a way to
+     find things, not a way to navigate, and unmounting the stage because a
+     search box no longer lists it would be the search deciding something it
+     was not asked about.
+     ────────────────────────────── */
+
+  const searchEl = document.getElementById('protoSearch');
+  const emptyEl = document.getElementById('protoEmpty');
+  const footEl = document.getElementById('sbFoot');
+  const total = items.length;
+
+  const haystack = new Map(items.map(p =>
+    [p.slug, `${p.title} ${p.subtitle} ${p.meta || ''}`.toLowerCase()]));
+
+  function filterList() {
+    const q = searchEl.value.trim().toLowerCase();
+    let shown = 0;
+
+    rows.forEach((row, slug) => {
+      const hit = !q || haystack.get(slug).includes(q);
+      row.hidden = !hit;
+      if (hit) shown++;
+    });
+
+    emptyEl.hidden = shown > 0;
+    if (!shown) emptyEl.textContent = `No prototypes match “${searchEl.value.trim()}”`;
+
+    footEl.textContent = q
+      ? `${shown} of ${total} prototype${total === 1 ? '' : 's'}`
+      : `${total} prototype${total === 1 ? '' : 's'} · more will appear here as they are built`;
+  }
+
+  searchEl.addEventListener('input', filterList);
+  searchEl.addEventListener('keydown', e => {
+    /* Esc clears rather than a button in the field doing it */
+    if (e.key === 'Escape' && searchEl.value) {
+      e.preventDefault();
+      searchEl.value = '';
+      filterList();
+    }
+  });
+
+  filterList();
 
   /* ──────────────────────────────
      Mounting

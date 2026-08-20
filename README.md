@@ -288,11 +288,37 @@ full-screen in its own tab. That is not something a gallery whose whole
 point is the mockup in context has any use for — and the top-left of a
 two-pane layout already has an obvious job.
 
-The wordmark sits 20px from the top and 20px from the left, but the padding
-that produces it is **17**: the header row is 24 tall (the toggle, and the
-title's line box) and centres the 18px mark, which supplies the other 3.
-Aligning the mark to the row's top instead would make the number right and
-put the title's ink 3px below it.
+**The mark is sized to the title's cap height, not to its font size.**
+"Mobile prototypes" at 16px Medium measures 11.4px cap and 14.8px ink; the
+mark was 18, which is 1.57× that cap and read as a bigger thing sitting
+beside smaller text. `--mark-h: 12px` puts them level — measured ratio 1.05,
+and the mark, the title and `«` all land on an optical centre of 26.
+
+It still sits 20 from the top to match the 20 every block carries on the
+left, but the padding is `calc(20px - (24px - var(--mark-h)) / 2)` rather
+than a number: the header row is 24 tall and centres the mark, supplying the
+rest. Written as the subtraction so it survives the mark changing size.
+
+## Searching the list
+
+The field under the header filters on **the title, the subtitle and the meta
+line** — everything the row actually shows — so what you searched for is
+visible in what came back, rather than a row matching on something you
+cannot see. Case-insensitive, `Esc` clears, and the footer switches from
+"2 prototypes · …" to "1 of 2 prototypes" while a query is active. No match
+gives a real sentence naming the query, not an empty list.
+
+**Filtering never touches what is mounted.** A prototype you are looking at
+stays on the stage even when the query hides its row: this is a way to find
+things, not a way to navigate, and unmounting the stage because a search box
+stopped listing it would be the search deciding something it was not asked
+about.
+
+The field is bare — no border of its own, no radius, no fill, filling its row
+edge to edge. Focus is a teal rule along the bottom edge, drawn as an inset
+shadow so nothing shifts, because a fill would compete with the selected row.
+The UA's clear button is suppressed: it is a small control inside a field,
+which is the shape this shell keeps removing.
 
 ## The device switcher
 

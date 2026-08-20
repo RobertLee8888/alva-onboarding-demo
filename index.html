@@ -9,7 +9,7 @@
 <link rel="icon" href="assets/logo-portrait2.svg" type="image/svg+xml">
 <link rel="preload" href="assets/fonts/Delight-Regular.ttf" as="font" type="font/ttf" crossorigin>
 <link rel="preload" href="assets/fonts/Delight-Medium.ttf" as="font" type="font/ttf" crossorigin>
-<link rel="stylesheet" href="shell.css?v=22">
+<link rel="stylesheet" href="shell.css?v=23">
 </head>
 <body>
 
@@ -44,7 +44,13 @@
                 aria-controls="sidebar" aria-label="Collapse the list">«</button>
       </header>
 
+      <div class="sb-search">
+        <input id="protoSearch" type="search" placeholder="Search prototypes"
+               aria-label="Search prototypes" autocomplete="off" spellcheck="false">
+      </div>
+
       <nav class="proto-list" id="protoList" aria-label="Prototypes"></nav>
+      <p class="sb-empty" id="protoEmpty" hidden></p>
 
       <p class="sb-foot" id="sbFoot"></p>
 
@@ -94,6 +100,6 @@
 
 </div>
 
-<script src="shell.js?v=22"></script>
+<script src="shell.js?v=23"></script>
 </body>
 </html>

@@ -53,6 +53,12 @@
 
   --sidebar-w: 344px;
 
+  /* The wordmark, matched to the title's CAP HEIGHT rather than to its font
+     size. "Mobile prototypes" at 16px Medium measures 11.4px cap and 14.8px
+     ink; the mark used to be 18, which is 1.57× that cap and read as a
+     bigger thing sitting beside smaller text. 12 puts them level. */
+  --mark-h: 12px;
+
   /* The mounted device. shell.js overwrites this pair from DEVICES; the
      values here are the default (iPhone 17) so the stage is right on the
      first paint, before any script has run. */
@@ -135,13 +141,14 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
      fill and its divider both reach the sidebar's edges — otherwise the row
      is a card floating in a container, which is the shape being removed.
 
-     17 on top, not 20, to put the MARK 20 from the top — matching the 20
-     each block carries on the left, so it reads as equidistant from both
-     edges. The header row is 24 tall (the toggle, and the title's line box)
-     and centres the 18px mark inside it, which supplies the other 3.
-     Aligning the mark to the row's top instead would fix the number and
-     break what it sits next to: the title's ink would then be 3px below it. */
-  padding: 17px 0 28px;
+     The MARK sits 20 from the top, matching the 20 each block carries on the
+     left, so it reads as equidistant from both edges. The padding is less
+     than 20 because the header row is 24 tall (the toggle, and the title's
+     line box) and centres the mark in it, which supplies the rest — hence
+     the subtraction rather than a bare number, so it survives the mark
+     changing size. Aligning the mark to the row's top instead would make the
+     number right and put the title's ink below it. */
+  padding: calc(20px - (24px - var(--mark-h)) / 2) 0 28px;
 }
 
 /* The header, the list and the footer are three bands, and a line is what
@@ -164,7 +171,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   display: flex;
   align-items: center;
   flex: none;
-  height: 18px;
+  height: var(--mark-h);
   gap: 3.5px;
   transition: opacity 0.15s ease;
 }
@@ -195,8 +202,48 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 }
 .sb-collapse:hover { color: var(--n9); }
 .sb-collapse:focus-visible { outline: 2px solid var(--m1); outline-offset: 0; }
-.wm-symbol { height: 17.7px; width: auto; }
-.wm-text { height: 18px; width: auto; }
+/* The symbol is a hair shorter than the text in the source art; keep that
+   ratio rather than setting both to one number. */
+.wm-symbol { height: calc(var(--mark-h) * 0.983); width: auto; }
+.wm-text { height: var(--mark-h); width: auto; }
+
+/* ── Search ──
+   A bare field filling its row, edge to edge. Not an input with a border and
+   a radius inside a padded container — that is the shape this shell spent the
+   day removing. Focus is a teal rule along the bottom edge, drawn as an inset
+   shadow so nothing shifts, because a fill would compete with the selected
+   row. */
+.sb-search {
+  border-bottom: 0.5px solid var(--line);
+  transition: box-shadow 0.15s ease;
+}
+.sb-search:focus-within { box-shadow: inset 0 -1.5px 0 0 var(--m1); }
+.sb-search input {
+  display: block;
+  width: 100%;
+  padding: 13px 20px;
+  border: 0;
+  background: none;
+  color: var(--n9);
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 20px;
+  letter-spacing: inherit;
+}
+.sb-search input::placeholder { color: var(--n7); }
+.sb-search input:focus { outline: 0; }
+/* the UA's clear button is a small control inside a field — the exact shape
+   being avoided here. Esc clears instead. */
+.sb-search input::-webkit-search-cancel-button,
+.sb-search input::-webkit-search-decoration { -webkit-appearance: none; display: none; }
+
+.sb-empty {
+  padding: 20px;
+  border-bottom: 0.5px solid var(--line);
+  color: var(--n7);
+  font-size: 13px;
+  line-height: 20px;
+}
 
 /* Sized to sit level with the 18px wordmark rather than to be a page
    heading — the mockup is what the page is about. */
@@ -287,9 +334,11 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 .pi-go { display: none; }
 
 .sb-foot {
+  /* No rule of its own: the line above it is the last row's bottom border,
+     which is also what keeps filtering from leaving a stray line where a
+     hidden row used to be. */
   margin-top: 0;
   padding: 16px 20px 0;
-  border-top: 0.5px solid var(--line);
   font-size: 11px;
   line-height: 18px;
   color: var(--n7);
@@ -314,7 +363,9 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   html[data-sidebar='collapsed'] .sidebar-scroll { overflow: visible; }
   html[data-sidebar='collapsed'] .sb-head { border-bottom: 0; }
   html[data-sidebar='collapsed'] .sb-head h1,
+  html[data-sidebar='collapsed'] .sb-search,
   html[data-sidebar='collapsed'] .proto-list,
+  html[data-sidebar='collapsed'] .sb-empty,
   html[data-sidebar='collapsed'] .sb-foot { display: none; }
 
   html[data-sidebar='collapsed'] .brand {
@@ -602,7 +653,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
     border-right: 0;
   }
   .sidebar-scroll {
-    padding: 17px 0 calc(48px + env(safe-area-inset-bottom));
+    padding: calc(20px - (24px - var(--mark-h)) / 2) 0 calc(48px + env(safe-area-inset-bottom));
     max-width: 620px;
     margin: 0 auto;
   }
