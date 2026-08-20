@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-<title>Alva · Prototypes</title>
-<meta name="description" content="Interactive design prototypes for Alva — a list on the left, the running prototype on the right.">
+<title>Alva · Mobile prototypes</title>
+<meta name="description" content="Interactive mobile design prototypes for Alva — a list on the left, the running prototype on the right.">
 <meta name="theme-color" content="#ffffff">
 <link rel="icon" href="assets/logo-portrait2.svg" type="image/svg+xml">
 <link rel="preload" href="assets/fonts/Delight-Regular.ttf" as="font" type="font/ttf" crossorigin>
 <link rel="preload" href="assets/fonts/Delight-Medium.ttf" as="font" type="font/ttf" crossorigin>
-<link rel="stylesheet" href="shell.css?v=13">
+<link rel="stylesheet" href="shell.css?v=15">
 </head>
 <body>
 
@@ -38,8 +38,7 @@
           <img src="assets/wordmark-symbol.svg" class="wm-symbol" alt="">
           <img src="assets/wordmark-text.svg" class="wm-text" alt="Alva">
         </div>
-        <h1>Prototypes</h1>
-        <p class="sb-sub">Interactive design explorations. Each one is self-contained — open it, click through it, come back.</p>
+        <h1>Mobile prototypes</h1>
       </header>
 
       <nav class="proto-list" id="protoList" aria-label="Prototypes"></nav>
@@ -73,9 +72,17 @@
       <a class="tb-cell tb-grow" id="figmaPill" href="#" target="_blank" rel="noopener" hidden>
         <span id="figmaPillText">Figma source</span><span class="tb-ico">↗</span>
       </a>
-      <div class="tb-devices" role="radiogroup" aria-label="Phone size" id="deviceGroup">
-        <span class="tb-readout" id="deviceReadout"></span>
-        <!-- shell.js renders one cell per entry in DEVICES -->
+      <div class="tb-select" id="deviceGroup">
+        <button class="tb-cell tb-trigger" id="deviceTrigger"
+                aria-haspopup="listbox" aria-expanded="false" aria-label="Phone size">
+          <span class="tb-label">
+            <span class="tb-sizer" id="deviceSizer" aria-hidden="true"></span>
+            <span id="deviceLabel"></span>
+          </span><span class="tb-caret" aria-hidden="true">▾</span>
+        </button>
+        <div class="tb-menu" id="deviceMenu" role="listbox" aria-label="Phone size" hidden>
+          <!-- shell.js renders one option per entry in DEVICES -->
+        </div>
       </div>
       <button class="tb-cell" id="restartPill">Restart</button>
       <a class="tb-cell" id="standalonePill" href="#" target="_blank" rel="noopener">Open standalone<span class="tb-ico">↗</span></a>
@@ -85,6 +92,6 @@
 
 </div>
 
-<script src="shell.js?v=13"></script>
+<script src="shell.js?v=15"></script>
 </body>
 </html>

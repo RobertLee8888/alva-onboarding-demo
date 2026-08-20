@@ -95,7 +95,7 @@ In the demo, members are drawn from the screen's own account list (Win Rate Top 
 
 **Still open** (carried over from the design file): the file's per-screen individual counts (12 / 8 / 5) no longer describe a default, since the pickers open with the collection alone.
 
-## Intro screen · the three height regimes
+## Intro screen · the two height tiers
 
 The intro screen is the model for an adaptive screen here, so it is worth
 reading before you build one. Everything below its teal stage is fixed —
@@ -103,11 +103,21 @@ Hero 270, CTA 80, home indicator 34, **384** in total — and the record card is
 always 380 and always sits on the stage's bottom edge. That makes the stage
 the only elastic part, and **where its surplus goes is the whole design.**
 
-| Regime | Viewport `H` | Stage | Card | Page |
-| --- | --- | --- | --- | --- |
-| **完整档** | `H ≥ 780` | `H − 384` | whole 380 | — |
-| **临界前** | `762 ≤ H < 780` | `H − 384`, i.e. 378–396 | bottom cropped `780 − H`, so 0–18 | — |
-| **低于临界** | `H < 762` | 378, floored | bottom cropped 18 | scrolls `762 − H` |
+The gap above the card never shrinks below **the status bar's height plus
+16**, which is what keeps the white card from ending up under the OS clock.
+At a 62pt bar that floor is 78, so the critical viewport is
+`78 + 380 + 384 = 842`:
+
+| Tier | Viewport `H` | Stage | Card |
+| --- | --- | --- | --- |
+| **完整档** | `H ≥ 842` | `H − 384` | whole 380, surplus opens above it |
+| **压缩档** | `H < 842` | `H − 384` | bottom cropped `842 − H` |
+
+The three demo frames draw no status bar, so their labels are the
+status-bar-less case — floor 16, critical 780, crops of 18 and 120. On a real
+62pt device those same viewports crop 80 and 182. Two of the frames
+(`:213106` cropped 18, `:212889` cropped 120) are samples of the *same* tier,
+not two tiers.
 
 Figma: [完整档 430×932](https://www.figma.com/design/DJ9Acp13FruTilsTdrE0id/Draft?node-id=14207-213002)
 · [临界前 393×762](https://www.figma.com/design/DJ9Acp13FruTilsTdrE0id/Draft?node-id=14207-213106)
@@ -116,21 +126,26 @@ Figma: [完整档 430×932](https://www.figma.com/design/DJ9Acp13FruTilsTdrE0id/
 Three properties carry it, and each one is load-bearing:
 
 ```css
-.intro-stage { flex: 1 1 auto; min-height: 378px; overflow: hidden; }
-.intro-gap   { flex: 1 0 0;    min-height: 16px; }   /* above the card */
+.intro-stage { flex: 1 1 auto; min-height: calc(var(--status-h) + 16px); overflow: hidden; }
+.intro-gap   { flex: 1 0 0;    min-height: calc(var(--status-h) + 16px); }
 .record-card { flex: none;     height: 380px; }
 ```
 
 - **`flex: 1 1 auto` on the stage, not `1 0 auto`.** Shrink has to be on, or
-  the stage never goes below its own 396 of content, the crop regime never
-  happens, and the page starts scrolling 18px early.
-- **`min-height: 378px` is the floor**, and 378 is `16 + 380 − 18`. 18 is as
-  deep as the crop is allowed to go, because that is where it reaches the
-  card's own top padding — one more pixel and it bites into content. Below
-  the floor the page scrolls instead of cropping further.
+  the stage never goes below its own content height, the crop tier never
+  happens, and the screen starts overflowing early instead. This is the kind
+  of bug where the tall case looks perfect and only the short case is wrong.
 - **`flex: 1 0 0` on the gap** (grow, *never* shrink) is what sends the
   surplus above the card rather than below it. At 430 × 932 that is 168px of
   teal; at 440 × 956 it is 192.
+- **The floor is `var(--status-h) + 16`, never a literal.** The bar's own
+  height so the card starts below the OS chrome instead of under it, and 16
+  more so it clears it rather than sits flush. It has to be the variable
+  because the shell writes each device's real inset into it and a real phone
+  supplies its own — a literal 62 would be right for three devices and wrong
+  for every other. Measured at a 62pt bar: 402 × 842 gives gap 78 / crop 0,
+  402 × 812 gives gap 78 / crop 30, and the clearance between bar and card is
+  16 at every height. It used to be −11 at 393 × 812.
 
 Two consequences worth knowing:
 

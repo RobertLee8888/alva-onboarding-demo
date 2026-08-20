@@ -124,32 +124,37 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 
 /* The header, the list and the footer are three bands, and a line is what
    says so. */
+/* Brand and page on one line, divided by a rule. Two rows of identity plus a
+   two-line subtitle was three horizontal breaks before the list started; the
+   rule marks brand-vs-page without implying they are the same kind of thing,
+   which is what a dot-separated line would have done (U11). */
 .sb-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   padding: 0 20px 20px;
-  margin-bottom: 0;
   border-bottom: 0.5px solid var(--l07);
 }
 .wordmark {
   display: flex;
   align-items: center;
+  flex: none;
   height: 18px;
   gap: 3.5px;
-  margin-bottom: 22px;
 }
 .wm-symbol { height: 17.7px; width: auto; }
 .wm-text { height: 18px; width: auto; }
 
+/* Sized to sit level with the 18px wordmark rather than to be a page
+   heading — the mockup is what the page is about. */
 .sb-head h1 {
-  font-weight: 500;
-  font-size: 24px;
-  line-height: 32px;
+  padding-left: 12px;
+  border-left: 0.5px solid var(--l12);
   color: var(--n9);
-}
-.sb-sub {
-  margin-top: 4px;
-  font-size: 13px;
-  line-height: 20px;
-  color: var(--n7);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+  white-space: nowrap;
 }
 
 /* ── List items ── */
@@ -344,9 +349,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   background: #fff;
 }
 
-.tb-cell,
-.tb-readout,
-.tb-seg {
+.tb-cell {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -385,36 +388,89 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 .tb-cell:focus-visible { outline: 2px solid var(--m1); outline-offset: -2px; }
 .tb-ico { flex: none; opacity: 0.5; text-transform: none; }
 
-/* Device switcher — three cells, same hairlines as everything else. Not a
-   track with a thumb: that was a container with a small button in it. */
-.tb-devices {
+/* Device switcher — one cell that opens a menu.
+
+   It was a readout cell plus three segment cells: four cells to express one
+   choice, and the size and the model were separated across two of them. One
+   cell now states both ("iPhone 17 Pro Max · 440 × 956") and the menu is
+   where the alternatives live.
+
+   The menu is the exception U13 allows: it floats over content it does not
+   own, so it carries its own hairline and fill. It still has no radius and
+   no shadow, and it is exactly the trigger's width — it reads as the cell
+   extending upward rather than as a panel arriving from somewhere. */
+
+.tb-select {
+  position: relative;
   display: flex;
-  align-items: stretch;
   flex: none;
 }
-.tb-readout {
-  color: var(--n5);
-  /* every size is three digits by three digits, so tabular figures keep the
-     bar from twitching on switch */
+
+.tb-trigger {
+  /* the digits are three-by-three in every entry, so tabular figures hold
+     the size half steady */
   font-variant-numeric: tabular-nums;
 }
-.tb-seg {
-  padding: 0 14px;
-  cursor: pointer;
+
+/* Tabular figures only fix the digits. The model name still varies — 
+   "iPhone 17" to "iPhone 17 Pro Max" swung this cell 55px and shoved the
+   Figma cell along with it. So the label is a one-cell grid holding both the
+   real text and an invisible copy of the LONGEST possible label, and the
+   longest one sets the width. shell.js fills the sizer from DEVICES, so it
+   cannot go stale when a device is added. */
+.tb-label { display: grid; }
+.tb-label > * { grid-area: 1 / 1; }
+.tb-sizer { visibility: hidden; }
+.tb-trigger[aria-expanded='true'] { background: var(--br03); color: var(--n9); }
+.tb-caret {
+  flex: none;
+  opacity: 0.5;
+  font-size: 9px;
+  transition: transform 0.15s ease;
 }
-.tb-seg:hover { background: var(--br03); color: var(--n9); }
-.tb-seg:focus-visible { outline: 2px solid var(--m1); outline-offset: -2px; }
-.tb-seg[aria-checked='true'] {
-  background: var(--l07);
-  color: var(--n9);
+.tb-trigger[aria-expanded='true'] .tb-caret { transform: rotate(180deg); }
+
+.tb-menu {
+  position: absolute;
+  right: 0;
+  bottom: 100%;
+  left: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  border: 0.5px solid var(--l12);
+  border-bottom: 0;
+  background: #fff;
 }
 
-/* Below roughly 1080px the readout is the first thing to go — the selected
-   cell already answers "which device", and the exact point size is the
-   affordable loss. */
-@media (max-width: 1079px) {
-  .tb-readout { display: none; }
+.tb-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 16px;
+  height: 40px;
+  border: 0;
+  border-bottom: 0.5px solid var(--l07);
+  border-radius: 0;
+  background: none;
+  color: var(--n7);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
 }
+.tb-option:last-child { border-bottom: 0; }
+.tb-option:hover { background: var(--br03); color: var(--n9); }
+.tb-option:focus-visible { outline: 2px solid var(--m1); outline-offset: -2px; }
+.tb-option[aria-selected='true'] { background: var(--l07); color: var(--n9); }
+.tb-option .opt-size {
+  color: var(--n5);
+  font-variant-numeric: tabular-nums;
+}
+.tb-option[aria-selected='true'] .opt-size { color: var(--n7); }
 
 /* ─────────────────────────────────────────────
    Two-view layout — list ⇄ prototype
@@ -440,9 +496,8 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
     max-width: 620px;
     margin: 0 auto;
   }
-  .sb-head { padding: 0 20px 24px; margin-bottom: 0; }
-  .sb-head h1 { font-size: 28px; line-height: 38px; }
-  .sb-sub { font-size: 14px; line-height: 22px; max-width: 42ch; }
+  .sb-head { padding: 0 20px 24px; }
+  .sb-head h1 { font-size: 18px; line-height: 26px; }
 
   .proto-list { gap: 0; }
 

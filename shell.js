@@ -174,7 +174,7 @@
   const figmaPill = document.getElementById('figmaPill');
   const figmaPillText = document.getElementById('figmaPillText');
 
-  const BASE_TITLE = 'Alva · Prototypes';
+  const BASE_TITLE = 'Alva · Mobile prototypes';
   let mounted = null;        // slug currently in the iframe
   let focusOnMount = false;
 
@@ -225,8 +225,11 @@
      ────────────────────────────── */
 
   const groupEl = document.getElementById('deviceGroup');
-  const readoutEl = document.getElementById('deviceReadout');
-  const segs = new Map();   /* one toolbar cell per device */
+  const triggerEl = document.getElementById('deviceTrigger');
+  const labelEl = document.getElementById('deviceLabel');
+  const sizerEl = document.getElementById('deviceSizer');
+  const menuEl = document.getElementById('deviceMenu');
+  const options = new Map();   /* one menu option per device */
 
   let device = readStoredDevice();
 
@@ -271,15 +274,9 @@
     root.style.setProperty('--screen-w', d.w + 'px');
     root.style.setProperty('--screen-h', d.h + 'px');
 
-    readoutEl.textContent = `${d.w} × ${d.h} pt`;
+    labelEl.textContent = label(d);
 
-    segs.forEach((btn, id) => {
-      const on = id === d.id;
-      btn.setAttribute('aria-checked', String(on));
-      /* one stop for the whole group, as a radiogroup owes: Tab reaches
-         the current device, arrows move between them */
-      btn.tabIndex = on ? 0 : -1;
-    });
+    options.forEach((btn, id) => btn.setAttribute('aria-selected', String(id === d.id)));
 
     const frame = screenEl.firstElementChild;
     if (frame) pushMetrics(frame);
@@ -293,33 +290,73 @@
     try { localStorage.setItem(DEVICE_KEY, d.id); } catch (e) {}
   }
 
+  /* The widest label the trigger will ever hold, so its width is a constant */
+  const label = d => `${d.name} · ${d.w} × ${d.h}`;
+  sizerEl.textContent = DEVICES.map(label).reduce((a, b) => b.length > a.length ? b : a, '');
+
   DEVICES.forEach(d => {
     const btn = document.createElement('button');
     btn.type = 'button';
-    btn.className = 'tb-seg';
-    btn.setAttribute('role', 'radio');
-    btn.setAttribute('aria-checked', 'false');
-    /* the visible label is short enough to fit the bar; the spoken and
-       hovered ones are the whole device */
-    btn.setAttribute('aria-label', d.name);
-    btn.title = `${d.name} · ${d.w} × ${d.h} pt`;
-    btn.textContent = d.short;
-    btn.addEventListener('click', () => selectDevice(d));
-    segs.set(d.id, btn);
-    groupEl.appendChild(btn);
+    btn.className = 'tb-option';
+    btn.setAttribute('role', 'option');
+    btn.setAttribute('aria-selected', 'false');
+    /* model and size are the two things you are choosing between, so both
+       are in the option rather than split across two controls */
+    btn.innerHTML = '<span></span><span class="opt-size"></span>';
+    btn.firstChild.textContent = d.name;
+    btn.lastChild.textContent = `${d.w} × ${d.h}`;
+    btn.addEventListener('click', () => { selectDevice(d); closeMenu(true); });
+    options.set(d.id, btn);
+    menuEl.appendChild(btn);
   });
 
-  groupEl.addEventListener('keydown', e => {
-    const i = DEVICES.findIndex(d => d.id === device.id);
+  /* ── the menu ──
+     Focus moves into the menu while it is open and returns to the trigger on
+     close, so the keyboard never lands somewhere with nothing to do. */
+
+  function menuOpen() { return triggerEl.getAttribute('aria-expanded') === 'true'; }
+
+  function openMenu() {
+    if (menuOpen()) return;
+    triggerEl.setAttribute('aria-expanded', 'true');
+    menuEl.hidden = false;
+    (options.get(device.id) || menuEl.firstElementChild).focus();
+  }
+
+  function closeMenu(refocus) {
+    if (!menuOpen()) return;
+    triggerEl.setAttribute('aria-expanded', 'false');
+    menuEl.hidden = true;
+    if (refocus) triggerEl.focus();
+  }
+
+  triggerEl.addEventListener('click', () => menuOpen() ? closeMenu(true) : openMenu());
+
+  triggerEl.addEventListener('keydown', e => {
+    if (e.key === 'ArrowUp' || e.key === 'ArrowDown') { e.preventDefault(); openMenu(); }
+  });
+
+  menuEl.addEventListener('keydown', e => {
+    const items = [...options.values()];
+    const i = items.indexOf(document.activeElement);
+    if (e.key === 'Escape') { e.preventDefault(); closeMenu(true); return; }
     let next = null;
-    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = DEVICES[(i + 1) % DEVICES.length];
-    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') next = DEVICES[(i - 1 + DEVICES.length) % DEVICES.length];
-    else if (e.key === 'Home') next = DEVICES[0];
-    else if (e.key === 'End') next = DEVICES[DEVICES.length - 1];
+    if (e.key === 'ArrowDown') next = items[(i + 1) % items.length];
+    else if (e.key === 'ArrowUp') next = items[(i - 1 + items.length) % items.length];
+    else if (e.key === 'Home') next = items[0];
+    else if (e.key === 'End') next = items[items.length - 1];
     if (!next) return;
     e.preventDefault();
-    selectDevice(next);
-    segs.get(next.id).focus();
+    next.focus();
+  });
+
+  /* A click anywhere else closes it, and so does focus leaving the group —
+     the latter is what makes Tab out of the menu behave. */
+  document.addEventListener('pointerdown', e => {
+    if (menuOpen() && !groupEl.contains(e.target)) closeMenu(false);
+  });
+  groupEl.addEventListener('focusout', () => {
+    setTimeout(() => { if (menuOpen() && !groupEl.contains(document.activeElement)) closeMenu(false); }, 0);
   });
 
   /* ──────────────────────────────
