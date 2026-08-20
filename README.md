@@ -123,13 +123,28 @@ Figma: [完整档 430×932](https://www.figma.com/design/DJ9Acp13FruTilsTdrE0id/
 · [临界前 393×762](https://www.figma.com/design/DJ9Acp13FruTilsTdrE0id/Draft?node-id=14207-213106)
 · [低于临界 393×660](https://www.figma.com/design/DJ9Acp13FruTilsTdrE0id/Draft?node-id=14207-212889)
 
-Three properties carry it, and each one is load-bearing:
+Four properties carry it, and each one is load-bearing:
 
 ```css
 .intro-stage { flex: 1 1 auto; min-height: calc(var(--status-h) + 16px); overflow: hidden; }
-.intro-gap   { flex: 1 0 0;    min-height: calc(var(--status-h) + 16px); }
+.intro-safe  { flex: 1 0 0;    min-height: var(--status-h); }  /* the bar's own space */
+.intro-gap   { flex: none;     height: 16px; }                 /* clear of the chrome */
 .record-card { flex: none;     height: 380px; }
 ```
+
+**Two blocks above the card, because they are two different things.**
+`.intro-safe` is the status bar's own space and its minimum *is* the bar's
+height; `.intro-gap` is the 16 that keeps the card clear of the chrome rather
+than flush against it. The safe block is also the one that grows, so on a
+tall screen the surplus opens up there.
+
+That minimum is measured, not assumed. This is a full-screen app: the bar
+does not push content down, it sits on top of it (`position: absolute;
+top: 0; z-index: 20`), so whatever the layout does not reserve, the bar
+covers. Force `.intro-safe`'s minimum to 0 and the card's top edge goes under
+the clock on any device shorter than about 826 — at 393 × 812, a 13 mini, by
+**14px**; at 780 by 46; at 764 and below by the full 62. It only looks safe
+on the tall devices because their surplus already exceeds 62.
 
 - **`flex: 1 1 auto` on the stage, not `1 0 auto`.** Shrink has to be on, or
   the stage never goes below its own content height, the crop tier never
@@ -160,12 +175,6 @@ after "what", and both Figma frames reproduce only if the text is allowed to
 wrap. It has to stay two lines at every width, though — the Hero's 270 is what
 the stage's elasticity is measured against, so a third line would move every
 threshold.
-
-**Open, for Robert:** between roughly 780 and 842 the gap is smaller than the
-status bar, so the OS chrome overlaps the card's top edge — at 393 × 812 (a
-13 mini) by 11px. None of the three demo frames draws a status bar, so the
-design does not say what should happen there. No current switcher device is in
-that band; a mini or an SE is.
 
 ## How the single page holds together
 
