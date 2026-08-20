@@ -207,8 +207,25 @@ rule that drives the rest — **the cell IS the control.**
 
 So, if you add chrome here:
 
-- **Surfaces are flat.** `#fff` for the sidebar, `var(--br03)` (which lands on
-  `#f7f7f7`) for the stage. No gradient, no blur, no translucency.
+- **There is one ground, not several surfaces.** `--ground: #f7f7f7` on the
+  body, and the sidebar, stage and toolbar set no background at all — they
+  are one surface with hairlines drawn on it. No gradient, no blur, no
+  translucency.
+- **The ground is not white, deliberately.** The phone's screen is the only
+  white thing on the page; that is what makes it read as the object rather
+  than as another panel.
+- **Exactly one background differs from the ground: the selected list row**
+  (`--l07`, landing on `#e6e6e6`). Nothing else fills — not hover, not an
+  open dropdown trigger, not a hovered toolbar cell. A second fill appearing
+  under the cursor competes with the one that means something, and reads as
+  selection wherever the pointer happens to be. Hover on a row underlines its
+  title instead; the rows are links, so that is the honest affordance and it
+  costs no colour.
+- **`--ground` is flat, not a token over white.** It is `background/b0` with
+  `content/br03` composited, written once as a value, because the dropdown
+  menu has to be opaque — an overlay cannot be translucent or the toolbar
+  reads through it — and deriving the page and the overlay from two different
+  expressions of the same colour is how they drift apart.
 - **Hairlines separate things**, not gaps plus borders plus shadows plus radii.
   `var(--l07)` inside a region, `var(--l12)` between regions.
 - **State is carried by fill and text contrast**, not by added chrome. An

@@ -64,13 +64,21 @@
   --phone-w: calc(var(--screen-w) + 2 * var(--bezel));
   --phone-h: calc(var(--screen-h) + 2 * var(--bezel));
 
-  /* Flat surfaces. The page used to carry five gradients — two teal radials
-     on the stage, one on the sidebar, and two vertical washes — which put
-     atmosphere everywhere and so left the phone nothing to stand out
-     against. The only depth on the page now is the mockup's own shadow, and
-     separation is hairlines. This is a token over white, not a new colour:
-     br03 lands on #f7f7f7. */
-  --stage-bg: var(--br03);
+  /* ONE ground for the whole page — sidebar, stage and toolbar alike. They
+     are not separate surfaces that happen to be the same colour; they are
+     one surface with hairlines drawn on it, which is why none of them sets a
+     background of its own.
+
+     This is the design system's `background/b0` with `content/br03` over it,
+     flattened. It has to be flat rather than the token layered on white,
+     because the one thing that cannot be translucent is the dropdown — an
+     overlay has to be opaque or the toolbar reads through it — and having
+     the overlay and the page derive from two different expressions of the
+     same colour is how they drift apart. So: one value, named once.
+
+     Not white, deliberately. The phone's screen is the only white surface on
+     the page, and that is what makes it read as the object. */
+  --ground: #f7f7f7;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -81,7 +89,7 @@ body {
   font-family: 'Delight', -apple-system, 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
   letter-spacing: 0.01em;
   color: var(--n9);
-  background: #fff;
+  background: var(--ground);
   overflow: hidden;
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
@@ -109,8 +117,8 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 .sidebar {
   position: relative;
   overflow: hidden;
+  /* the hairline is the only thing separating it from the stage */
   border-right: 0.5px solid var(--l12);
-  background: #fff;
 }
 .sidebar-scroll {
   height: 100%;
@@ -180,23 +188,28 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   transition: background 0.15s ease, color 0.15s ease;
 }
 
-/* An unselected row sits back a step and brightens on hover, so the state is
-   carried by text contrast rather than by a surface appearing under the
-   cursor. */
-.proto-item .pi-title { color: var(--n7); }
-.proto-item .pi-sub { color: var(--n5); }
+/* One text ladder, the same in both states: 15/Medium, 13, 11. Hierarchy
+   inside the row is size and weight; STATE is the fill and nothing else.
+   Dimming an unselected row to n5 read as hierarchy but measured 3.9:1 on
+   this ground — under AA on the two smallest lines, which are the ones that
+   can least afford it. */
+.proto-item .pi-title { color: var(--n9); }
+.proto-item .pi-sub { color: var(--n7); }
 
-.proto-item:hover { background: var(--br03); }
-.proto-item:hover .pi-title { color: var(--n9); }
+/* Hover underlines the title. The selected row is the one fill on this page,
+   so a second fill appearing under the cursor would compete with it — and
+   read as selection wherever the pointer happened to be. These rows are
+   links, so an underline is both the honest affordance and free of colour. */
+.proto-item:hover .pi-title { text-decoration: underline; text-underline-offset: 2px; }
 .proto-item:focus-visible { outline: 2px solid var(--m1); outline-offset: -2px; }
 
-/* Selected: the cell fills, one step darker than hover. No edge marker and
-   no rule — those were extra chrome for something a fill already says. */
+/* The only background on the page that differs from the ground. l07 over the
+   ground lands on #e6e6e6 — clearly a step down from #f7f7f7 without needing
+   a border, a rule or a shadow to help it, and it is the whole of the
+   selected state. */
 .proto-item[aria-current='true'] {
   background: var(--l07);
 }
-.proto-item[aria-current='true'] .pi-title { color: var(--n9); }
-.proto-item[aria-current='true'] .pi-sub { color: var(--n7); }
 
 /* spans inside an <a> must be blockified to stack */
 .pi-body { display: block; flex: 1; min-width: 0; }
@@ -220,7 +233,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   margin-top: 7px;
   font-size: 11px;
   line-height: 16px;
-  color: var(--n5);
+  color: var(--n7);
 }
 .pi-meta .dot { color: var(--n3); padding: 0 5px; }
 
@@ -234,7 +247,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   border-top: 0.5px solid var(--l07);
   font-size: 11px;
   line-height: 18px;
-  color: var(--n5);
+  color: var(--n7);
 }
 
 /* ─────────────────────────────────────────────
@@ -247,7 +260,6 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background: var(--stage-bg);
   /* The bottom band belongs to the stage chrome. Reserving it — rather than
      letting the phone centre on the whole stage — is what keeps a pill from
      ever landing on top of the phone in a short or narrow window.
@@ -322,7 +334,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   display: grid;
   place-items: center;
   font-size: 13px;
-  color: var(--n5);
+  color: var(--n7);
 }
 
 /* ── Stage chrome: one toolbar of cells ──
@@ -345,8 +357,8 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   display: flex;
   align-items: stretch;
   height: var(--chrome-h);
+  /* same ground as everything else; the hairline is the separation */
   border-top: 0.5px solid var(--l12);
-  background: #fff;
 }
 
 .tb-cell {
@@ -384,7 +396,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   text-overflow: ellipsis;
 }
 
-.tb-cell:hover { background: var(--br03); color: var(--n9); }
+.tb-cell:hover { color: var(--n9); }
 .tb-cell:focus-visible { outline: 2px solid var(--m1); outline-offset: -2px; }
 .tb-ico { flex: none; opacity: 0.5; text-transform: none; }
 
@@ -421,7 +433,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 .tb-label { display: grid; }
 .tb-label > * { grid-area: 1 / 1; }
 .tb-sizer { visibility: hidden; }
-.tb-trigger[aria-expanded='true'] { background: var(--br03); color: var(--n9); }
+.tb-trigger[aria-expanded='true'] { color: var(--n9); }
 .tb-caret {
   flex: none;
   opacity: 0.5;
@@ -440,7 +452,8 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   flex-direction: column;
   border: 0.5px solid var(--l12);
   border-bottom: 0;
-  background: #fff;
+  /* opaque, or the toolbar reads through it */
+  background: var(--ground);
 }
 
 .tb-option {
@@ -463,14 +476,15 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   transition: background 0.15s ease, color 0.15s ease;
 }
 .tb-option:last-child { border-bottom: 0; }
-.tb-option:hover { background: var(--br03); color: var(--n9); }
+.tb-option:hover { color: var(--n9); }
 .tb-option:focus-visible { outline: 2px solid var(--m1); outline-offset: -2px; }
 .tb-option[aria-selected='true'] { background: var(--l07); color: var(--n9); }
 .tb-option .opt-size {
-  color: var(--n5);
+  /* subordinate by being right-aligned across a gap, not by being fainter —
+     n5 measures 3.9:1 on this ground */
+  color: var(--n7);
   font-variant-numeric: tabular-nums;
 }
-.tb-option[aria-selected='true'] .opt-size { color: var(--n7); }
 
 /* ─────────────────────────────────────────────
    Two-view layout — list ⇄ prototype
@@ -489,7 +503,6 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 
   .sidebar {
     border-right: 0;
-    background: #fff;
   }
   .sidebar-scroll {
     padding: 56px 0 calc(48px + env(safe-area-inset-bottom));
@@ -561,7 +574,6 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
    a phone UI stretched to 800px reads as broken, so the screen keeps its
    own width and the stage shows through around it. */
 @media (min-width: 560px) and (max-width: 899px) {
-  .stage { background: var(--stage-bg); }
   .phone { width: var(--screen-w); margin: 0 auto; }
 }
 
