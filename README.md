@@ -254,11 +254,22 @@ fill measured **3.7:1** — under AA. It is `var(--n7)` now, at 8.5:1.
 
 ## Collapsing the list
 
-**The mark is the control.** Clicking the Alva wordmark collapses the list;
-clicking it again brings it back. There is no collapse glyph, because a
-hamburger, a chevron and a panel icon all have to mean "the list" and none of
-them says it — whereas the thing you click to get the list back is obviously
-the thing still on screen once the list is gone.
+**One control per state, and it is the one that state needs.** The two
+states need different things, so they get different controls:
+
+| State | Control | Why |
+| --- | --- | --- |
+| Expanded | `«` at the header's far end | The affordance has to be **discoverable**. Nobody guesses that a wordmark collapses a list. |
+| Collapsed | the wordmark itself | The list is gone and the mark is all that is left, so clicking it is the obvious way back. A glyph beside it would be decoration. |
+
+The inert one is `disabled`, not `pointer-events: none`, so it also leaves
+the tab order — there is exactly one tab stop in the header in either state,
+rather than a focus stop that appears to do nothing.
+
+`«` is a text glyph rather than an asset because this shell already speaks
+that way: the Figma cell ends in `↗` and the device cell in `▾`. There is no
+clean chevron in `assets/` — they are all 45° corner arrows — and drawing one
+is exactly what the icon rule forbids.
 
 Collapsed, the column is **zero**, not a rail. A rail is still a column: it
 would push the phone off-centre by its own width in exchange for showing

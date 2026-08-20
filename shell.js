@@ -372,20 +372,35 @@
      ────────────────────────────── */
 
   const SIDEBAR_KEY = 'alva.prototypes.sidebar';
-  const toggleEl = document.getElementById('sidebarToggle');
+  const brandEl = document.getElementById('brandToggle');
+  const collapseEl = document.getElementById('collapseToggle');
+
+  /* One control per state, and it is the one that state needs.
+
+     Expanded, the affordance has to be DISCOVERABLE — nobody guesses that a
+     wordmark collapses a list — so there is an explicit control at the
+     header's far end. Collapsed, the list is gone and the mark is the only
+     thing left, so clicking it is the obvious way back and a second glyph
+     next to it would be decoration.
+
+     `disabled` rather than pointer-events, so the inert one also leaves the
+     tab order instead of being a focus stop that appears to do nothing. */
 
   function applySidebar(collapsed) {
     document.documentElement.dataset.sidebar = collapsed ? 'collapsed' : 'expanded';
-    toggleEl.setAttribute('aria-expanded', String(!collapsed));
-    toggleEl.setAttribute('aria-label', collapsed ? 'Expand the list' : 'Collapse the list');
+    brandEl.disabled = !collapsed;
+    collapseEl.hidden = collapsed;
+    collapseEl.setAttribute('aria-expanded', String(!collapsed));
     fit();
   }
 
-  toggleEl.addEventListener('click', () => {
-    const collapsed = document.documentElement.dataset.sidebar !== 'collapsed';
+  function setSidebar(collapsed) {
     applySidebar(collapsed);
     try { localStorage.setItem(SIDEBAR_KEY, collapsed ? '1' : '0'); } catch (e) {}
-  });
+  }
+
+  collapseEl.addEventListener('click', () => setSidebar(true));
+  brandEl.addEventListener('click', () => setSidebar(false));
 
   /* ──────────────────────────────
      Routing

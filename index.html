@@ -9,7 +9,7 @@
 <link rel="icon" href="assets/logo-portrait2.svg" type="image/svg+xml">
 <link rel="preload" href="assets/fonts/Delight-Regular.ttf" as="font" type="font/ttf" crossorigin>
 <link rel="preload" href="assets/fonts/Delight-Medium.ttf" as="font" type="font/ttf" crossorigin>
-<link rel="stylesheet" href="shell.css?v=21">
+<link rel="stylesheet" href="shell.css?v=22">
 </head>
 <body>
 
@@ -34,12 +34,14 @@
     <div class="sidebar-scroll">
 
       <header class="sb-head">
-        <button class="brand" id="sidebarToggle" aria-expanded="true"
-                aria-controls="sidebar" aria-label="Collapse the list">
+        <button class="brand" id="brandToggle" aria-controls="sidebar"
+                aria-label="Expand the list" disabled>
           <img src="assets/wordmark-symbol.svg" class="wm-symbol" alt="">
           <img src="assets/wordmark-text.svg" class="wm-text" alt="Alva">
         </button>
         <h1>Mobile prototypes</h1>
+        <button class="sb-collapse" id="collapseToggle" aria-expanded="true"
+                aria-controls="sidebar" aria-label="Collapse the list">«</button>
       </header>
 
       <nav class="proto-list" id="protoList" aria-label="Prototypes"></nav>
@@ -92,6 +94,6 @@
 
 </div>
 
-<script src="shell.js?v=21"></script>
+<script src="shell.js?v=22"></script>
 </body>
 </html>
