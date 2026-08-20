@@ -5,7 +5,7 @@ A single-page gallery of interactive design prototypes for Alva. One page, two l
 - **Desktop** — the list of prototypes on the left, the selected prototype running on the right, inside an iPhone mockup that scales to fit the window.
 - **Phone** — two views. The list, then the prototype full-screen with no mockup and no added chrome, because it is already running on a phone. The system back gesture returns to the list.
 
-### ▶︎ [Open the live prototypes](https://robertlee8888.github.io/alva-onboarding-demo/)
+### ▶︎ [Open the live prototypes](https://robertlee8888.github.io/m.baby/)
 
 ## Contents
 
